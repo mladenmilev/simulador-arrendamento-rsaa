@@ -45,7 +45,7 @@ export async function publicar() {
   console.log(`Simulador publicado (${destino}): ${Math.round(JSON.stringify(c).length / 1024)} KB`);
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   await publicar();
   await db.terminate();
 }
