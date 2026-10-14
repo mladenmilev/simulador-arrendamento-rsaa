@@ -11,3 +11,12 @@ firebase-debug.*.log*
 
 # Node
 node_modules/
+
+# Credenciais (nunca enviar para o git)
+service-account*.json
+*-firebase-adminsdk-*.json
+
+# Emuladores Firebase
+firestore-debug.log
+ui-debug.log
+auth-debug.log

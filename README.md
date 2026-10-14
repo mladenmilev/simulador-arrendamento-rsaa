@@ -1,24 +1,39 @@
 # Simulador de renda por quarto
 
-Simulador de renda por quarto em arrendamento acessível. Página estática (HTML/CSS/JS), sem backend.
+Simulador de renda por quarto em arrendamento acessível (RSAA). Acesso mediante identificação (Google ou nome + e-mail).
 
-## Estrutura
+## Como funciona
 
-- `public/index.html` – a aplicação
-- `firebase.json` – configuração do Firebase Hosting
+- `public/index.html` – página de entrada: apresenta o simulador e pede a identificação.
+- `public/simulador.html` – moldura do simulador. Não contém o simulador: lê-o do Firestore (`conteudo/simulador`), e as regras só o entregam a quem tem registo.
+- `src/simulador.html` – **o simulador em si** (é aqui que se fazem as alterações).
+- `firestore.rules` – regras de segurança (registos e acesso ao conteúdo).
+- `scripts/publicar-conteudo.mjs` – envia `src/simulador.html` para o Firestore.
 
-## Testar localmente
+Os registos ficam na coleção `registos` do Firestore (nome, e-mail, método, consentimento, data).
+
+## Desenvolvimento local (nada vai para a produção)
+
+Requisitos: Node.js e Java 21 (para os emuladores do Firebase).
 
 ```sh
 npm install      # só na primeira vez
-npm run dev      # abre http://localhost:3000 e recarrega ao gravar
+npm run dev
 ```
 
-## Publicar (Firebase Hosting, plano gratuito Spark)
+- http://localhost:3000 – a app, com recarregamento automático (também ao gravar `src/simulador.html`)
+- http://localhost:4000 – painel dos emuladores (registos de teste em Firestore, utilizadores em Authentication)
+
+O login e a base de dados são emulados: o "Entrar com Google" mostra uma conta fictícia e os dados de teste desaparecem ao parar.
+
+## Publicar
+
+Requer `service-account.json` (chave de serviço do Firebase, fora do git).
 
 ```sh
-npm install -g firebase-tools   # requer Node.js
-firebase login
-firebase use --add              # escolher o projeto Firebase
-firebase deploy --only hosting   # ou: npm run deploy
+npm run deploy   # publica o simulador no Firestore, as regras e o site
 ```
+
+## Consultar registos
+
+Consola do Firebase → Firestore Database → `registos`.

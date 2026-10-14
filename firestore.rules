@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function registado() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/registos/$(request.auth.uid));
+    }
+
+    // Um registo por utilizador (uid). Só o próprio o cria e lê; ninguém o altera nem apaga.
+    match /registos/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['nome', 'email', 'metodo', 'consentimento', 'criadoEm'])
+        && request.resource.data.nome is string
+        && request.resource.data.nome.size() > 0 && request.resource.data.nome.size() <= 100
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 200
+        && request.resource.data.email.matches('[^@ ]+@[^@ ]+[.][^@ ]+')
+        && request.resource.data.consentimento == true
+        && request.resource.data.criadoEm == request.time
+        && (
+          (request.resource.data.metodo == 'google'
+            && request.auth.token.firebase.sign_in_provider == 'google.com'
+            && request.resource.data.email == request.auth.token.email)
+          ||
+          (request.resource.data.metodo == 'formulario'
+            && request.auth.token.firebase.sign_in_provider == 'anonymous')
+        );
+    }
+
+    // Conteúdo do simulador: só para quem já se identificou. Escrito apenas pelo script de publicação (Admin SDK).
+    match /conteudo/{doc} {
+      allow read: if registado();
+    }
+  }
+}

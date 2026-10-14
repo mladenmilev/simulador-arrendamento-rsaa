@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simulador de renda por quarto – arrendamento acessível</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F6FA; --surface:#FFFFFF; --ink:#16202C; --muted:#526070;
+  --tile:#1D4F86; --tile-soft:#E2ECF7; --line:#CCD7E3;
+  --ok:#256B45; --ok-soft:#E1F1E7; --warn:#9A5B00; --warn-soft:#FBEFD9; --bad:#A3282F; --bad-soft:#F8E1E2;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1620; --surface:#18222E; --ink:#E6EDF5; --muted:#9AAABB;
+    --tile:#7FB0E6; --tile-soft:#1E3248; --line:#2C3A4A;
+    --ok:#7ED3A0; --ok-soft:#173326; --warn:#F2C26B; --warn-soft:#3A2C12; --bad:#F2959A; --bad-soft:#3D1D20;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1620; --surface:#18222E; --ink:#E6EDF5; --muted:#9AAABB;
+  --tile:#7FB0E6; --tile-soft:#1E3248; --line:#2C3A4A;
+  --ok:#7ED3A0; --ok-soft:#173326; --warn:#F2C26B; --warn-soft:#3A2C12; --bad:#F2959A; --bad-soft:#3D1D20;
+  color-scheme:dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3{font-family:"Fraunces",Georgia,"Times New Roman",serif;font-weight:700;line-height:1.15;margin:0}
+a{color:var(--tile)}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 60px}
+header.top{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;margin-bottom:28px}
+.tiles{width:72px;height:72px;display:grid;grid-template-columns:1fr 1fr;gap:3px}
+.tiles span{background:var(--tile);border-radius:3px;position:relative;overflow:hidden}
+.tiles span::after{content:"";position:absolute;inset:22%;border:2px solid var(--bg);border-radius:50%}
+.tiles span:nth-child(2)::after,.tiles span:nth-child(3)::after{border-radius:2px;transform:rotate(45deg)}
+h1{font-size:clamp(1.6rem,3.2vw,2.3rem)}
+.lede{margin:6px 0 0;color:var(--muted);max-width:68ch}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:24px;align-items:start}
+.tres{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;margin:16px 0;align-items:baseline}
+.tres dt{color:var(--muted);font-size:.92rem}
+.tres dd{margin:0;font-weight:600}
+.tbig{font-family:"Fraunces",Georgia,serif;font-size:2rem;font-weight:700;color:var(--tile)}
+.tstat{padding:12px 14px;border-radius:10px;margin-top:14px;font-weight:500}
+.tstat.ok{background:var(--ok-soft);color:var(--ok)}
+.tstat.bad{background:var(--bad-soft);color:var(--bad)}
+.tstat.warn{background:var(--warn-soft);color:var(--warn)}
+@media (max-width:860px){.grid{grid-template-columns:1fr}header.top{grid-template-columns:1fr}.tiles{width:52px;height:52px}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.panel h2{font-size:1.25rem;margin-bottom:14px}
+label{display:block;font-weight:600;font-size:.92rem;margin-bottom:4px}
+.hint{font-size:.82rem;color:var(--muted);margin-top:3px}
+select,input[type=number],input[type=text]{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid var(--tile);outline-offset:2px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{margin-bottom:14px}
+.checks label{display:flex;gap:8px;align-items:flex-start;font-weight:500}
+.checks input{margin-top:4px}
+.fillrow{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px}
+body[data-view="inq"] .only-sen{display:none!important}
+body:not([data-view="inq"]) .only-inq{display:none!important}
+.viewbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:-8px 0 24px}
+.viewbar .lbl{font-size:.9rem;color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--tile);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:transparent;color:var(--tile);font:inherit;font-weight:600;padding:8px 16px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--tile);color:var(--surface)}
+.fillrow select{width:auto}
+.rooms{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.room{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg)}
+.room-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.room-head strong{font-family:"Fraunces",Georgia,serif;font-size:1.05rem}
+.room .r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.room .flags{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px;font-size:.88rem}
+.room .flags label{display:flex;gap:6px;align-items:center;font-weight:500;margin:0}
+.btn{border:1px solid var(--tile);background:transparent;color:var(--tile);padding:8px 12px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--tile);color:var(--surface);padding:9px 22px}
+.btn.small{padding:4px 9px;font-size:.85rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.limit-big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:14px 16px;background:var(--tile-soft);border-radius:10px;margin-bottom:16px}
+.limit-big .v{font-family:"Fraunces",Georgia,serif;font-size:2rem;font-weight:700;color:var(--tile)}
+.limit-big .t{color:var(--muted);font-size:.92rem}
+.split{display:flex;height:34px;border-radius:8px;overflow:hidden;border:1px solid var(--line);margin:4px 0 18px}
+.split div{display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:600;color:#fff;background:var(--tile);border-right:2px solid var(--surface);white-space:nowrap;overflow:hidden}
+.split div.off{background:var(--line);color:var(--muted)}
+.split div:last-child{border-right:0}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.82rem}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:.78rem;font-weight:600}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.checklist{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:8px}
+.checklist li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:.92rem}
+.checklist .ic{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700}
+.ic.ok{background:var(--ok-soft);color:var(--ok)}.ic.bad{background:var(--bad-soft);color:var(--bad)}.ic.warn{background:var(--warn-soft);color:var(--warn)}
+.compare{margin-top:18px;padding-top:14px;border-top:1px dashed var(--line)}
+.compare .row2 div p{margin:2px 0;font-size:.92rem}
+.compare .big{font-family:"Fraunces",Georgia,serif;font-size:1.35rem;font-weight:700}
+.guides{margin-top:28px}
+.tabs{display:flex;gap:6px;border-bottom:2px solid var(--line);margin-bottom:0}
+.tabs button{border:0;background:none;font:inherit;font-weight:600;padding:10px 16px;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tabs button[aria-selected=true]{color:var(--tile);border-bottom-color:var(--tile)}
+.tabpanel{background:var(--surface);border:1px solid var(--line);border-top:0;border-radius:0 0 14px 14px;padding:22px}
+.tabpanel h3{font-size:1.1rem;margin:18px 0 8px}
+.tabpanel h3:first-child{margin-top:0}
+.tabpanel ol,.tabpanel ul{margin:0;padding-left:22px}
+.tabpanel li{margin-bottom:6px;max-width:75ch}
+.note{font-size:.85rem;color:var(--muted);margin-top:18px;max-width:80ch}
+.sources{font-size:.85rem;columns:2;column-gap:24px;padding-left:18px}
+@media (max-width:640px){.sources{columns:1}.room .r3{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    <div>
+      <h1>Simulador de renda por quarto</h1>
+      <p class="lede only-sen">Calcula a renda máxima de cada quarto no Regime Simplificado de Arrendamento Acessível (RSAA), que dá isenção total de IRS ao senhorio. Valores da Portaria n.º 454/2026/1, de 13 de outubro de 2026.</p>
+      <p class="lede only-inq">Indique as características do apartamento, escolha o seu quarto e veja a renda máxima permitida no arrendamento acessível (RSAA).</p>
+    </div>
+  </header>
+  <div class="viewbar">
+    <span class="lbl" id="vlbl">Vista</span>
+    <div class="seg" role="group" aria-labelledby="vlbl">
+      <button type="button" id="v-sen" aria-pressed="true">Senhorio</button>
+      <button type="button" id="v-inq" aria-pressed="false">Inquilino</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="h-dados">
+      <h2 id="h-dados">A casa</h2>
+      <div class="row2">
+        <div class="field">
+          <label for="concelho">Concelho</label>
+          <select id="concelho"></select>
+        </div>
+        <div class="field">
+          <label for="tip">Tipologia</label>
+          <select id="tip">
+            <option value="T1">T1</option><option value="T2">T2</option><option value="T3" selected>T3</option><option value="T4">T4</option><option value="T5">T5</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" id="customWrap" hidden>
+        <label for="customLimit">Limite da tipologia no seu concelho (€/mês)</label>
+        <input type="number" id="customLimit" min="0" step="1" placeholder="Ver anexo da portaria">
+        <p class="hint">Consulte o valor no <a href="https://diariodarepublica.pt/dr/detalhe/portaria/454-2026-1179722108" target="_blank" rel="noopener">anexo da portaria</a>.</p>
+      </div>
+      <div class="field checks">
+        <label><input type="checkbox" id="park"> Inclui estacionamento privativo (+10 %)</label>
+        <label><input type="checkbox" id="energy"> Certificado energético A ou superior (+10 %)</label>
+      </div>
+
+      <h2 style="margin-top:6px">Quartos</h2>
+      <p class="hint" style="margin-top:-8px;margin-bottom:8px"><span class="only-sen">O número de quartos segue a tipologia. Indique a área útil de todos, mesmo os que não arrenda.</span><span class="only-inq">Indique a área de cada quarto da casa (peça-a ao senhorio). É necessária para calcular a parte do seu quarto.</span></p>
+      <div class="fillrow">
+        <div class="only-sen">
+          <label for="round">Arredondar</label>
+          <select id="round">
+            <option value="1">Sem arredondamento</option>
+            <option value="5">Para baixo, múltiplo de 5 €</option>
+            <option value="10">Para baixo, múltiplo de 10 €</option>
+          </select>
+        </div>
+        <button type="button" class="btn primary" id="fillMax">Calcular</button>
+      </div>
+      <p class="hint only-sen" style="margin:-4px 0 8px">Calcula a renda máxima de cada quarto e preenche a renda proposta com esse valor, arredondado para baixo. Depois disso, a renda acompanha automaticamente qualquer alteração de áreas, concelho, tipologia ou majorações, até a editar à mão.</p>
+      <div class="rooms" id="rooms"></div>
+
+      <div class="only-sen">
+      <h2 style="margin-top:20px">Contrato</h2>
+      <div class="row2">
+        <div class="field">
+          <label for="fin">Finalidade</label>
+          <select id="fin">
+            <option value="temp">Residência temporária (estudante, professor deslocado)</option>
+            <option value="perm">Residência permanente</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="prazo">Prazo (meses)</label>
+          <input type="number" id="prazo" min="1" value="10">
+        </div>
+      </div>
+      <div class="field checks" id="fiscalWrap">
+        <label><input type="checkbox" id="fiscal" checked> Inquilino tem residência fiscal noutro concelho</label>
+      </div>
+      <div class="field checks">
+        <label><input type="checkbox" id="desp" checked> Despesas (água, luz, internet) pagas à parte</label>
+      </div>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-res" aria-live="polite">
+      <h2 id="h-res"><span class="only-sen">Resultado</span><span class="only-inq">O seu quarto</span></h2>
+      <div class="only-inq">
+        <div class="field">
+          <label for="tq">Escolha o quarto</label>
+          <select id="tq"></select>
+        </div>
+        <dl class="tres">
+          <dt>Localização</dt><dd id="tLoc">–</dd>
+          <dt>Área do quarto</dt><dd id="tA">–</dd>
+          <dt><label for="tp" style="font-weight:400;margin:0">Pessoas no quarto</label></dt><dd><select id="tp" style="width:auto"><option value="1">1</option><option value="2">2</option></select></dd>
+          <dt>Renda máxima permitida</dt><dd><span class="tbig" id="tM">–</span> <span class="hint" id="tPP"></span></dd>
+        </dl>
+        <div class="field">
+          <label for="tr">Renda pedida (€/mês)</label>
+          <input type="number" id="tr" min="0" step="1" inputmode="numeric">
+        </div>
+        <p class="tstat warn" id="tSt">Indique a renda pedida para verificar.</p>
+        <p class="hint">A renda máxima não inclui despesas (água, luz, internet), que são pagas à parte.</p>
+      </div>
+      <div class="only-sen">
+      <div class="limit-big"><span class="v" id="limitV">–</span><span class="t" id="limitT"></span></div>
+      <p class="hint" id="areaT" style="margin:-6px 0 10px"></p>
+      <div class="split" id="split" role="img" aria-label="Divisão do limite pelos quartos"></div>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Quarto</th><th class="num">Área p/ cálculo</th><th class="num">Renda máx.</th><th class="num">Por pessoa</th><th class="num"><span class="only-sen">Proposta</span><span class="only-inq">Renda pedida</span></th><th>Estado</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <ul class="checklist" id="checklist"></ul>
+      </div>
+
+      <div class="compare only-sen">
+        <h3 style="font-size:1.05rem;margin-bottom:8px">Comparar com o mercado (fora do RSAA)</h3>
+        <div class="row2">
+          <div class="field">
+            <label for="mkt">Renda de mercado por quarto (€)</label>
+            <input type="number" id="mkt" min="0" value="450">
+          </div>
+          <div class="field">
+            <label for="tax">Taxa de IRS sobre rendas (%)</label>
+            <input type="number" id="tax" min="0" max="60" step="0.5" value="25">
+            <p class="hint">Confirme a taxa aplicável com um contabilista.</p>
+          </div>
+        </div>
+        <div class="row2">
+          <div><p>RSAA, líquido por ano</p><p class="big" id="netR">–</p></div>
+          <div><p>Mercado, líquido por ano</p><p class="big" id="netM">–</p></div>
+        </div>
+        <p class="hint" id="cmpNote"></p>
+      </div>
+    </section>
+  </div>
+
+  <section class="guides" aria-labelledby="h-guias">
+    <h2 id="h-guias" style="font-size:1.5rem;margin-bottom:12px">Como cumprir as regras</h2>
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" aria-controls="t-sen" id="b-sen" class="only-sen">Para o senhorio</button>
+      <button role="tab" aria-selected="false" aria-controls="t-inq" id="b-inq">Para quem aluga</button>
+    </div>
+    <div class="tabpanel" role="tabpanel" id="t-sen" aria-labelledby="b-sen">
+      <h3>Antes de anunciar</h3>
+      <ul>
+        <li>Meça a área útil de cada quarto e guarde a planta ou a medição.</li>
+        <li>Cada quarto precisa de pelo menos 6 m², luz natural e ventilação; a casa precisa de cozinha e casa de banho.</li>
+        <li>Na residência temporária, cada inquilino tem de ter acesso à entrada, a uma casa de banho completa (com duche) e à cozinha, e o quarto tem de ter janela para o exterior.</li>
+      </ul>
+      <h3>O contrato</h3>
+      <ol>
+        <li>Um contrato por quarto, com renda igual ou inferior ao limite calculado acima.</li>
+        <li>Prazo mínimo: 3 meses (renovável) para residência temporária; 3 anos para residência permanente.</li>
+        <li>Residência temporária só se o inquilino tiver residência fiscal noutro concelho. Peça comprovativo.</li>
+        <li>Pode ter duas pessoas no mesmo quarto: a lei exige no mínimo uma. As duas constam do contrato e a renda máxima do quarto não aumenta.</li>
+        <li>Escreva que a renda não inclui despesas e como são divididas. O limite do RSAA não inclui as despesas do artigo 1078.º do Código Civil.</li>
+        <li>Anexe um regulamento da casa: limpeza, silêncio, visitas, fumar, animais.</li>
+      </ol>
+      <h3>Depois de assinar</h3>
+      <ol>
+        <li>Comunique o contrato no Portal das Finanças e pague o imposto do selo.</li>
+        <li>Emita recibo de renda eletrónico todos os meses.</li>
+        <li>Até 15 de janeiro do ano seguinte, submeta na plataforma do IHRU a cópia do contrato e o comprovativo das Finanças.</li>
+        <li>Declare as rendas no Anexo F do IRS; a isenção é aplicada depois de o IHRU comunicar a adesão à AT.</li>
+      </ol>
+      <h3>O que faz perder a isenção</h3>
+      <ul>
+        <li>Cobrar acima do limite ou encurtar o prazo mínimo.</li>
+        <li>Nesse caso, tem de declarar o incumprimento e pagar a diferença de imposto com juros compensatórios.</li>
+      </ul>
+    </div>
+    <div class="tabpanel" role="tabpanel" id="t-inq" aria-labelledby="b-inq" hidden>
+      <h3>Antes de assinar</h3>
+      <ul>
+        <li>Confirme no simulador que a renda do seu quarto não passa do limite do RSAA.</li>
+        <li>Verifique que o contrato indica o quarto, a área, a renda, o prazo e as zonas partilhadas.</li>
+        <li>Para contrato temporário, precisa de ter residência fiscal noutro concelho. Tenha o comprovativo pronto.</li>
+        <li>Se partilhar o quarto, as duas pessoas devem constar do contrato.</li>
+      </ul>
+      <h3>Despesas</h3>
+      <ul>
+        <li>Água, luz e gás: em regra divididos em partes iguais por pessoa.</li>
+        <li>Internet e TV: opcionais, pagas só por quem as subscreve. Combine por escrito com os outros moradores.</li>
+        <li>Guarde as faturas e os pagamentos numa folha ou app partilhada.</li>
+      </ul>
+      <h3>Os seus direitos</h3>
+      <ul>
+        <li>Recibo de renda eletrónico todos os meses.</li>
+        <li>O contrato tem de estar comunicado às Finanças.</li>
+        <li>Como estudante deslocado, pode deduzir a renda no IRS (seu ou dos pais) se houver recibos.</li>
+      </ul>
+      <h3>As suas obrigações</h3>
+      <ul>
+        <li>Pagar a renda e a sua parte das despesas no prazo combinado.</li>
+        <li>Cumprir o regulamento da casa e cuidar das zonas comuns.</li>
+        <li>Avisar o senhorio de avarias e danos.</li>
+      </ul>
+    </div>
+    <p class="note">Pressupostos: a majoração de 25 % por casa de banho privativa é aplicada só à área do próprio quarto; a forma exata de cálculo será confirmada pela ferramenta do IHRU. Este simulador não substitui um contabilista ou advogado.</p>
+    <h3 style="font-size:1.05rem;margin:18px 0 8px">Fontes</h3>
+    <ul class="sources">
+      <li><a href="https://diariodarepublica.pt/dr/detalhe/portaria/454-2026-1179722108" target="_blank" rel="noopener">Portaria n.º 454/2026/1</a></li>
+      <li><a href="https://executivedigest.sapo.pt/arrendamento-acessivel-veja-as-rendas-maximas-para-cada-tipologia-nos-concelhos-portugueses/" target="_blank" rel="noopener">Executive Digest – limites por concelho</a></li>
+      <li><a href="https://www.doutorfinancas.pt/literacia-financeira/arrendamento-acessivel-como-funciona-o-novo-regime/" target="_blank" rel="noopener">Doutor Finanças – RSAA</a></li>
+      <li><a href="https://www.abanca.pt/pt/radar/programa-arrendamento-acessivel-rsaa/" target="_blank" rel="noopener">ABANCA – PAA e RSAA</a></li>
+      <li><a href="https://www.santander.pt/salto/arrendamento-acessivel" target="_blank" rel="noopener">Santander – requisitos</a></li>
+      <li><a href="https://www.millenniumbcp.pt/afinal-contas/regime-simplificado-arrendamento-acessivel" target="_blank" rel="noopener">Millennium bcp – partes de habitação</a></li>
+      <li><a href="https://aciab.pt/regime-simplificado-de-arrendamento-acessivel-2026-regras-rendas-e-beneficios-fiscais/" target="_blank" rel="noopener">ACIAB – despesas e limite</a></li>
+      <li><a href="https://www.portaldahabitacao.pt/documents/20126/35894/FAQs+PAA2020.pdf/918f47b9-a5fa-edc2-8f11-6b8b47b0a77b?t=1579726008289" target="_blank" rel="noopener">IHRU – ocupação mínima</a></li>
+    </ul>
+  </section>
+</div>
+
+<script>
+const LIMITS = {
+  "Almada":[784,1021,1257,1375,1612],"Amadora":[759,988,1217,1331,1560],"Aveiro":[549,714,880,963,1128],
+  "Braga":[531,671,802,895,1028],"Bragança":[308,392,475,531,587],"Cascais":[964,1254,1544,1690,1980],
+  "Coimbra":[546,711,875,957,1122],"Évora":[531,671,800,895,1026],"Faro":[572,745,917,1004,1176],
+  "Funchal":[794,1034,1273,1393,1632],"Fundão":[308,392,475,531,587],"Gondomar":[531,671,826,903,1058],
+  "Guimarães":[392,505,622,681,798],"Leiria":[458,596,734,803,941],"Lisboa":[1006,1309,1612,1763,2066],
+  "Loures":[689,896,1104,1207,1415],"Maia":[567,738,909,994,1165],"Matosinhos":[712,927,1142,1249,1464],
+  "Odivelas":[745,969,1193,1306,1530],"Oeiras":[901,1172,1443,1579,1850],"Ponta Delgada":[463,603,742,812,952],
+  "Portalegre":[308,392,475,531,587],"Portimão":[679,883,1088,1190,1394],"Porto":[866,1118,1341,1510,1715],
+  "Santarém":[425,553,680,744,872],"Seixal":[671,866,1052,1151,1349],"Setúbal":[649,844,1040,1138,1333],
+  "Sintra":[671,866,1056,1155,1354],"Vila Franca de Xira":[629,819,1008,1103,1292],"Vila Nova de Gaia":[629,819,1008,1103,1292],
+  "Viseu":[392,511,629,688,806]
+};
+const TIPS=["T1","T2","T3","T4","T5"];
+const $=id=>document.getElementById(id);
+const eur=v=>isFinite(v)?v.toLocaleString("pt-PT",{maximumFractionDigits:0})+" €":"–";
+
+const sel=$("concelho");
+Object.keys(LIMITS).forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;if(c==="Odivelas")o.selected=true;sel.appendChild(o)});
+const oo=document.createElement("option");oo.value="__other";oo.textContent="Outro concelho (introduzir limite)";sel.appendChild(oo);
+
+let rooms=[{a:12,rent:true,wc:false,p:1,prop:0},{a:10,rent:true,wc:false,p:1,prop:0},{a:9,rent:true,wc:false,p:1,prop:0}];
+let calculated=false;
+
+function syncRooms(){
+  const n=TIPS.indexOf($("tip").value)+1;
+  while(rooms.length<n)rooms.push({a:9,rent:true,wc:false,p:1,prop:0});
+  rooms.length=n;
+  const box=$("rooms");box.innerHTML="";
+  rooms.forEach((r,i)=>{
+    const d=document.createElement("div");d.className="room";
+    d.innerHTML=`<div class="room-head"><strong>Quarto ${i+1}</strong></div>
+      <div class="r3">
+        <div><label for="a${i}">Área útil (m²)</label><input type="number" id="a${i}" min="0" step="1" inputmode="numeric" value="${r.a}"></div>
+        <div class="only-sen"><label for="p${i}">Pessoas</label><select id="p${i}"><option value="1"${r.p==1?" selected":""}>1</option><option value="2"${r.p==2?" selected":""}>2</option></select></div>
+        <div class="only-sen"><label for="r${i}"><span class="only-sen">Renda proposta (€)</span><span class="only-inq">Renda pedida (€)</span></label><input type="number" id="r${i}" min="0" value="${r.prop||""}"></div>
+      </div>
+      <div class="flags">
+        <label class="only-sen"><input type="checkbox" id="x${i}"${r.rent?" checked":""}> Arrendar este quarto</label>
+        <label><input type="checkbox" id="w${i}"${r.wc?" checked":""}> Casa de banho privativa</label>
+      </div>`;
+    box.appendChild(d);
+    const up=(k)=>{r.a=Math.round(parseFloat($("a"+i).value)||0);r.p=+$("p"+i).value;r.prop=parseFloat($("r"+i).value)||0;r.rent=$("x"+i).checked;r.wc=$("w"+i).checked;if(k==="r")r.auto=false;recalc()};
+    ["a","p","r","x","w"].forEach(k=>{$(k+i).addEventListener("input",()=>up(k));$(k+i).addEventListener("change",()=>up(k))});
+    $("a"+i).addEventListener("change",()=>{$("a"+i).value=r.a});
+  });
+}
+
+function baseLimit(){
+  const t=TIPS.indexOf($("tip").value);
+  if(sel.value==="__other")return parseFloat($("customLimit").value)||0;
+  return LIMITS[sel.value][t];
+}
+
+function calc(){
+  $("customWrap").hidden=sel.value!=="__other";
+  const fin=$("fin").value;
+  $("fiscalWrap").hidden=fin!=="temp";
+  if(!calculated){clearResults();return}
+  let L=baseLimit();
+  let maj=0;if($("park").checked)maj+=0.10;if($("energy").checked)maj+=0.10;
+  const Lm=L*(1+maj);
+  $("limitV").textContent=L?eur(Math.floor(Lm)):"–";
+  $("limitT").textContent=L?`limite da casa (${$("tip").value}, ${sel.value==="__other"?"concelho indicado":sel.value}${maj?`, +${Math.round(maj*100)} %`:""})`:"Introduza o limite do concelho";
+  const total=rooms.reduce((s,r)=>s+r.a,0);
+  const rentedA=rooms.filter(r=>r.rent).reduce((s,r)=>s+r.a,0);
+  $("areaT").textContent=`Área total dos quartos: ${total.toLocaleString("pt-PT",{maximumFractionDigits:0})} m² · área arrendada: ${rentedA.toLocaleString("pt-PT",{maximumFractionDigits:0})} m² · renda máxima por m²: ${total>0?(Lm/total).toLocaleString("pt-PT",{maximumFractionDigits:2})+" €":"–"}`;
+  const maxes=[];
+  const tb=$("tbody");tb.innerHTML="";const sp=$("split");sp.innerHTML="";
+  let sumRSAA=0,sumMkt=0,allOk=true,anyRent=false,tooSmall=false;
+  rooms.forEach((r,i)=>{
+    const calcA=r.wc?r.a*1.25:r.a;
+    const max=total>0?Math.floor(Lm*calcA/total):0;
+    const per=r.p===2?Math.floor(max/2):max;maxes[i]=max;
+    if(r.a<6)tooSmall=true;
+    let st;
+    if(!r.rent)st='<span class="pill warn">Não arrendado</span>';
+    else if(r.auto)st='<span class="pill ok">Máximo (automático)</span>';
+    else if(!r.prop)st='<span class="pill warn">Sem proposta</span>';
+    else if(r.prop<=max)st='<span class="pill ok">Dentro do limite</span>';
+    else{st=`<span class="pill bad">${eur(r.prop-max)} acima</span>`;allOk=false}
+    if(r.rent){anyRent=true;sumRSAA+=r.prop&&r.prop<=max?r.prop:max;sumMkt+=parseFloat($("mkt").value)||0}
+    tb.insertAdjacentHTML("beforeend",`<tr><td>Quarto ${i+1}${r.p===2?" (2 pessoas)":""}</td><td class="num">${calcA.toLocaleString("pt-PT",{maximumFractionDigits:0})} m²</td><td class="num"><strong>${eur(max)}</strong></td><td class="num">${r.p===2?eur(per):"–"}</td><td class="num">${r.prop?eur(r.prop):"–"}</td><td>${st}</td></tr>`);
+    const w=total>0?(r.a/total*100):0;
+    sp.insertAdjacentHTML("beforeend",`<div class="${r.rent?"":"off"}" style="flex:${w} 1 0" title="Quarto ${i+1}: ${eur(max)}">Q${i+1} · ${eur(max)}</div>`);
+  });
+  const prazo=parseFloat($("prazo").value)||0;
+  const items=[];
+  const add=(ok,t)=>items.push(`<li><span class="ic ${ok===true?"ok":ok===false?"bad":"warn"}">${ok===true?"✓":ok===false?"✕":"!"}</span><span>${t}</span></li>`);
+  add(allOk&&anyRent, allOk?"Rendas propostas dentro do limite de cada quarto.":"Há rendas acima do limite: baixe-as ou o contrato não terá isenção.");
+  if(fin==="temp"){
+    add(prazo>=3, prazo>=3?`Prazo de ${prazo} meses cumpre o mínimo de 3 meses.`:"Residência temporária exige pelo menos 3 meses.");
+    add($("fiscal").checked, $("fiscal").checked?"Inquilino com residência fiscal noutro concelho: pode ser contrato temporário.":"Sem residência fiscal noutro concelho, o contrato tem de ser de residência permanente (3 anos).");
+    add(null,"Cada inquilino precisa de acesso a uma casa de banho completa (com duche) e à cozinha; quarto com janela para o exterior.");
+  }else{
+    add(prazo>=36, prazo>=36?`Prazo de ${prazo} meses cumpre o mínimo de 3 anos.`:"Residência permanente exige pelo menos 36 meses.");
+  }
+  add(!tooSmall, tooSmall?"Há quartos com menos de 6 m²: não cumprem o requisito mínimo.":"Todos os quartos têm pelo menos 6 m².");
+  add($("desp").checked?true:null, $("desp").checked?"Despesas à parte: o limite do RSAA não as inclui. Escreva no contrato como são divididas.":"Se a renda incluir despesas, o total cobrado conta para o limite. Prefira despesas à parte.");
+  add(null,"Comunicar cada contrato às Finanças e submeter no IHRU até 15 de janeiro do ano seguinte.");
+  $("checklist").innerHTML=items.join("");
+  const tax=(parseFloat($("tax").value)||0)/100;
+  const netR=sumRSAA*12, netM=sumMkt*12*(1-tax);
+  $("netR").textContent=anyRent?eur(netR):"–";
+  $("netM").textContent=anyRent?eur(netM):"–";
+  $("cmpNote").textContent=anyRent?(netR>=netM?`O RSAA rende mais ${eur(netR-netM)} por ano, líquido de IRS.`:`O mercado rende mais ${eur(netM-netR)} por ano, já com IRS descontado.`)+" Não inclui despesas nem custos de manutenção.":"";
+  renderTenant(maxes);
+}
+function clearResults(){
+  $("limitV").textContent="–";
+  $("limitT").textContent="Preencha os dados da casa e clique em Calcular";
+  ["areaT","split","tbody","checklist","cmpNote"].forEach(id=>$(id).innerHTML="");
+  $("netR").textContent=$("netM").textContent="–";
+  ["tLoc","tA","tM"].forEach(id=>$(id).textContent="–");
+  $("tPP").textContent="";
+  $("tSt").className="tstat warn";$("tSt").textContent="Indique as áreas dos quartos e clique em Calcular.";
+}
+function renderTenant(maxes){
+  const s=$("tq");const prev=s.value;
+  const opts=rooms.map((r,i)=>r.rent?`<option value="${i}">Quarto ${i+1}</option>`:"").join("");
+  if(s.dataset.k!==opts){s.innerHTML=opts;s.dataset.k=opts}
+  if([...s.options].some(o=>o.value===prev))s.value=prev;
+  const i=parseInt(s.value,10);const r=rooms[i];
+  if(!r){$("tM").textContent="–";$("tA").textContent="–";$("tPP").textContent="";$("tSt").className="tstat warn";$("tSt").textContent="Não há quartos disponíveis.";return}
+  const max=maxes[i];
+  $("tLoc").textContent=sel.value==="__other"?"–":sel.value;
+  $("tA").textContent=r.a+" m²"+(r.wc?", com casa de banho privativa":"");
+  $("tp").value=r.p;
+  $("tM").textContent=eur(max);
+  $("tPP").textContent=r.p===2?`(${eur(Math.floor(max/2))} por pessoa)`:"";
+  if(document.activeElement!==$("tr"))$("tr").value=r.prop||"";
+  const st=$("tSt");
+  if(!r.prop){st.className="tstat warn";st.textContent="Indique a renda pedida para verificar."}
+  else if(r.prop<=max){st.className="tstat ok";st.textContent=`A renda pedida (${eur(r.prop)}) está dentro do limite.`}
+  else{st.className="tstat bad";st.textContent=`A renda pedida está ${eur(r.prop-max)} acima do limite. Com este valor, o contrato não pode ficar no arrendamento acessível.`}
+}
+$("tq").addEventListener("change",calc);
+$("tp").addEventListener("change",()=>{const i=parseInt($("tq").value,10);const r=rooms[i];if(!r)return;r.p=+$("tp").value;$("p"+i).value=r.p;recalc()});
+$("tr").addEventListener("input",()=>{const i=parseInt($("tq").value,10);const r=rooms[i];if(!r)return;r.prop=parseFloat($("tr").value)||0;r.auto=false;$("r"+i).value=r.prop||"";recalc()});
+
+["concelho","customLimit","park","energy","fin","prazo","fiscal","desp","mkt","tax","round"].forEach(id=>{$(id).addEventListener("input",recalc);$(id).addEventListener("change",recalc)});
+$("tip").addEventListener("change",()=>{const auto=rooms.some(r=>r.auto);syncRooms();if(auto)rooms.forEach(r=>{if(r.rent)r.auto=true});recalc()});
+
+document.querySelectorAll('[role=tab]').forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll('[role=tab]').forEach(x=>{x.setAttribute("aria-selected",x===b);$(x.getAttribute("aria-controls")).hidden=x!==b});
+}));
+
+function applyAuto(){
+  const L=baseLimit();
+  let maj=0;if($("park").checked)maj+=0.10;if($("energy").checked)maj+=0.10;
+  const Lm=L*(1+maj);
+  const total=rooms.reduce((s,r)=>s+r.a,0);
+  const step=+$("round").value;
+  rooms.forEach((r,i)=>{
+    if(!r.auto||!r.rent)return;
+    const calcA=r.wc?r.a*1.25:r.a;
+    let max=total>0?Math.floor(Lm*calcA/total):0;
+    if(step>1)max=Math.floor(max/step)*step;
+    r.prop=max;const inp=$("r"+i);if(inp)inp.value=max;
+  });
+}
+function recalc(){applyAuto();calc()}
+function fillMax(){
+  const first=!calculated;calculated=true;
+  if(document.body.dataset.view!=="inq")rooms.forEach(r=>{if(r.rent)r.auto=true});
+  recalc();
+  if(first&&matchMedia("(max-width:860px)").matches)$("h-res").scrollIntoView({behavior:"smooth"});
+}
+$("fillMax").addEventListener("click",fillMax);
+
+function setView(v){
+  document.body.dataset.view=v;
+  $("v-sen").setAttribute("aria-pressed",v==="sen");
+  $("v-inq").setAttribute("aria-pressed",v==="inq");
+  $(v==="inq"?"b-inq":"b-sen").click();
+  try{localStorage.setItem("vista",v)}catch(e){}
+}
+$("v-sen").addEventListener("click",()=>setView("sen"));
+$("v-inq").addEventListener("click",()=>setView("inq"));
+
+syncRooms();calc();
+(function(){
+  let v="sen";
+  const q=new URLSearchParams(location.search).get("vista");
+  if(q==="inquilino")v="inq";else if(q==="senhorio")v="sen";
+  else{try{v=localStorage.getItem("vista")||"sen"}catch(e){}}
+  setView(v);
+})();
+</script>
+</body>
+</html>

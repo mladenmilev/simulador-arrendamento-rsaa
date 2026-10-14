@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simulador de renda por quarto</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/tema.css">
+<style>
+.userbar{max-width:1120px;margin:0 auto;padding:12px 20px 0;display:flex;justify-content:flex-end;align-items:center;gap:10px;font-size:.85rem;color:var(--muted)}
+.userbar button{border:0;background:none;color:var(--tile);font:inherit;font-weight:600;cursor:pointer;padding:2px 4px;text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="userbar" id="userbar" hidden><span id="quem"></span><button type="button" id="sair">Sair</button></div>
+<div id="app"><p class="estado" id="estado">A carregar o simulador…</p></div>
+
+<script type="module">
+// O simulador não vem nesta página: é lido do Firestore, e as regras só o entregam a quem se identificou.
+import { auth, db } from "/js/firebase.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+const $ = id => document.getElementById(id);
+const voltar = () => location.replace("/");
+let carregado = false;
+
+$("sair").addEventListener("click", async () => { await signOut(auth); voltar(); });
+
+onAuthStateChanged(auth, async user => {
+  if (!user) return voltar();
+  if (carregado) return;
+  carregado = true;
+  try {
+    const reg = await getDoc(doc(db, "registos", user.uid));
+    if (!reg.exists()) return voltar();
+    const cont = await getDoc(doc(db, "conteudo", "simulador"));
+    if (!cont.exists()) { $("estado").textContent = "O simulador ainda não foi publicado."; return; }
+    const c = cont.data();
+    $("quem").textContent = reg.data().nome;
+    $("userbar").hidden = false;
+
+    const style = document.createElement("style");
+    style.textContent = c.css;
+    document.head.appendChild(style);
+    if (c.titulo) document.title = c.titulo;
+    $("app").innerHTML = c.html;
+    const script = document.createElement("script");
+    script.textContent = c.js;
+    document.body.appendChild(script);
+  } catch (e) {
+    // permission-denied: sessão sem registo. Volta à página de identificação.
+    console.error(e);
+    if (e.code === "permission-denied") return voltar();
+    $("estado").textContent = "Não foi possível carregar o simulador. Recarregue a página.";
+  }
+});
+</script>
+</body>
+</html>

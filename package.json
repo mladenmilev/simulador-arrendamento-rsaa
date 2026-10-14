@@ -2,10 +2,13 @@
   "name": "simulador-arrendamento",
   "private": true,
   "scripts": {
-    "dev": "browser-sync start --server public --files public --port 3000 --no-notify",
-    "deploy": "firebase deploy --only hosting"
+    "dev": "firebase emulators:exec --only auth,firestore --ui \"METADATA_SERVER_DETECTION=none node scripts/dev.mjs\"",
+    "publicar-conteudo": "node scripts/publicar-conteudo.mjs",
+    "deploy": "node scripts/publicar-conteudo.mjs && firebase deploy --only firestore:rules,hosting"
   },
   "devDependencies": {
-    "browser-sync": "^3.0.4"
-  }
+    "browser-sync": "^3.0.4",
+    "firebase-admin": "^14.5.0"
+  },
+  "type": "module"
 }
