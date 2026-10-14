@@ -1,6 +1,6 @@
-# Simulador de renda por quarto
+# Simulador de Arrendamento Acessível (RSAA)
 
-Simulador de renda por quarto em arrendamento acessível (RSAA). Acesso mediante identificação (Google ou nome + e-mail).
+Simulador da renda máxima no Regime Simplificado de Arrendamento Acessível (RSAA), para o apartamento inteiro ou por quartos. Acesso mediante identificação (Google ou nome + e-mail).
 
 ## Como funciona
 
