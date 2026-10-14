@@ -196,7 +196,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
         </div>
         <button type="button" class="btn primary" id="fillMax">Calcular</button>
       </div>
-      <p class="hint only-sen" style="margin:-4px 0 8px">Calcula a renda máxima <span class="only-q">de cada quarto</span><span class="only-apt">do apartamento</span> e preenche a renda proposta com esse valor, arredondado para baixo. Depois disso, a renda acompanha automaticamente qualquer alteração de áreas, concelho, tipologia ou majorações, até a editar à mão.</p>
+      <p class="hint only-sen" style="margin:-4px 0 8px">Calcula a renda máxima <span class="only-q">de cada quarto</span><span class="only-apt">do apartamento</span>. Se já indicou uma renda proposta, verifica se está dentro do limite. Se estiver vazia, é preenchida com o máximo (arredondado para baixo) e acompanha automaticamente as alterações seguintes, até a editar à mão.</p>
       <div class="rooms only-q" id="rooms"></div>
 
       <div class="only-sen">
@@ -622,7 +622,8 @@ function applyAuto(){
 function recalc(){applyAuto();calc()}
 function fillMax(){
   const first=!calculated;calculated=true;
-  if(document.body.dataset.view!=="inq"){if(modo==="apt")apt.auto=true;else rooms.forEach(r=>{if(r.rent)r.auto=true})}
+  // Rendas já escritas pelo utilizador mantêm-se (para verificar contra o limite); só as vazias recebem o máximo.
+  if(document.body.dataset.view!=="inq"){if(modo==="apt"){if(!apt.prop)apt.auto=true}else rooms.forEach(r=>{if(r.rent&&!r.prop)r.auto=true})}
   recalc();
   if(first&&matchMedia("(max-width:860px)").matches)$("h-res").scrollIntoView({behavior:"smooth"});
 }
