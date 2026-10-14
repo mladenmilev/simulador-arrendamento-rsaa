@@ -17,14 +17,17 @@
 <body>
 <div class="userbar" id="userbar" hidden><span id="quem"></span><button type="button" id="sair">Sair</button></div>
 <div id="app"><p class="estado" id="estado">A carregar o simulador…</p></div>
+<p class="versao" id="versao"></p>
 
 <script type="module">
 // O simulador não vem nesta página: é lido do Firestore, e as regras só o entregam a quem se identificou.
-import { auth, db } from "/js/firebase.js";
+import { auth, db, local } from "/js/firebase.js";
+import { VERSAO } from "/js/versao.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 const $ = id => document.getElementById(id);
+$("versao").textContent = `v${VERSAO}${local ? " · local" : ""}`;
 const voltar = () => location.replace("/");
 let carregado = false;
 

@@ -85,13 +85,16 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--tile);outline-o
   </div>
   <p class="privacidade">Privacidade: guardamos apenas o nome, o e-mail, o método de identificação e a data. Os valores introduzidos no simulador não são guardados. Este simulador não substitui um contabilista ou advogado.</p>
 </div>
+<p class="versao" id="versao"></p>
 
 <script type="module">
-import { auth, db } from "/js/firebase.js";
+import { auth, db, local } from "/js/firebase.js";
+import { VERSAO } from "/js/versao.js";
 import { GoogleAuthProvider, signInWithPopup, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 const $ = id => document.getElementById(id);
+$("versao").textContent = `v${VERSAO}${local ? " · local" : ""}`;
 const erro = t => { $("erro").textContent = t; $("erro").hidden = !t; };
 const ocupado = b => ["google", "enviar"].forEach(id => $(id).disabled = b);
 let emCurso = false;

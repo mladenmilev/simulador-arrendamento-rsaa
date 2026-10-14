@@ -1,10 +1,11 @@
 {
   "name": "simulador-arrendamento",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "firebase emulators:exec --only auth,firestore --ui \"METADATA_SERVER_DETECTION=none node scripts/dev.mjs\"",
     "publicar-conteudo": "node scripts/publicar-conteudo.mjs",
-    "deploy": "node scripts/publicar-conteudo.mjs && firebase deploy --only firestore:rules,hosting"
+    "deploy": "METADATA_SERVER_DETECTION=none node scripts/deploy.mjs"
   },
   "devDependencies": {
     "browser-sync": "^3.0.4",

@@ -31,8 +31,16 @@ O login e a base de dados são emulados: o "Entrar com Google" mostra uma conta 
 Requer `service-account.json` (chave de serviço do Firebase, fora do git).
 
 ```sh
-npm run deploy   # publica o simulador no Firestore, as regras e o site
+npm run deploy
 ```
+
+O `deploy`:
+1. exige o git sem alterações por guardar (cada versão corresponde a um commit);
+2. sobe a versão **minor** ([semver](https://semver.org/lang/pt-BR/)) em `package.json` e `public/js/versao.js`;
+3. publica o simulador no Firestore, as regras e o site;
+4. faz commit `Publicar vX.Y.Z` e cria a tag `vX.Y.Z` (se falhar, repõe a versão anterior).
+
+A versão aparece discretamente no fundo das páginas.
 
 ## Consultar registos
 
