@@ -79,6 +79,7 @@ body:not([data-view="inq"]) .only-inq{display:none!important}
 .room .flags{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px;font-size:.88rem}
 .room .flags label{display:flex;gap:6px;align-items:center;font-weight:500;margin:0}
 .btn{border:1px solid var(--tile);background:transparent;color:var(--tile);padding:8px 12px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--tile);color:var(--surface);padding:9px 22px}
 .btn.small{padding:4px 9px;font-size:.85rem}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .limit-big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:14px 16px;background:var(--tile-soft);border-radius:10px;margin-bottom:16px}
@@ -163,8 +164,8 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 
       <h2 style="margin-top:6px">Quartos</h2>
       <p class="hint" style="margin-top:-8px;margin-bottom:8px"><span class="only-sen">O número de quartos segue a tipologia. Indique a área útil de todos, mesmo os que não arrenda.</span><span class="only-inq">Indique a área de cada quarto da casa (peça-a ao senhorio). É necessária para calcular a parte do seu quarto.</span></p>
-      <div class="fillrow only-sen">
-        <div>
+      <div class="fillrow">
+        <div class="only-sen">
           <label for="round">Arredondar</label>
           <select id="round">
             <option value="1">Sem arredondamento</option>
@@ -172,9 +173,9 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
             <option value="10">Para baixo, múltiplo de 10 €</option>
           </select>
         </div>
-        <button type="button" class="btn" id="fillMax">Usar renda máxima permitida</button>
+        <button type="button" class="btn primary" id="fillMax">Calcular</button>
       </div>
-      <p class="hint only-sen" style="margin:-4px 0 8px">Preenche a renda proposta com o limite, arredondado para baixo. Depois disso, a renda acompanha automaticamente qualquer alteração de áreas, concelho, tipologia ou majorações, até a editar à mão.</p>
+      <p class="hint only-sen" style="margin:-4px 0 8px">Calcula a renda máxima de cada quarto e preenche a renda proposta com esse valor, arredondado para baixo. Depois disso, a renda acompanha automaticamente qualquer alteração de áreas, concelho, tipologia ou majorações, até a editar à mão.</p>
       <div class="rooms" id="rooms"></div>
 
       <div class="only-sen">
@@ -355,7 +356,8 @@ const sel=$("concelho");
 Object.keys(LIMITS).forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;if(c==="Odivelas")o.selected=true;sel.appendChild(o)});
 const oo=document.createElement("option");oo.value="__other";oo.textContent="Outro concelho (introduzir limite)";sel.appendChild(oo);
 
-let rooms=[{a:12,rent:true,wc:false,p:1,prop:450},{a:10,rent:true,wc:false,p:1,prop:400},{a:9,rent:true,wc:false,p:1,prop:350}];
+let rooms=[{a:12,rent:true,wc:false,p:1,prop:0},{a:10,rent:true,wc:false,p:1,prop:0},{a:9,rent:true,wc:false,p:1,prop:0}];
+let calculated=false;
 
 function syncRooms(){
   const n=TIPS.indexOf($("tip").value)+1;
@@ -391,6 +393,7 @@ function calc(){
   $("customWrap").hidden=sel.value!=="__other";
   const fin=$("fin").value;
   $("fiscalWrap").hidden=fin!=="temp";
+  if(!calculated){clearResults();return}
   let L=baseLimit();
   let maj=0;if($("park").checked)maj+=0.10;if($("energy").checked)maj+=0.10;
   const Lm=L*(1+maj);
@@ -440,6 +443,15 @@ function calc(){
   $("cmpNote").textContent=anyRent?(netR>=netM?`O RSAA rende mais ${eur(netR-netM)} por ano, líquido de IRS.`:`O mercado rende mais ${eur(netM-netR)} por ano, já com IRS descontado.`)+" Não inclui despesas nem custos de manutenção.":"";
   renderTenant(maxes);
 }
+function clearResults(){
+  $("limitV").textContent="–";
+  $("limitT").textContent="Preencha os dados da casa e clique em Calcular";
+  ["areaT","split","tbody","checklist","cmpNote"].forEach(id=>$(id).innerHTML="");
+  $("netR").textContent=$("netM").textContent="–";
+  ["tLoc","tA","tM"].forEach(id=>$(id).textContent="–");
+  $("tPP").textContent="";
+  $("tSt").className="tstat warn";$("tSt").textContent="Indique as áreas dos quartos e clique em Calcular.";
+}
 function renderTenant(maxes){
   const s=$("tq");const prev=s.value;
   const opts=rooms.map((r,i)=>r.rent?`<option value="${i}">Quarto ${i+1}</option>`:"").join("");
@@ -486,8 +498,10 @@ function applyAuto(){
 }
 function recalc(){applyAuto();calc()}
 function fillMax(){
-  rooms.forEach(r=>{if(r.rent)r.auto=true});
+  const first=!calculated;calculated=true;
+  if(document.body.dataset.view!=="inq")rooms.forEach(r=>{if(r.rent)r.auto=true});
   recalc();
+  if(first&&matchMedia("(max-width:860px)").matches)$("h-res").scrollIntoView({behavior:"smooth"});
 }
 $("fillMax").addEventListener("click",fillMax);
 
