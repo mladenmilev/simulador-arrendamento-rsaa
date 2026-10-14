@@ -1,0 +1,11 @@
+{
+  "name": "simulador-arrendamento",
+  "private": true,
+  "scripts": {
+    "dev": "browser-sync start --server public --files public --port 3000 --no-notify",
+    "deploy": "firebase deploy --only hosting"
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.4"
+  }
+}
