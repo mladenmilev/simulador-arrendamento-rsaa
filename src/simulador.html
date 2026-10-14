@@ -173,7 +173,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 
       <div class="row2 only-apt">
         <div class="field">
-          <label for="aptA">Área útil do apartamento (m²)</label>
+          <label for="aptA">Área útil (m²) <span style="font-weight:400;color:var(--muted)">– opcional</span></label>
           <input type="number" id="aptA" min="0" step="1" inputmode="numeric">
           <p class="hint" id="aptAHint"></p>
         </div>
@@ -423,7 +423,7 @@ function mktRef(){
 }
 function mktRefApt(){
   const c=sel.value,m2=APT_M2[c],r=$("mktRef"),tip=$("tip").value;
-  $("aptAHint").textContent=apt.a?"":`Sem área indicada, usa-se a área típica de um ${tip} (${APT_A_TIPICA[tip]} m²) para estimar a renda de mercado.`;
+  $("aptAHint").textContent=`Não altera a renda máxima, que depende só da tipologia. Serve para estimar a renda de mercado${apt.a?"":` (sem área, usa-se ${APT_A_TIPICA[tip]} m², típica de um ${tip})`}.`;
   if(!m2){$("mkt").value="";marcaEstimativa(false);r.textContent="Indique a renda de um apartamento semelhante na sua zona.";return}
   const A=aptArea();
   $("mkt").value=Math.round(m2*A/5)*5;marcaEstimativa(!apt.a);
