@@ -10,8 +10,8 @@ Simulador de renda por quarto em arrendamento acessível. Página estática (HTM
 ## Testar localmente
 
 ```sh
-python3 -m http.server 8000 --directory public
-# abrir http://localhost:8000
+npm install      # só na primeira vez
+npm run dev      # abre http://localhost:3000 e recarrega ao gravar
 ```
 
 ## Publicar (Firebase Hosting, plano gratuito Spark)
@@ -20,5 +20,5 @@ python3 -m http.server 8000 --directory public
 npm install -g firebase-tools   # requer Node.js
 firebase login
 firebase use --add              # escolher o projeto Firebase
-firebase deploy --only hosting
+firebase deploy --only hosting   # ou: npm run deploy
 ```
