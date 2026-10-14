@@ -239,8 +239,9 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
         <h3 style="font-size:1.05rem;margin-bottom:8px">Comparar com o mercado (fora do RSAA)</h3>
         <div class="row2">
           <div class="field">
-            <label for="mkt">Renda de mercado por quarto (€)</label>
+            <label for="mkt">Renda de mercado por quarto (€) <span class="pill warn" id="mktEst" hidden>estimativa</span></label>
             <input type="number" id="mkt" min="0" value="450">
+            <p class="hint" id="mktRef"></p>
           </div>
           <div class="field">
             <label for="tax">Taxa de IRS sobre rendas (%)</label>
@@ -250,7 +251,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
         </div>
         <div class="row2">
           <div><p>RSAA, líquido por ano</p><p class="big" id="netR">–</p></div>
-          <div><p>Mercado, líquido por ano</p><p class="big" id="netM">–</p></div>
+          <div><p>Mercado, líquido por ano<span id="netMEst" hidden> (estimativa)</span></p><p class="big" id="netM">–</p></div>
         </div>
         <p class="hint" id="cmpNote"></p>
       </div>
@@ -323,6 +324,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
     <h3 style="font-size:1.05rem;margin:18px 0 8px">Fontes</h3>
     <ul class="sources">
       <li><a href="https://diariodarepublica.pt/dr/detalhe/portaria/454-2026-1179722108" target="_blank" rel="noopener">Portaria n.º 454/2026/1</a></li>
+      <li><a href="https://www.idealista.pt/news/imobiliario/habitacao/2026/04/13/74878-arrendar-quarto-em-portugal-esta-mais-caro-preco-subiu-8-num-ano" target="_blank" rel="noopener">idealista – preços de quartos, 1.º trim. 2026</a></li>
       <li><a href="https://executivedigest.sapo.pt/arrendamento-acessivel-veja-as-rendas-maximas-para-cada-tipologia-nos-concelhos-portugueses/" target="_blank" rel="noopener">Executive Digest – limites por concelho</a></li>
       <li><a href="https://www.doutorfinancas.pt/literacia-financeira/arrendamento-acessivel-como-funciona-o-novo-regime/" target="_blank" rel="noopener">Doutor Finanças – RSAA</a></li>
       <li><a href="https://www.abanca.pt/pt/radar/programa-arrendamento-acessivel-rsaa/" target="_blank" rel="noopener">ABANCA – PAA e RSAA</a></li>
@@ -348,6 +350,20 @@ const LIMITS = {
   "Sintra":[671,866,1056,1155,1354],"Vila Franca de Xira":[629,819,1008,1103,1292],"Vila Nova de Gaia":[629,819,1008,1103,1292],
   "Viseu":[392,511,629,688,806]
 };
+// Renda mediana de um quarto (idealista, 1.º trimestre de 2026). Concelhos sem dados próprios:
+// estimativa a partir da cidade de referência, ajustada pela proporção entre os limites RSAA dos dois concelhos.
+const MKT={
+  "Lisboa":550,"Funchal":500,"Porto":450,"Ponta Delgada":412,"Faro":400,"Setúbal":400,"Aveiro":360,"Évora":360,
+  "Braga":355,"Coimbra":335,"Santarém":325,"Leiria":300,"Viseu":270,"Portalegre":250,"Bragança":225,
+  "Almada":430,"Amadora":415,"Cascais":525,"Loures":375,"Odivelas":405,"Oeiras":490,"Seixal":360,"Sintra":360,
+  "Vila Franca de Xira":345,"Gondomar":275,"Maia":300,"Matosinhos":375,"Vila Nova de Gaia":330,"Guimarães":270,
+  "Portimão":475,"Fundão":250
+};
+const MKT_EST={
+  "Almada":"Lisboa","Amadora":"Lisboa","Cascais":"Lisboa","Loures":"Lisboa","Odivelas":"Lisboa","Oeiras":"Lisboa",
+  "Seixal":"Lisboa","Sintra":"Lisboa","Vila Franca de Xira":"Lisboa","Gondomar":"Porto","Maia":"Porto",
+  "Matosinhos":"Porto","Vila Nova de Gaia":"Porto","Guimarães":"Braga","Portimão":"Faro","Fundão":"Castelo Branco"
+};
 const TIPS=["T1","T2","T3","T4","T5"];
 const $=id=>document.getElementById(id);
 const eur=v=>isFinite(v)?v.toLocaleString("pt-PT",{maximumFractionDigits:0})+" €":"–";
@@ -355,6 +371,24 @@ const eur=v=>isFinite(v)?v.toLocaleString("pt-PT",{maximumFractionDigits:0})+" �
 const sel=$("concelho");
 Object.keys(LIMITS).forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;if(c==="Lisboa")o.selected=true;sel.appendChild(o)});
 const oo=document.createElement("option");oo.value="__other";oo.textContent="Outro concelho (introduzir limite)";sel.appendChild(oo);
+
+let mktEstimado=false;
+function marcaEstimativa(e){mktEstimado=e;$("mktEst").hidden=$("netMEst").hidden=!e}
+function mktRef(){
+  const c=sel.value,v=MKT[c],r=$("mktRef");
+  if(!v){$("mkt").value="";marcaEstimativa(false);r.textContent="Indique a renda de um quarto semelhante na sua zona.";return}
+  $("mkt").value=v;marcaEstimativa(!!MKT_EST[c]);
+  r.textContent=MKT_EST[c]
+    ?`Estimativa a partir de ${MKT_EST[c]} (idealista, 1.º trim. 2026)${c==="Fundão"?"":", ajustada pelo limite RSAA do concelho"}. Ajuste se conhecer o valor da zona.`
+    :`Mediana de ${c} (idealista, 1.º trim. 2026). Ajuste se conhecer o valor da zona.`;
+}
+sel.addEventListener("change",mktRef);
+$("mkt").addEventListener("input",()=>{
+  marcaEstimativa(false);
+  const v=MKT[sel.value];
+  $("mktRef").textContent=v?`Valor indicado por si. Referência para ${sel.value}: ${v} €${MKT_EST[sel.value]?" (estimativa)":""}.`:"Valor indicado por si.";
+});
+mktRef();
 
 let rooms=[{a:12,rent:true,wc:false,p:1,prop:0},{a:10,rent:true,wc:false,p:1,prop:0},{a:9,rent:true,wc:false,p:1,prop:0}];
 let calculated=false;
@@ -439,8 +473,8 @@ function calc(){
   const tax=(parseFloat($("tax").value)||0)/100;
   const netR=sumRSAA*12, netM=sumMkt*12*(1-tax);
   $("netR").textContent=anyRent?eur(netR):"–";
-  $("netM").textContent=anyRent?eur(netM):"–";
-  $("cmpNote").textContent=anyRent?(netR>=netM?`O RSAA rende mais ${eur(netR-netM)} por ano, líquido de IRS.`:`O mercado rende mais ${eur(netM-netR)} por ano, já com IRS descontado.`)+" Não inclui despesas nem custos de manutenção.":"";
+  $("netM").textContent=anyRent&&sumMkt?eur(netM):"–";
+  $("cmpNote").textContent=anyRent&&sumMkt?(netR>=netM?`O RSAA rende mais ${eur(netR-netM)} por ano, líquido de IRS.`:`O mercado rende mais ${eur(netM-netR)} por ano, já com IRS descontado.`)+" Não inclui despesas nem custos de manutenção.":"";
   renderTenant(maxes);
 }
 function clearResults(){
