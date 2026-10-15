@@ -38,6 +38,13 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--tile);outline-o
 .consent input{margin-top:4px;flex:none}
 .hint{font-size:.82rem;color:var(--muted);margin:10px 0 0}
 .erro{background:var(--bad-soft);color:var(--bad);padding:10px 12px;border-radius:8px;font-size:.9rem;margin:0 0 14px}
+.sub{margin:0 0 6px;font-weight:600}
+.sub .tag{display:inline-block;background:var(--tile-soft);color:var(--tile);border-radius:99px;padding:1px 10px;font-size:.85rem;margin-right:4px}
+.convidado{margin-top:28px;border:1.5px dashed var(--tile);border-radius:14px;padding:20px;background:var(--tile-soft)}
+.convidado h2{font-size:1.2rem;margin-bottom:6px}
+.convidado p{margin:0 0 14px;color:var(--muted)}
+.convidado .btn{background:var(--surface)}
+.convidado .hint{margin:10px 0 0}
 .privacidade{font-size:.82rem;color:var(--muted);margin-top:36px;max-width:80ch}
 </style>
 </head>
@@ -55,11 +62,19 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--tile);outline-o
         <li><span class="ic">2</span><span>Arrendamento do apartamento inteiro ou por quartos, com o limite da casa dividido de acordo com a área de cada quarto.</span></li>
         <li><span class="ic">3</span><span>Vista para o senhorio, com a lista de requisitos e a comparação com o mercado, e vista para o inquilino, para confirmar a renda pedida.</span></li>
       </ul>
+
+      <div class="convidado" id="convidadoBox">
+        <h2>É inquilino?</h2>
+        <p>Verifique se a renda do seu quarto ou apartamento está dentro do limite do RSAA, sem se identificar.</p>
+        <button type="button" class="btn" id="convidado">Continuar como inquilino, sem identificação</button>
+        <p class="hint">Só a vista do inquilino. A vista do senhorio requer identificação.</p>
+      </div>
     </section>
 
     <section class="panel" aria-labelledby="h-id">
-      <h2 id="h-id">Aceder ao simulador</h2>
-      <p class="msg" id="msg">A identificação é necessária para continuarmos a melhorar o serviço.</p>
+      <h2 id="h-id">Acesso completo</h2>
+      <p class="sub"><span class="tag">Senhorio</span><span class="tag">Inquilino</span></p>
+      <p class="msg" id="msg">Todas as funcionalidades, para senhorio e inquilino. A identificação é necessária para continuarmos a melhorar o serviço.</p>
       <p class="erro" id="erro" role="alert" hidden></p>
 
       <label class="consent"><input type="checkbox" id="consent"> <span>Aceito que o meu nome e e-mail sejam guardados para identificar quem usa o simulador e melhorar o serviço. Os dados não são partilhados com terceiros nem usados para publicidade.</span></label>
@@ -83,10 +98,6 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--tile);outline-o
         </div>
         <button type="submit" class="btn primary" id="enviar">Continuar</button>
       </form>
-
-      <div class="ou" id="ouConvidado">ou</div>
-      <button type="button" class="btn" id="convidado">Continuar sem identificação</button>
-      <p class="hint" id="hintConvidado">Acesso só à vista do inquilino. A vista do senhorio requer identificação.</p>
     </section>
   </div>
   <p class="privacidade">Privacidade: guardamos apenas o nome, o e-mail, o método de identificação e a data. Os valores introduzidos no simulador não são guardados. Este simulador não substitui um contabilista ou advogado.</p>
@@ -109,7 +120,7 @@ let emCurso = false;
 const paraSenhorio = new URLSearchParams(location.search).has("identificar");
 if (paraSenhorio) {
   $("msg").textContent = "Identifique-se para aceder à vista do senhorio.";
-  ["ouConvidado", "convidado", "hintConvidado"].forEach(id => $(id).hidden = true);
+  $("convidadoBox").hidden = true;
 }
 const abrir = () => {
   try { localStorage.removeItem("convidado"); } catch (e) {}
