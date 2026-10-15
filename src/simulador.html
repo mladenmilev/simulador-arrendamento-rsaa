@@ -66,6 +66,7 @@ select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid 
 body[data-view="inq"] .only-sen{display:none!important}
 body[data-modo="apt"] .only-q{display:none!important}
 body:not([data-modo="apt"]) .only-apt{display:none!important}
+body[data-view="inq"] #h-dados{margin-top:0!important}
 body:not([data-view="inq"]) .only-inq{display:none!important}
 .viewbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:-8px 0 24px}
 .viewbar .lbl{font-size:.9rem;color:var(--muted)}
@@ -140,8 +141,31 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
   </div>
 
   <div class="grid">
-    <section class="panel" aria-labelledby="h-dados">
-      <h2 id="h-dados">A casa</h2>
+    <section class="panel" aria-label="Dados da simulação">
+      <div class="only-sen">
+      <h2>Contrato</h2>
+      <div class="row2">
+        <div class="field">
+          <label for="fin">Finalidade</label>
+          <select id="fin">
+            <option value="temp">Residência temporária (estudante, professor deslocado)</option>
+            <option value="perm">Residência permanente</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="prazo">Prazo (meses)</label>
+          <input type="number" id="prazo" min="1" value="10">
+        </div>
+      </div>
+      <div class="field checks" id="fiscalWrap">
+        <label><input type="checkbox" id="fiscal" checked> Inquilino tem residência fiscal noutro concelho</label>
+      </div>
+      <div class="field checks">
+        <label><input type="checkbox" id="desp" checked> Despesas (água, luz, internet) pagas à parte</label>
+      </div>
+      </div>
+
+      <h2 id="h-dados" style="margin-top:20px">A casa</h2>
       <div class="field">
         <span class="lbl" id="mlbl" style="display:block;font-weight:600;font-size:.92rem;margin-bottom:6px">O que vai arrendar?</span>
         <div class="seg" role="group" aria-labelledby="mlbl">
@@ -185,7 +209,9 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 
       <h2 style="margin-top:6px" class="only-q">Quartos</h2>
       <p class="hint only-q" style="margin-top:-8px;margin-bottom:8px"><span class="only-sen">O número de quartos segue a tipologia. Indique a área útil de todos, mesmo os que não arrenda.</span><span class="only-inq">Indique a área de cada quarto da casa (peça-a ao senhorio). É necessária para calcular a parte do seu quarto.</span></p>
-      <div class="fillrow">
+      <div class="rooms only-q" id="rooms"></div>
+
+      <div class="fillrow" style="margin-top:18px">
         <div class="only-sen">
           <label for="round">Arredondar</label>
           <select id="round">
@@ -197,30 +223,6 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
         <button type="button" class="btn primary" id="fillMax">Calcular</button>
       </div>
       <p class="hint only-sen" style="margin:-4px 0 8px">Calcula a renda máxima <span class="only-q">de cada quarto</span><span class="only-apt">do apartamento</span>. Se já indicou uma renda proposta, verifica se está dentro do limite. Se estiver vazia, é preenchida com o máximo (arredondado para baixo) e acompanha automaticamente as alterações seguintes, até a editar à mão.</p>
-      <div class="rooms only-q" id="rooms"></div>
-
-      <div class="only-sen">
-      <h2 style="margin-top:20px">Contrato</h2>
-      <div class="row2">
-        <div class="field">
-          <label for="fin">Finalidade</label>
-          <select id="fin">
-            <option value="temp">Residência temporária (estudante, professor deslocado)</option>
-            <option value="perm">Residência permanente</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="prazo">Prazo (meses)</label>
-          <input type="number" id="prazo" min="1" value="10">
-        </div>
-      </div>
-      <div class="field checks" id="fiscalWrap">
-        <label><input type="checkbox" id="fiscal" checked> Inquilino tem residência fiscal noutro concelho</label>
-      </div>
-      <div class="field checks">
-        <label><input type="checkbox" id="desp" checked> Despesas (água, luz, internet) pagas à parte</label>
-      </div>
-      </div>
     </section>
 
     <section class="panel" aria-labelledby="h-res" aria-live="polite">
