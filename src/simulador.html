@@ -219,7 +219,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
             <input type="number" id="qA" min="0" step="1" inputmode="numeric">
           </div>
           <div class="field">
-            <label for="qT">Soma das áreas de todos os quartos, incluindo o seu (m²) <span style="font-weight:400;color:var(--muted)">– opcional</span></label>
+            <label for="qT">Soma das áreas de todos os quartos, incluindo o seu (m²)</label>
             <input type="number" id="qT" min="0" step="1" inputmode="numeric">
           </div>
         </div>
@@ -583,27 +583,31 @@ function clearResults(){
   $("netR").textContent=$("netM").textContent="–";
   ["tLoc","tTip","tA","tM"].forEach(id=>$(id).textContent="–");
   $("tPP").textContent="";
-  $("tSt").className="tstat warn";$("tSt").textContent=modo==="apt"?"Clique em Calcular para ver a renda máxima.":"Indique a área do seu quarto e clique em Calcular.";
+  $("tSt").className="tstat warn";$("tSt").textContent=modo==="apt"?"Clique em Calcular para ver a renda máxima.":"Indique a área do seu quarto e a soma das áreas de todos os quartos, e clique em Calcular.";
 }
-// Inquilino, modo quartos: só o seu quarto. Com a área de todos os quartos, o cálculo é exato
-// (limite × área do quarto ÷ área total); sem ela, estimativa com o limite dividido igualmente pelos quartos.
+// Inquilino, modo quartos: só o seu quarto. Portaria 454/2026/1, art. 2.º, n.º 2:
+// limite do quarto = limite da casa × área do quarto (+25 % com casa de banho privativa) ÷ soma das áreas dos quartos.
+// Sem as duas áreas não há valor fiável, por isso não se mostra nenhum.
 function renderTenant(Lm){
-  const n=TIPS.indexOf($("tip").value)+1,st=$("tSt");
+  const st=$("tSt");
   $("tLoc").textContent=sel.value==="__other"?"–":sel.value;
   $("tA").textContent=ten.a?ten.a+" m²"+(ten.wc?", com casa de banho privativa":""):"–";
   $("tp").value=ten.p;
   if(ten.total&&ten.total<ten.a){$("tM").textContent="–";$("tPP").textContent="";st.className="tstat warn";st.textContent="A área de todos os quartos não pode ser menor do que a área do seu quarto.";return}
-  const est=!(ten.total&&ten.a);
-  const max=est?Math.floor(Lm/n*(ten.wc?1.25:1)):Math.floor(Lm*(ten.wc?ten.a*1.25:ten.a)/ten.total);
-  $("qHint").textContent=est
-    ?`Sem a soma das áreas dos quartos, a renda máxima é uma estimativa que supõe os ${n} quartos do mesmo tamanho (limite da casa ÷ ${n}). Se o seu quarto for mais pequeno do que os outros, a renda máxima real é mais baixa. Peça as áreas ao senhorio. Não conte sala, cozinha nem casas de banho.`
-    :`O seu quarto tem ${Math.round(ten.a/ten.total*100)} % da área dos quartos${ten.wc?`; conta como ${Math.round(ten.a*1.25/ten.total*100)} % por ter casa de banho privativa`:""}. Não conte sala, cozinha nem casas de banho.`;
-  $("tM").innerHTML=eur(max)+(est?' <span class="pill warn">estimativa</span>':"");
+  if(!ten.a||!ten.total){
+    $("qHint").textContent="A renda máxima de um quarto depende da sua área face à soma das áreas de todos os quartos (peça-as ao senhorio). Não conte sala, cozinha nem casas de banho.";
+    $("tM").textContent="–";$("tPP").textContent="";
+    st.className="tstat warn";st.textContent=`Indique ${!ten.a&&!ten.total?"a área do seu quarto e a soma das áreas de todos os quartos":!ten.a?"a área do seu quarto":"a soma das áreas de todos os quartos"} para calcular a renda máxima.`;
+    return;
+  }
+  const max=Math.floor(Lm*(ten.wc?ten.a*1.25:ten.a)/ten.total);
+  $("qHint").textContent=`O seu quarto tem ${Math.round(ten.a/ten.total*100)} % da área dos quartos${ten.wc?`; conta como ${Math.round(ten.a*1.25/ten.total*100)} % por ter casa de banho privativa`:""}. Não conte sala, cozinha nem casas de banho.`;
+  $("tM").textContent=eur(max);
   $("tPP").textContent=ten.p===2?`(${eur(Math.floor(max/2))} por pessoa)`:"";
   if(document.activeElement!==$("tr"))$("tr").value=ten.prop||"";
   if(!ten.prop){st.className="tstat warn";st.textContent="Indique a renda pedida para verificar."}
-  else if(ten.prop<=max){st.className="tstat ok";st.textContent=`A renda pedida (${eur(ten.prop)}) está dentro do limite${est?" estimado":""}.`}
-  else{st.className="tstat bad";st.textContent=`A renda pedida está ${eur(ten.prop-max)} acima do limite${est?" estimado":""}. Com este valor, o contrato não pode ficar no arrendamento acessível.`}
+  else if(ten.prop<=max){st.className="tstat ok";st.textContent=`A renda pedida (${eur(ten.prop)}) está dentro do limite.`}
+  else{st.className="tstat bad";st.textContent=`A renda pedida está ${eur(ten.prop-max)} acima do limite. Com este valor, o contrato não pode ficar no arrendamento acessível.`}
 }
 function renderTenantApt(max){
   $("tLoc").textContent=sel.value==="__other"?"–":sel.value;
