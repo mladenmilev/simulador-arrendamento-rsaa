@@ -207,9 +207,27 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
         </div>
       </div>
 
-      <h2 style="margin-top:6px" class="only-q">Quartos</h2>
-      <p class="hint only-q" style="margin-top:-8px;margin-bottom:8px"><span class="only-sen">O número de quartos segue a tipologia. Indique a área útil de todos, mesmo os que não arrenda.</span><span class="only-inq">Indique a área de cada quarto da casa (peça-a ao senhorio). É necessária para calcular a parte do seu quarto.</span></p>
-      <div class="rooms only-q" id="rooms"></div>
+      <h2 style="margin-top:6px" class="only-q only-sen">Quartos</h2>
+      <p class="hint only-q only-sen" style="margin-top:-8px;margin-bottom:8px"><span class="only-sen">O número de quartos segue a tipologia. Indique a área útil de todos, mesmo os que não arrenda.</span><span class="only-inq">Indique a área de cada quarto da casa (peça-a ao senhorio). É necessária para calcular a parte do seu quarto.</span></p>
+      <div class="rooms only-q only-sen" id="rooms"></div>
+
+      <div class="only-q only-inq">
+        <h2 style="margin-top:6px">O seu quarto</h2>
+        <div class="row2">
+          <div class="field">
+            <label for="qA">Área do quarto (m²)</label>
+            <input type="number" id="qA" min="0" step="1" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="qT">Área de todos os quartos (m²) <span style="font-weight:400;color:var(--muted)">– opcional</span></label>
+            <input type="number" id="qT" min="0" step="1" inputmode="numeric">
+          </div>
+        </div>
+        <p class="hint" id="qHint" style="margin:-6px 0 10px"></p>
+        <div class="field checks">
+          <label><input type="checkbox" id="qW"> Casa de banho privativa</label>
+        </div>
+      </div>
 
       <div class="fillrow" style="margin-top:18px">
         <div class="only-sen">
@@ -228,10 +246,6 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
     <section class="panel" aria-labelledby="h-res" aria-live="polite">
       <h2 id="h-res"><span class="only-sen">Resultado</span><span class="only-inq"><span class="only-q">O seu quarto</span><span class="only-apt">O apartamento</span></span></h2>
       <div class="only-inq">
-        <div class="field only-q">
-          <label for="tq">Escolha o quarto</label>
-          <select id="tq"></select>
-        </div>
         <dl class="tres">
           <dt>Localização</dt><dd id="tLoc">–</dd>
           <dt class="only-apt">Tipologia</dt><dd class="only-apt" id="tTip">–</dd>
@@ -411,6 +425,7 @@ const oo=document.createElement("option");oo.value="__other";oo.textContent="Out
 
 let modo="q";
 let apt={a:0,prop:0,auto:false};
+let ten={a:0,total:0,wc:false,p:1,prop:0};
 const aptArea=()=>apt.a||APT_A_TIPICA[$("tip").value];
 let mktEstimado=false;
 function marcaEstimativa(e){mktEstimado=e;$("mktEst").hidden=$("netMEst").hidden=!e}
@@ -539,7 +554,7 @@ function calc(){
   add(null,"Comunicar cada contrato às Finanças e submeter no IHRU até 15 de janeiro do ano seguinte.");
   $("checklist").innerHTML=items.join("");
   comparar(sumRSAA, sumMkt, anyRent);
-  renderTenant(maxes);
+  renderTenant(Lm);
 }
 function requisitos(add,fin,prazo,quartos){
   if(fin==="temp"){
@@ -568,26 +583,25 @@ function clearResults(){
   $("netR").textContent=$("netM").textContent="–";
   ["tLoc","tTip","tA","tM"].forEach(id=>$(id).textContent="–");
   $("tPP").textContent="";
-  $("tSt").className="tstat warn";$("tSt").textContent=modo==="apt"?"Clique em Calcular para ver a renda máxima.":"Indique as áreas dos quartos e clique em Calcular.";
+  $("tSt").className="tstat warn";$("tSt").textContent=modo==="apt"?"Clique em Calcular para ver a renda máxima.":"Indique a área do seu quarto e clique em Calcular.";
 }
-function renderTenant(maxes){
-  const s=$("tq");const prev=s.value;
-  const opts=rooms.map((r,i)=>r.rent?`<option value="${i}">Quarto ${i+1}</option>`:"").join("");
-  if(s.dataset.k!==opts){s.innerHTML=opts;s.dataset.k=opts}
-  if([...s.options].some(o=>o.value===prev))s.value=prev;
-  const i=parseInt(s.value,10);const r=rooms[i];
-  if(!r){$("tM").textContent="–";$("tA").textContent="–";$("tPP").textContent="";$("tSt").className="tstat warn";$("tSt").textContent="Não há quartos disponíveis.";return}
-  const max=maxes[i];
+// Inquilino, modo quartos: só o seu quarto. Com a área de todos os quartos, o cálculo é exato
+// (limite × área do quarto ÷ área total); sem ela, estimativa com o limite dividido igualmente pelos quartos.
+function renderTenant(Lm){
+  const n=TIPS.indexOf($("tip").value)+1,st=$("tSt");
   $("tLoc").textContent=sel.value==="__other"?"–":sel.value;
-  $("tA").textContent=r.a+" m²"+(r.wc?", com casa de banho privativa":"");
-  $("tp").value=r.p;
-  $("tM").textContent=eur(max);
-  $("tPP").textContent=r.p===2?`(${eur(Math.floor(max/2))} por pessoa)`:"";
-  if(document.activeElement!==$("tr"))$("tr").value=r.prop||"";
-  const st=$("tSt");
-  if(!r.prop){st.className="tstat warn";st.textContent="Indique a renda pedida para verificar."}
-  else if(r.prop<=max){st.className="tstat ok";st.textContent=`A renda pedida (${eur(r.prop)}) está dentro do limite.`}
-  else{st.className="tstat bad";st.textContent=`A renda pedida está ${eur(r.prop-max)} acima do limite. Com este valor, o contrato não pode ficar no arrendamento acessível.`}
+  $("tA").textContent=ten.a?ten.a+" m²"+(ten.wc?", com casa de banho privativa":""):"–";
+  $("tp").value=ten.p;
+  if(ten.total&&ten.total<ten.a){$("tM").textContent="–";$("tPP").textContent="";st.className="tstat warn";st.textContent="A área de todos os quartos não pode ser menor do que a área do seu quarto.";return}
+  const est=!(ten.total&&ten.a);
+  const max=est?Math.floor(Lm/n*(ten.wc?1.25:1)):Math.floor(Lm*(ten.wc?ten.a*1.25:ten.a)/ten.total);
+  $("qHint").textContent=est?`Sem a área de todos os quartos (peça-a ao senhorio), a renda máxima é uma estimativa: o limite da casa dividido igualmente pelos ${n} quartos.`:"";
+  $("tM").innerHTML=eur(max)+(est?' <span class="pill warn">estimativa</span>':"");
+  $("tPP").textContent=ten.p===2?`(${eur(Math.floor(max/2))} por pessoa)`:"";
+  if(document.activeElement!==$("tr"))$("tr").value=ten.prop||"";
+  if(!ten.prop){st.className="tstat warn";st.textContent="Indique a renda pedida para verificar."}
+  else if(ten.prop<=max){st.className="tstat ok";st.textContent=`A renda pedida (${eur(ten.prop)}) está dentro do limite${est?" estimado":""}.`}
+  else{st.className="tstat bad";st.textContent=`A renda pedida está ${eur(ten.prop-max)} acima do limite${est?" estimado":""}. Com este valor, o contrato não pode ficar no arrendamento acessível.`}
 }
 function renderTenantApt(max){
   $("tLoc").textContent=sel.value==="__other"?"–":sel.value;
@@ -600,9 +614,11 @@ function renderTenantApt(max){
   else if(apt.prop<=max){st.className="tstat ok";st.textContent=`A renda pedida (${eur(apt.prop)}) está dentro do limite.`}
   else{st.className="tstat bad";st.textContent=`A renda pedida está ${eur(apt.prop-max)} acima do limite. Com este valor, o contrato não pode ficar no arrendamento acessível.`}
 }
-$("tq").addEventListener("change",calc);
-$("tp").addEventListener("change",()=>{const i=parseInt($("tq").value,10);const r=rooms[i];if(!r)return;r.p=+$("tp").value;$("p"+i).value=r.p;recalc()});
-$("tr").addEventListener("input",()=>{if(modo==="apt"){apt.prop=parseFloat($("tr").value)||0;apt.auto=false;$("aptR").value=apt.prop||"";return recalc()}const i=parseInt($("tq").value,10);const r=rooms[i];if(!r)return;r.prop=parseFloat($("tr").value)||0;r.auto=false;$("r"+i).value=r.prop||"";recalc()});
+$("tp").addEventListener("change",()=>{ten.p=+$("tp").value;recalc()});
+$("qA").addEventListener("input",()=>{ten.a=Math.round(parseFloat($("qA").value)||0);recalc()});
+$("qT").addEventListener("input",()=>{ten.total=Math.round(parseFloat($("qT").value)||0);recalc()});
+$("qW").addEventListener("change",()=>{ten.wc=$("qW").checked;recalc()});
+$("tr").addEventListener("input",()=>{const v=parseFloat($("tr").value)||0;if(modo==="apt"){apt.prop=v;apt.auto=false;$("aptR").value=v||""}else ten.prop=v;recalc()});
 
 ["concelho","customLimit","park","energy","fin","prazo","fiscal","desp","mkt","tax","round"].forEach(id=>{$(id).addEventListener("input",recalc);$(id).addEventListener("change",recalc)});
 $("aptR").addEventListener("input",()=>{apt.prop=parseFloat($("aptR").value)||0;apt.auto=false;recalc()});
