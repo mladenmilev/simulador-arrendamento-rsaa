@@ -265,6 +265,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
           <dt class="only-apt">Tipologia</dt><dd class="only-apt" id="tTip">–</dd>
           <dt class="only-q">Área do quarto</dt><dd class="only-q" id="tA">–</dd>
           <dt class="only-q"><label for="tp" style="font-weight:400;margin:0">Pessoas no quarto</label></dt><dd class="only-q"><select id="tp" style="width:auto"><option value="1">1</option><option value="2">2</option></select></dd>
+          <dt class="only-q">Renda máxima da casa toda</dt><dd class="only-q"><span id="tCasa">–</span> <span class="hint" id="tCasaT"></span></dd>
           <dt>Renda máxima permitida</dt><dd><span class="tbig" id="tM">–</span> <span class="hint" id="tPP"></span></dd>
         </dl>
         <div class="field">
@@ -451,8 +452,8 @@ function calc(){
 function recalc(){if(Senhorio)Senhorio.applyAuto();calc()}
 
 function limparInquilino(){
-  ["tLoc","tTip","tA","tM"].forEach(id=>$(id).textContent="–");
-  $("tPP").textContent="";
+  ["tLoc","tTip","tA","tM","tCasa"].forEach(id=>$(id).textContent="–");
+  $("tPP").textContent=$("tCasaT").textContent="";
   $("tSt").className="tstat warn";$("tSt").textContent=modo==="apt"?"Clique em Calcular para ver a renda máxima.":"Indique a área do seu quarto e a soma das áreas de todos os quartos, e clique em Calcular.";
 }
 function estadoRenda(max){
@@ -466,8 +467,10 @@ function estadoRenda(max){
 // limite do quarto = limite da casa × área do quarto (+25 % com casa de banho privativa) ÷ soma das áreas dos quartos.
 // Sem as duas áreas não há valor fiável, por isso não se mostra nenhum.
 function renderTenant(Lm){
-  const st=$("tSt");
+  const st=$("tSt"),{maj}=limites();
   $("tLoc").textContent=sel.value==="__other"?"–":sel.value;
+  $("tCasa").textContent=Lm?eur(Math.floor(Lm)):"–";
+  $("tCasaT").textContent=Lm?`(${$("tip").value}${maj?`, com majoração de ${Math.round(maj*100)} %`:""}; o limite é repartido pelos quartos de acordo com a área)`:"";
   $("tA").textContent=ten.a?ten.a+" m²"+(ten.wc?", com casa de banho privativa":""):"–";
   $("tp").value=ten.p;
   if(ten.total&&ten.total<ten.a){$("tM").textContent="–";$("tPP").textContent="";st.className="tstat warn";st.textContent="A área de todos os quartos não pode ser menor do que a área do seu quarto.";return}
@@ -480,7 +483,7 @@ function renderTenant(Lm){
   const max=Math.floor(Lm*(ten.wc?ten.a*1.25:ten.a)/ten.total);
   $("qHint").textContent=`O seu quarto tem ${Math.round(ten.a/ten.total*100)} % da área dos quartos${ten.wc?`; conta como ${Math.round(ten.a*1.25/ten.total*100)} % por ter casa de banho privativa`:""}. Não conte sala, cozinha nem casas de banho.`;
   $("tM").textContent=eur(max);
-  $("tPP").textContent=ten.p===2?`(${eur(Math.floor(max/2))} por pessoa)`:"";
+  $("tPP").textContent=`(${ten.p===2?`${eur(Math.floor(max/2))} por pessoa · `:""}${Math.round(max/Math.floor(Lm)*100)} % da renda máxima da casa)`;
   estadoRenda(max);
 }
 function renderTenantApt(max){
