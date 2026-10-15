@@ -59,7 +59,7 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--tile);outline-o
 
     <section class="panel" aria-labelledby="h-id">
       <h2 id="h-id">Aceder ao simulador</h2>
-      <p class="msg">A identificação é necessária para continuarmos a melhorar o serviço.</p>
+      <p class="msg" id="msg">A identificação é necessária para continuarmos a melhorar o serviço.</p>
       <p class="erro" id="erro" role="alert" hidden></p>
 
       <label class="consent"><input type="checkbox" id="consent"> <span>Aceito que o meu nome e e-mail sejam guardados para identificar quem usa o simulador e melhorar o serviço. Os dados não são partilhados com terceiros nem usados para publicidade.</span></label>
@@ -83,6 +83,10 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--tile);outline-o
         </div>
         <button type="submit" class="btn primary" id="enviar">Continuar</button>
       </form>
+
+      <div class="ou" id="ouConvidado">ou</div>
+      <button type="button" class="btn" id="convidado">Continuar sem identificação</button>
+      <p class="hint" id="hintConvidado">Acesso só à vista do inquilino. A vista do senhorio requer identificação.</p>
     </section>
   </div>
   <p class="privacidade">Privacidade: guardamos apenas o nome, o e-mail, o método de identificação e a data. Os valores introduzidos no simulador não são guardados. Este simulador não substitui um contabilista ou advogado.</p>
@@ -101,7 +105,20 @@ const erro = t => { $("erro").textContent = t; $("erro").hidden = !t; };
 const ocupado = b => ["google", "enviar"].forEach(id => $(id).disabled = b);
 let emCurso = false;
 
-const abrir = () => location.replace("/simulador");
+// Vindo de "Identificar-me" (convidado que quer a vista do senhorio): no fim, abre já nessa vista.
+const paraSenhorio = new URLSearchParams(location.search).has("identificar");
+if (paraSenhorio) {
+  $("msg").textContent = "Identifique-se para aceder à vista do senhorio.";
+  ["ouConvidado", "convidado", "hintConvidado"].forEach(id => $(id).hidden = true);
+}
+const abrir = () => {
+  try { localStorage.removeItem("convidado"); } catch (e) {}
+  location.replace(paraSenhorio ? "/simulador?vista=senhorio" : "/simulador");
+};
+$("convidado").addEventListener("click", () => {
+  try { localStorage.setItem("convidado", "1"); } catch (e) {}
+  location.href = "/simulador?vista=inquilino";
+});
 
 // Quem já se identificou neste navegador segue diretamente para o simulador.
 onAuthStateChanged(auth, async user => {

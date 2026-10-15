@@ -1,14 +1,16 @@
 # Simulador de Arrendamento Acessível (RSAA)
 
-Simulador da renda máxima no Regime Simplificado de Arrendamento Acessível (RSAA), para o apartamento inteiro ou por quartos. Acesso mediante identificação (Google ou nome + e-mail).
+Simulador da renda máxima no Regime Simplificado de Arrendamento Acessível (RSAA), para o apartamento inteiro ou por quartos. A vista do senhorio exige identificação (Google ou nome + e-mail); a vista do inquilino também está disponível sem identificação (convidado).
 
 ## Como funciona
 
 - `public/index.html` – página de entrada: apresenta o simulador e pede a identificação.
-- `public/simulador.html` – moldura do simulador. Não contém o simulador: lê-o do Firestore (`conteudo/simulador`), e as regras só o entregam a quem tem registo.
-- `src/simulador.html` – **o simulador em si** (é aqui que se fazem as alterações).
+- `public/simulador.html` – moldura do simulador. Não contém o simulador: lê-o do Firestore. Quem tem registo recebe `conteudo/simulador` (versão completa); o convidado recebe `conteudo/inquilino` (só a vista do inquilino).
+- `src/simulador.html` – **o simulador em si** (é aqui que se fazem as alterações). Um só ficheiro para as duas versões: o que é exclusivo do senhorio fica entre marcadores, que o script de publicação retira na versão do inquilino:
+  - HTML: `<!-- senhorio:inicio -->` … `<!-- senhorio:fim -->`
+  - JavaScript: `// senhorio:inicio` … `// senhorio:fim` (todo o código do senhorio está no objeto `Senhorio`; o código comum só o chama se existir)
 - `firestore.rules` – regras de segurança (registos e acesso ao conteúdo).
-- `scripts/publicar-conteudo.mjs` – envia `src/simulador.html` para o Firestore.
+- `scripts/publicar-conteudo.mjs` – gera as duas versões a partir de `src/simulador.html` e envia-as para o Firestore.
 
 Os registos ficam na coleção `registos` do Firestore (nome, e-mail, método, consentimento, data).
 

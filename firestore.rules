@@ -30,8 +30,12 @@ service cloud.firestore {
         );
     }
 
-    // Conteúdo do simulador: só para quem já se identificou. Escrito apenas pelo script de publicação (Admin SDK).
-    match /conteudo/{doc} {
+    // Conteúdo do simulador, escrito apenas pelo script de publicação (Admin SDK).
+    // Versão do inquilino: pública (acesso de convidado). Versão completa: só para quem se identificou.
+    match /conteudo/inquilino {
+      allow read: if true;
+    }
+    match /conteudo/simulador {
       allow read: if registado();
     }
   }

@@ -1,4 +1,6 @@
-// Envia src/simulador.html para o Firestore (documento conteudo/simulador).
+// Envia src/simulador.html para o Firestore, em duas versões geradas a partir do mesmo ficheiro:
+//   conteudo/simulador – completa (senhorio + inquilino), só para quem se identificou;
+//   conteudo/inquilino – sem os blocos marcados "senhorio:inicio … senhorio:fim", para convidados.
 // Com FIRESTORE_EMULATOR_HOST definido (npm run dev) escreve no emulador; caso contrário, na produção,
 // usando a chave service-account.json (que nunca vai para o git).
 import { readFileSync } from "node:fs";
@@ -27,8 +29,23 @@ function unico(html, re, nome) {
   return m[0][1].trim();
 }
 
-export function extrair() {
-  const html = readFileSync(ORIGEM, "utf8");
+// Marcadores dos blocos exclusivos do senhorio, em HTML e em JavaScript.
+const MARCAS = [
+  [/<!-- senhorio:inicio -->/g, /<!-- senhorio:fim -->/g, /<!-- senhorio:inicio -->[\s\S]*?<!-- senhorio:fim -->/g],
+  [/\/\/ senhorio:inicio/g, /\/\/ senhorio:fim/g, /\/\/ senhorio:inicio[\s\S]*?\/\/ senhorio:fim/g],
+];
+function versao(texto, inquilino) {
+  for (const [ini, fim, bloco] of MARCAS) {
+    const a = (texto.match(ini) || []).length, b = (texto.match(fim) || []).length;
+    if (a !== b) throw new Error(`${ORIGEM}: marcadores senhorio desemparelhados (${a} início, ${b} fim)`);
+    texto = inquilino ? texto.replace(bloco, "") : texto.replace(ini, "").replace(fim, "");
+  }
+  if (/senhorio:(inicio|fim)/.test(texto)) throw new Error(`${ORIGEM}: marcador senhorio dentro de outro bloco`);
+  return texto;
+}
+
+export function extrair(inquilino = false) {
+  const html = versao(readFileSync(ORIGEM, "utf8"), inquilino);
   const corpo = unico(html, /<body[^>]*>([\s\S]*)<\/body>/g, "body");
   return {
     titulo: unico(html, /<title>([\s\S]*?)<\/title>/g, "title"),
@@ -39,10 +56,15 @@ export function extrair() {
 }
 
 export async function publicar() {
-  const c = extrair();
-  await ligar().doc("conteudo/simulador").set({ ...c, atualizadoEm: FieldValue.serverTimestamp() });
+  const completo = extrair(), inquilino = extrair(true);
+  const agora = FieldValue.serverTimestamp();
+  const lote = ligar().batch();
+  lote.set(db.doc("conteudo/simulador"), { ...completo, atualizadoEm: agora });
+  lote.set(db.doc("conteudo/inquilino"), { ...inquilino, atualizadoEm: agora });
+  await lote.commit();
   const destino = process.env.FIRESTORE_EMULATOR_HOST ? "emulador local" : "PRODUÇÃO";
-  console.log(`Simulador publicado (${destino}): ${Math.round(JSON.stringify(c).length / 1024)} KB`);
+  const kb = c => Math.round(JSON.stringify(c).length / 1024);
+  console.log(`Simulador publicado (${destino}): completo ${kb(completo)} KB, inquilino ${kb(inquilino)} KB`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
