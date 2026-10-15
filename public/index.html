@@ -116,7 +116,6 @@ let emCurso = false;
 const paraSenhorio = new URLSearchParams(location.search).has("identificar");
 if (paraSenhorio) {
   $("msg").textContent = "Identifique-se para aceder à vista do senhorio.";
-  $("convidadoBox").hidden = true;
 }
 const abrir = () => {
   try { localStorage.removeItem("convidado"); } catch (e) {}
