@@ -269,10 +269,10 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
           <dt>Renda máxima permitida</dt><dd><span class="tbig" id="tM">–</span> <span class="hint" id="tPP"></span></dd>
         </dl>
         <div class="field">
-          <label for="tr">Renda pedida (€/mês)</label>
+          <label for="tr">Renda atual ou proposta pelo senhorio (€/mês)</label>
           <input type="number" id="tr" min="0" step="1" inputmode="numeric">
         </div>
-        <p class="tstat warn" id="tSt">Indique a renda pedida para verificar.</p>
+        <p class="tstat warn" id="tSt">Indique a renda atual ou proposta pelo senhorio para verificar.</p>
         <p class="hint">A renda máxima não inclui despesas (água, luz, internet), que são pagas à parte.</p>
       </div>
       <!-- senhorio:inicio -->
@@ -283,7 +283,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
       <div class="split only-q" id="split" role="img" aria-label="Divisão do limite pelos quartos"></div>
       <div class="tbl only-q">
         <table>
-          <thead><tr><th>Quarto</th><th class="num">Área p/ cálculo</th><th class="num">Renda máx.</th><th class="num">Por pessoa</th><th class="num"><span class="only-sen">Proposta</span><span class="only-inq">Renda pedida</span></th><th>Estado</th></tr></thead>
+          <thead><tr><th>Quarto</th><th class="num">Área p/ cálculo</th><th class="num">Renda máx.</th><th class="num">Por pessoa</th><th class="num"><span class="only-sen">Proposta</span><span class="only-inq">Renda</span></th><th>Estado</th></tr></thead>
           <tbody id="tbody"></tbody>
         </table>
       </div>
@@ -459,9 +459,9 @@ function limparInquilino(){
 function estadoRenda(max){
   const st=$("tSt");
   if(document.activeElement!==$("tr"))$("tr").value=ten.prop||"";
-  if(!ten.prop){st.className="tstat warn";st.textContent="Indique a renda pedida para verificar."}
-  else if(ten.prop<=max){st.className="tstat ok";st.textContent=`A renda pedida (${eur(ten.prop)}) está dentro do limite.`}
-  else{st.className="tstat bad";st.textContent=`A renda pedida está ${eur(ten.prop-max)} acima do limite. Com este valor, o contrato não pode ficar no arrendamento acessível.`}
+  if(!ten.prop){st.className="tstat warn";st.textContent="Indique a renda atual ou proposta pelo senhorio para verificar."}
+  else if(ten.prop<=max){st.className="tstat ok";st.textContent=`A renda de ${eur(ten.prop)} está dentro do limite.`}
+  else{st.className="tstat bad";st.textContent=`A renda de ${eur(ten.prop)} está ${eur(ten.prop-max)} acima do limite. Com este valor, o contrato não pode ficar no arrendamento acessível.`}
 }
 // Inquilino, modo quartos: só o seu quarto. Portaria 454/2026/1, art. 2.º, n.º 2:
 // limite do quarto = limite da casa × área do quarto (+25 % com casa de banho privativa) ÷ soma das áreas dos quartos.
