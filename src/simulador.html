@@ -219,7 +219,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
             <input type="number" id="qA" min="0" step="1" inputmode="numeric">
           </div>
           <div class="field">
-            <label for="qT">Área de todos os quartos (m²) <span style="font-weight:400;color:var(--muted)">– opcional</span></label>
+            <label for="qT">Soma das áreas de todos os quartos, incluindo o seu (m²) <span style="font-weight:400;color:var(--muted)">– opcional</span></label>
             <input type="number" id="qT" min="0" step="1" inputmode="numeric">
           </div>
         </div>
@@ -595,7 +595,9 @@ function renderTenant(Lm){
   if(ten.total&&ten.total<ten.a){$("tM").textContent="–";$("tPP").textContent="";st.className="tstat warn";st.textContent="A área de todos os quartos não pode ser menor do que a área do seu quarto.";return}
   const est=!(ten.total&&ten.a);
   const max=est?Math.floor(Lm/n*(ten.wc?1.25:1)):Math.floor(Lm*(ten.wc?ten.a*1.25:ten.a)/ten.total);
-  $("qHint").textContent=est?`Sem a área de todos os quartos (peça-a ao senhorio), a renda máxima é uma estimativa: o limite da casa dividido igualmente pelos ${n} quartos.`:"";
+  $("qHint").textContent=est
+    ?`Sem a soma das áreas dos quartos, a renda máxima é uma estimativa que supõe os ${n} quartos do mesmo tamanho (limite da casa ÷ ${n}). Se o seu quarto for mais pequeno do que os outros, a renda máxima real é mais baixa. Peça as áreas ao senhorio. Não conte sala, cozinha nem casas de banho.`
+    :`O seu quarto tem ${Math.round(ten.a/ten.total*100)} % da área dos quartos${ten.wc?`; conta como ${Math.round(ten.a*1.25/ten.total*100)} % por ter casa de banho privativa`:""}. Não conte sala, cozinha nem casas de banho.`;
   $("tM").innerHTML=eur(max)+(est?' <span class="pill warn">estimativa</span>':"");
   $("tPP").textContent=ten.p===2?`(${eur(Math.floor(max/2))} por pessoa)`:"";
   if(document.activeElement!==$("tr"))$("tr").value=ten.prop||"";
