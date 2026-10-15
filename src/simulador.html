@@ -523,6 +523,14 @@ function calc(){
     sp.insertAdjacentHTML("beforeend",`<div class="${r.rent?"":"off"}" style="flex:${w} 1 0" title="Quarto ${i+1}: ${eur(max)}">Q${i+1} · ${eur(max)}</div>`);
   });
   add(allOk&&anyRent, allOk?"Rendas propostas dentro do limite de cada quarto.":"Há rendas acima do limite: baixe-as ou o contrato não terá isenção.");
+  // No modo quartos, o valor em destaque é o que os quartos arrendados podem render;
+  // o limite da casa fica como referência (a parte dos quartos não arrendados não é redistribuída).
+  if(L){
+    const nR=rooms.filter(r=>r.rent).length,sumMax=rooms.reduce((s,r,i)=>s+(r.rent?maxes[i]:0),0);
+    const casa=`limite da casa: ${eur(Math.floor(Lm))} (${$("tip").value}, ${sel.value==="__other"?"concelho indicado":sel.value}${maj?`, +${Math.round(maj*100)} %`:""})`;
+    $("limitV").textContent=eur(sumMax);
+    $("limitT").textContent=(nR===rooms.length?`renda máxima total dos ${nR} quartos`:`renda máxima dos quartos arrendados (${nR} de ${rooms.length})`)+" · "+casa;
+  }
   requisitos(add,fin,prazo,true);
   add(!tooSmall, tooSmall?"Há quartos com menos de 6 m²: não cumprem o requisito mínimo.":"Todos os quartos têm pelo menos 6 m².");
   add($("desp").checked?true:null, $("desp").checked?"Despesas à parte: o limite do RSAA não as inclui. Escreva no contrato como são divididas.":"Se a renda incluir despesas, o total cobrado conta para o limite. Prefira despesas à parte.");
