@@ -60,6 +60,12 @@ select,input[type=number],input[type=text]{width:100%;padding:9px 10px;border:1p
 select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid var(--tile);outline-offset:2px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .row2.alinhar{align-items:end}
+/* Duas colunas com rótulo, campo e dica alinhados linha a linha (subgrid). */
+.row2.campos{grid-template-rows:auto auto auto;row-gap:0}
+.row2.campos>.field{display:grid;grid-row:span 3;grid-template-rows:subgrid;row-gap:0}
+.row2.campos>.field>label{align-self:end}
+/* Garante que [hidden] esconde mesmo elementos com display próprio (ex.: .pill). */
+[hidden]{display:none!important}
 .field{margin-bottom:14px}
 .checks label{display:flex;gap:8px;align-items:flex-start;font-weight:500}
 .checks input{margin-top:4px}
@@ -204,7 +210,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
       </div>
 
       <!-- senhorio:inicio -->
-      <div class="row2 only-apt">
+      <div class="row2 campos only-apt">
         <div class="field">
           <label for="aptA">Área útil (m²) <span style="font-weight:400;color:var(--muted)">– opcional</span></label>
           <input type="number" id="aptA" min="0" step="1" inputmode="numeric">
@@ -296,7 +302,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 
       <div class="compare only-sen">
         <h3 style="font-size:1.05rem;margin-bottom:8px">Comparar com o mercado (fora do RSAA)</h3>
-        <div class="row2">
+        <div class="row2 campos">
           <div class="field">
             <label for="mkt">Renda de mercado <span class="only-q">por quarto</span><span class="only-apt">do apartamento</span> (€/mês) <span class="pill warn" id="mktEst" hidden>estimativa</span></label>
             <input type="number" id="mkt" min="0" value="450">
