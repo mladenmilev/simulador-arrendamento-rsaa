@@ -20,3 +20,6 @@ service-account*.json
 firestore-debug.log
 ui-debug.log
 auth-debug.log
+
+# Prospeção comercial (contactos de terceiros, não publicar)
+business_model/
