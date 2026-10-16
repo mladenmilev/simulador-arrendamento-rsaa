@@ -237,6 +237,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
         <div class="field checks">
           <label><input type="checkbox" id="qW"> Casa de banho privativa</label>
         </div>
+        <p class="hint" style="margin:-6px 0 10px">No RSAA, o arrendamento de um quarto só é possível em contrato de residência temporária (com residência fiscal noutro concelho).</p>
       </div>
 
       <div class="fillrow" style="margin-top:18px">
@@ -332,7 +333,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
       </ul>
       <h3>O contrato</h3>
       <ol>
-        <li>Um contrato por quarto, com renda igual ou inferior ao limite calculado acima.</li>
+        <li>Um contrato por quarto, com renda igual ou inferior ao limite calculado acima. Quartos só em residência temporária; em residência permanente, só o apartamento inteiro.</li>
         <li>Prazo mínimo: 3 meses (renovável) para residência temporária; 3 anos para residência permanente.</li>
         <li>Residência temporária só se o inquilino tiver residência fiscal noutro concelho. Peça comprovativo.</li>
         <li>Pode ter duas pessoas no mesmo quarto: a lei exige no mínimo uma. As duas constam do contrato e a renda máxima do quarto não aumenta.</li>
@@ -668,6 +669,8 @@ function render(L,maj,Lm){
     $("limitV").textContent=eur(sumMax);
     $("limitT").textContent=(nR===rooms.length?`renda máxima total dos ${nR} quartos`:`renda máxima dos quartos arrendados (${nR} de ${rooms.length})`)+" · "+casa;
   }
+  // DL 97/2026, Anexo III, art. 3.º, n.º 2: partes de habitação só em contratos de residência temporária.
+  if(fin==="perm")add(false,"No RSAA, arrendar quartos (parte da habitação) só é possível em residência temporária (DL 97/2026, Anexo III, art. 3.º, n.º 2). Para residência permanente, arrende o apartamento inteiro.");
   requisitos(add,fin,prazo,true);
   add(!tooSmall, tooSmall?"Há quartos com menos de 6 m²: não cumprem o requisito mínimo.":"Todos os quartos têm pelo menos 6 m².");
   add($("desp").checked?true:null, $("desp").checked?"Despesas à parte: o limite do RSAA não as inclui. Escreva no contrato como são divididas.":"Se a renda incluir despesas, o total cobrado conta para o limite. Prefira despesas à parte.");
