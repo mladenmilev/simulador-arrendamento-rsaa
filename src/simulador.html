@@ -59,6 +59,7 @@ label{display:block;font-weight:600;font-size:.92rem;margin-bottom:4px}
 select,input[type=number],input[type=text]{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
 select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid var(--tile);outline-offset:2px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row2.alinhar{align-items:end}
 .field{margin-bottom:14px}
 .checks label{display:flex;gap:8px;align-items:flex-start;font-weight:500}
 .checks input{margin-top:4px}
@@ -224,13 +225,13 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 
       <div class="only-q only-inq">
         <h2 style="margin-top:6px">O seu quarto</h2>
-        <div class="row2">
+        <div class="row2 alinhar">
           <div class="field">
             <label for="qA">Área do quarto (m²)</label>
             <input type="number" id="qA" min="0" step="1" inputmode="numeric">
           </div>
           <div class="field">
-            <label for="qT">Soma das áreas de todos os quartos, incluindo o seu (m²)</label>
+            <label for="qT">Área total dos quartos (m²)</label>
             <input type="number" id="qT" min="0" step="1" inputmode="numeric">
           </div>
         </div>
@@ -597,7 +598,7 @@ function renderTenant(Lm){
   $("tp").value=ten.p;
   if(ten.total&&ten.total<ten.a){$("tM").textContent="–";$("tPP").textContent="";st.className="tstat warn";st.textContent="A área de todos os quartos não pode ser menor do que a área do seu quarto.";return}
   if(!ten.a||!ten.total){
-    $("qHint").textContent="A renda máxima de um quarto depende da sua área face à soma das áreas de todos os quartos (peça-as ao senhorio). Não conte sala, cozinha nem casas de banho.";
+    $("qHint").textContent="A renda máxima de um quarto depende da sua área face à área total dos quartos: a soma das áreas de todos os quartos, incluindo o seu (peça-as ao senhorio). Não conte sala, cozinha nem casas de banho.";
     $("tM").textContent="–";$("tPP").textContent="";
     st.className="tstat warn";st.textContent=`Indique ${!ten.a&&!ten.total?"a área do seu quarto e a soma das áreas de todos os quartos":!ten.a?"a área do seu quarto":"a soma das áreas de todos os quartos"} para calcular a renda máxima.`;
     return;
