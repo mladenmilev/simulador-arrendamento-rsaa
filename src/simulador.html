@@ -181,20 +181,21 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
       </div>
       <div class="row2">
         <div class="field">
+          <label for="distrito">Distrito / Região</label>
+          <select id="distrito"></select>
+        </div>
+        <div class="field">
           <label for="concelho">Concelho</label>
           <select id="concelho"></select>
         </div>
+      </div>
+      <div class="row2">
         <div class="field">
           <label for="tip">Tipologia</label>
           <select id="tip">
-            <option value="T1">T1</option><option value="T2">T2</option><option value="T3" selected>T3</option><option value="T4">T4</option><option value="T5">T5</option>
+            <option value="T0">T0 (só apartamento inteiro)</option><option value="T1">T1</option><option value="T2">T2</option><option value="T3" selected>T3</option><option value="T4">T4</option><option value="T5">T5</option><option value="T6">T6</option><option value="T7">T7</option><option value="T8">T8</option>
           </select>
         </div>
-      </div>
-      <div class="field" id="customWrap" hidden>
-        <label for="customLimit">Limite da tipologia no seu concelho (€/mês)</label>
-        <input type="number" id="customLimit" min="0" step="1" placeholder="Ver anexo da portaria">
-        <p class="hint">Consulte o valor no <a href="https://diariodarepublica.pt/dr/detalhe/portaria/454-2026-1179722108" target="_blank" rel="noopener">anexo da portaria</a>.</p>
       </div>
       <div class="field checks">
         <label><input type="checkbox" id="park"> Inclui estacionamento privativo (+10 %)</label>
@@ -403,26 +404,133 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 // ===== Código comum: vista do inquilino e base da vista do senhorio =====
 // Os blocos marcados como exclusivos do senhorio (ver scripts/publicar-conteudo.mjs) só são publicados para quem se identificou;
 // o resto serve também o acesso de convidado (só vista do inquilino).
-const LIMITS = {
-  "Almada":[784,1021,1257,1375,1612],"Amadora":[759,988,1217,1331,1560],"Aveiro":[549,714,880,963,1128],
-  "Braga":[531,671,802,895,1028],"Bragança":[308,392,475,531,587],"Cascais":[964,1254,1544,1690,1980],
-  "Coimbra":[546,711,875,957,1122],"Évora":[531,671,800,895,1026],"Faro":[572,745,917,1004,1176],
-  "Funchal":[794,1034,1273,1393,1632],"Fundão":[308,392,475,531,587],"Gondomar":[531,671,826,903,1058],
-  "Guimarães":[392,505,622,681,798],"Leiria":[458,596,734,803,941],"Lisboa":[1006,1309,1612,1763,2066],
-  "Loures":[689,896,1104,1207,1415],"Maia":[567,738,909,994,1165],"Matosinhos":[712,927,1142,1249,1464],
-  "Odivelas":[745,969,1193,1306,1530],"Oeiras":[901,1172,1443,1579,1850],"Ponta Delgada":[463,603,742,812,952],
-  "Portalegre":[308,392,475,531,587],"Portimão":[679,883,1088,1190,1394],"Porto":[866,1118,1341,1510,1715],
-  "Santarém":[425,553,680,744,872],"Seixal":[671,866,1052,1151,1349],"Setúbal":[649,844,1040,1138,1333],
-  "Sintra":[671,866,1056,1155,1354],"Vila Franca de Xira":[629,819,1008,1103,1292],"Vila Nova de Gaia":[629,819,1008,1103,1292],
-  "Viseu":[392,511,629,688,806]
+// Limites RSAA: anexo da Portaria n.º 454/2026/1 (308 concelhos).
+// Formato: concelho: [distrito ou região, [T0, T1, T2, T3, T4, T5], euros por quarto acima de T5].
+// O distrito vem do código do município do INE (não consta da Portaria).
+const CONCELHOS={
+  "Abrantes":["Santarém",[265,340,442,545,596,698],50],"Aguiar da Beira":["Guarda",[224,308,392,475,531,587],50],"Alandroal":["Évora",[280,392,504,587,671,755],50],
+  "Albergaria-a-Velha":["Aveiro",[296,379,493,607,665,779],50],"Albufeira":["Faro",[554,709,923,1136,1243,1457],100],"Alcanena":["Santarém",[224,308,392,475,531,587],50],
+  "Alcobaça":["Leiria",[318,408,530,653,715,838],50],"Alcochete":["Setúbal",[460,589,766,943,1032,1210],75],"Alcoutim":["Faro",[488,625,814,1002,1097,1285],75],
+  "Alcácer do Sal":["Setúbal",[357,457,595,733,802,940],50],"Alenquer":["Lisboa",[394,505,657,810,886,1038],50],"Alfândega da Fé":["Bragança",[224,308,392,475,531,587],50],
+  "Alijó":["Vila Real",[224,308,392,475,531,587],50],"Aljezur":["Faro",[384,531,671,788,895,1010],75],"Aljustrel":["Beja",[339,434,565,695,761,892],50],
+  "Almada":["Setúbal",[612,784,1021,1257,1375,1612],100],"Almeida":["Guarda",[224,308,392,475,531,587],50],"Almeirim":["Santarém",[306,391,509,627,686,804],50],
+  "Almodôvar":["Beja",[234,308,392,481,531,617],50],"Alpiarça":["Santarém",[280,392,504,587,671,755],50],"Alter do Chão":["Portalegre",[224,308,392,475,531,587],50],
+  "Alvaiázere":["Leiria",[280,392,504,587,671,755],50],"Alvito":["Beja",[280,392,504,587,671,755],50],"Amadora":["Lisboa",[593,759,988,1217,1331,1560],100],
+  "Amarante":["Porto",[224,308,392,475,531,587],50],"Amares":["Braga",[282,361,470,578,633,742],50],"Anadia":["Aveiro",[283,362,471,580,635,744],50],
+  "Angra do Heroísmo":["Região Autónoma dos Açores",[264,339,441,543,594,696],50],"Ansião":["Leiria",[224,308,392,475,531,589],50],"Arcos de Valdevez":["Viana do Castelo",[230,308,392,475,531,606],50],
+  "Arganil":["Coimbra",[224,308,392,475,531,587],50],"Armamar":["Viseu",[224,308,392,475,531,587],50],"Arouca":["Aveiro",[280,392,504,587,671,755],50],
+  "Arraiolos":["Évora",[228,308,392,475,531,600],50],"Arronches":["Portalegre",[224,308,392,475,531,587],50],"Arruda dos Vinhos":["Lisboa",[364,531,671,784,895,979],75],
+  "Aveiro":["Aveiro",[429,549,714,880,963,1128],75],"Avis":["Portalegre",[224,308,392,475,531,587],50],"Azambuja":["Lisboa",[353,453,589,725,794,930],50],
+  "Baião":["Porto",[224,308,392,475,531,587],50],"Barcelos":["Braga",[298,392,504,612,671,785],50],"Barrancos":["Beja",[280,392,504,587,671,755],50],
+  "Barreiro":["Setúbal",[525,673,876,1078,1180,1382],100],"Batalha":["Leiria",[290,371,483,595,651,763],50],"Beja":["Beja",[306,392,511,629,688,806],50],
+  "Belmonte":["Castelo Branco",[224,308,392,475,531,587],50],"Benavente":["Santarém",[354,454,591,727,796,932],50],"Bombarral":["Leiria",[304,390,507,624,683,800],50],
+  "Borba":["Évora",[224,308,392,475,531,587],50],"Boticas":["Vila Real",[224,308,392,475,531,589],50],"Braga":["Braga",[391,531,671,802,895,1028],75],
+  "Bragança":["Bragança",[224,308,392,475,531,587],50],"Cabeceiras de Basto":["Braga",[224,308,392,475,531,587],50],"Cadaval":["Lisboa",[274,350,456,562,614,720],50],
+  "Caldas da Rainha":["Leiria",[378,485,631,777,850,996],50],"Calheta (R.A.A.)":["Região Autónoma dos Açores",[280,392,504,587,671,755],50],"Calheta (R.A.M.)":["Região Autónoma da Madeira",[280,392,504,587,671,755],50],
+  "Caminha":["Viana do Castelo",[301,392,504,619,677,793],50],"Campo Maior":["Portalegre",[224,308,392,475,531,587],50],"Cantanhede":["Coimbra",[268,343,447,550,602,706],50],
+  "Carrazeda de Ansiães":["Bragança",[224,308,392,475,531,587],50],"Carregal do Sal":["Viseu",[224,308,392,475,531,587],50],"Cartaxo":["Santarém",[273,349,454,560,612,718],50],
+  "Cascais":["Lisboa",[752,964,1254,1544,1690,1980],100],"Castanheira de Pera":["Leiria",[280,392,504,587,671,755],50],"Castelo Branco":["Castelo Branco",[244,312,406,500,547,641],50],
+  "Castelo de Paiva":["Aveiro",[224,308,392,475,531,587],50],"Castelo de Vide":["Portalegre",[224,308,392,475,531,587],50],"Castro Daire":["Viseu",[224,308,392,475,531,587],50],
+  "Castro Marim":["Faro",[378,531,671,784,895,996],75],"Castro Verde":["Beja",[280,392,504,587,671,755],50],"Celorico da Beira":["Guarda",[224,308,392,475,531,587],50],
+  "Celorico de Basto":["Braga",[224,308,392,475,531,587],50],"Chamusca":["Santarém",[280,392,504,587,671,755],50],"Chaves":["Vila Real",[242,310,403,496,543,636],50],
+  "Cinfães":["Viseu",[224,308,392,475,531,587],50],"Coimbra":["Coimbra",[426,546,711,875,957,1122],75],"Condeixa-a-Nova":["Coimbra",[287,367,478,589,644,755],50],
+  "Constância":["Santarém",[255,327,426,524,573,672],50],"Coruche":["Santarém",[280,392,504,587,671,755],50],"Corvo":["Região Autónoma dos Açores",[280,392,504,587,671,755],50],
+  "Covilhã":["Castelo Branco",[278,356,463,570,624,731],50],"Crato":["Portalegre",[224,308,392,475,531,587],50],"Cuba":["Beja",[280,392,504,587,671,755],50],
+  "Câmara de Lobos":["Região Autónoma da Madeira",[365,467,608,749,819,960],50],"Elvas":["Portalegre",[224,308,392,475,531,587],50],"Entroncamento":["Santarém",[324,415,540,665,727,852],50],
+  "Espinho":["Aveiro",[458,586,763,940,1028,1205],75],"Esposende":["Braga",[348,446,581,715,782,917],50],"Estarreja":["Aveiro",[280,392,504,587,671,755],50],
+  "Estremoz":["Évora",[226,308,392,475,531,595],50],"Fafe":["Braga",[224,308,392,475,531,587],50],"Faro":["Faro",[447,572,745,917,1004,1176],75],
+  "Felgueiras":["Porto",[224,308,392,475,531,587],50],"Ferreira do Alentejo":["Beja",[280,392,504,587,671,755],50],"Ferreira do Zêzere":["Santarém",[250,320,416,513,561,658],50],
+  "Figueira da Foz":["Coimbra",[365,467,608,749,819,960],50],"Figueira de Castelo Rodrigo":["Guarda",[224,308,392,475,531,587],50],"Figueiró dos Vinhos":["Leiria",[280,392,504,587,671,755],50],
+  "Fornos de Algodres":["Guarda",[224,308,392,475,531,587],50],"Freixo de Espada à Cinta":["Bragança",[224,308,392,475,531,587],50],"Fronteira":["Portalegre",[224,308,392,475,531,587],50],
+  "Funchal":["Região Autónoma da Madeira",[620,794,1034,1273,1393,1632],100],"Fundão":["Castelo Branco",[224,308,392,475,531,587],50],"Gavião":["Portalegre",[224,308,392,475,531,587],50],
+  "Golegã":["Santarém",[224,308,392,475,531,587],50],"Gondomar":["Porto",[402,531,671,826,903,1058],75],"Gouveia":["Guarda",[224,308,392,475,531,587],50],
+  "Grândola":["Setúbal",[478,612,796,981,1073,1258],50],"Guarda":["Guarda",[232,308,392,476,531,611],50],"Guimarães":["Braga",[303,392,505,622,681,798],50],
+  "Góis":["Coimbra",[342,438,570,702,768,900],50],"Horta":["Região Autónoma dos Açores",[224,308,392,475,531,587],50],"Idanha-a-Nova":["Castelo Branco",[224,308,392,475,531,587],50],
+  "Lagoa":["Faro",[456,584,760,936,1024,1200],75],"Lagoa (R.A.A.)":["Região Autónoma dos Açores",[331,424,552,680,743,871],50],"Lagos":["Faro",[547,701,912,1123,1229,1440],100],
+  "Lajes das Flores":["Região Autónoma dos Açores",[280,392,504,587,671,755],50],"Lajes do Pico":["Região Autónoma dos Açores",[280,392,504,587,671,755],50],"Lamego":["Viseu",[224,308,392,475,531,587],50],
+  "Leiria":["Leiria",[358,458,596,734,803,941],50],"Lisboa":["Lisboa",[785,1006,1309,1612,1763,2066],150],"Loulé":["Faro",[550,704,917,1129,1235,1447],100],
+  "Loures":["Lisboa",[538,689,896,1104,1207,1415],100],"Lourinhã":["Lisboa",[328,420,546,673,736,863],50],"Lousada":["Porto",[224,308,392,475,531,587],50],
+  "Lousã":["Coimbra",[245,314,408,503,550,644],50],"Macedo de Cavaleiros":["Bragança",[224,308,392,475,531,587],50],"Machico":["Região Autónoma da Madeira",[364,531,671,784,895,979],75],
+  "Madalena":["Região Autónoma dos Açores",[364,531,671,784,895,979],75],"Mafra":["Lisboa",[490,627,816,1005,1100,1289],75],"Maia":["Porto",[443,567,738,909,994,1165],75],
+  "Mangualde":["Viseu",[224,308,392,475,531,587],50],"Manteigas":["Guarda",[224,308,392,475,531,587],50],"Marco de Canaveses":["Porto",[224,308,392,475,531,588],50],
+  "Marinha Grande":["Leiria",[292,392,504,600,671,769],50],"Marvão":["Portalegre",[224,308,392,475,531,587],50],"Matosinhos":["Porto",[556,712,927,1142,1249,1464],100],
+  "Mação":["Santarém",[296,380,494,608,666,780],50],"Mealhada":["Aveiro",[236,308,393,484,531,620],50],"Melgaço":["Viana do Castelo",[224,308,392,475,531,587],50],
+  "Mesão Frio":["Vila Real",[224,308,392,475,531,587],50],"Mira":["Coimbra",[285,365,475,585,640,750],50],"Miranda do Corvo":["Coimbra",[285,365,475,585,640,750],50],
+  "Miranda do Douro":["Bragança",[224,308,392,475,531,587],50],"Mirandela":["Bragança",[224,308,392,475,531,587],50],"Mogadouro":["Bragança",[224,308,392,475,531,587],50],
+  "Moimenta da Beira":["Viseu",[224,308,392,475,531,587],50],"Moita":["Setúbal",[458,586,763,940,1028,1205],75],"Monchique":["Faro",[364,531,671,784,895,979],75],
+  "Mondim de Basto":["Vila Real",[280,359,467,575,629,737],50],"Monforte":["Portalegre",[224,308,392,475,531,587],50],"Montalegre":["Vila Real",[224,308,392,475,531,589],50],
+  "Montemor-o-Novo":["Évora",[280,392,504,587,671,755],50],"Montemor-o-Velho":["Coimbra",[289,370,481,592,648,760],50],"Montijo":["Setúbal",[457,585,762,938,1026,1202],75],
+  "Monção":["Viana do Castelo",[295,378,492,606,663,776],50],"Mora":["Évora",[280,392,504,587,671,755],50],"Mortágua":["Viseu",[224,308,392,475,531,587],50],
+  "Moura":["Beja",[224,308,392,475,531,587],50],"Mourão":["Évora",[280,392,504,587,671,755],50],"Murtosa":["Aveiro",[280,392,504,587,671,755],50],
+  "Murça":["Vila Real",[224,308,392,475,531,587],50],"Mértola":["Beja",[280,392,504,587,671,755],50],"Mêda":["Guarda",[224,308,392,475,531,587],50],
+  "Nazaré":["Leiria",[407,531,678,835,913,1070],75],"Nelas":["Viseu",[224,308,392,475,531,587],50],"Nisa":["Portalegre",[224,308,392,475,531,587],50],
+  "Nordeste":["Região Autónoma dos Açores",[280,392,504,587,671,755],50],"Odemira":["Beja",[285,392,504,587,671,755],50],"Odivelas":["Lisboa",[581,745,969,1193,1306,1530],100],
+  "Oeiras":["Lisboa",[703,901,1172,1443,1579,1850],100],"Oleiros":["Castelo Branco",[224,308,392,475,531,587],50],"Olhão":["Faro",[394,531,671,810,895,1038],75],
+  "Oliveira de Azeméis":["Aveiro",[259,332,432,533,583,683],50],"Oliveira de Frades":["Viseu",[230,308,392,475,531,605],50],"Oliveira do Bairro":["Aveiro",[277,354,461,568,622,728],50],
+  "Oliveira do Hospital":["Coimbra",[224,308,392,475,531,587],50],"Ourique":["Beja",[280,392,504,587,671,755],50],"Ourém":["Santarém",[312,400,521,641,701,822],50],
+  "Ovar":["Aveiro",[336,430,560,690,755,884],50],"Palmela":["Setúbal",[443,568,739,910,995,1166],75],"Pampilhosa da Serra":["Coimbra",[342,438,570,702,768,900],50],
+  "Paredes":["Porto",[265,339,442,544,595,697],50],"Paredes de Coura":["Viana do Castelo",[224,308,392,475,531,587],50],"Paços de Ferreira":["Porto",[256,328,426,525,574,673],50],
+  "Pedrógão Grande":["Leiria",[280,392,504,587,671,755],50],"Penacova":["Coimbra",[280,392,504,587,671,755],50],"Penafiel":["Porto",[256,328,427,526,575,674],50],
+  "Penalva do Castelo":["Viseu",[224,308,392,475,531,587],50],"Penamacor":["Castelo Branco",[224,308,392,475,531,587],50],"Penedono":["Viseu",[224,308,392,475,531,587],50],
+  "Penela":["Coimbra",[280,392,504,587,671,755],50],"Peniche":["Leiria",[355,454,591,728,797,934],50],"Peso da Régua":["Vila Real",[224,308,392,475,531,587],50],
+  "Pinhel":["Guarda",[224,308,392,475,531,587],50],"Pombal":["Leiria",[254,325,423,520,569,667],50],"Ponta Delgada":["Região Autónoma dos Açores",[362,463,603,742,812,952],50],
+  "Ponta do Sol":["Região Autónoma da Madeira",[539,690,898,1106,1210,1418],75],"Ponte da Barca":["Viana do Castelo",[224,308,392,475,531,587],50],"Ponte de Lima":["Viana do Castelo",[274,350,456,562,614,720],50],
+  "Ponte de Sor":["Portalegre",[239,308,398,490,537,629],50],"Portalegre":["Portalegre",[224,308,392,475,531,587],50],"Portel":["Évora",[280,392,504,587,671,755],50],
+  "Portimão":["Faro",[530,679,883,1088,1190,1394],100],"Porto":["Porto",[652,866,1118,1341,1510,1715],100],"Porto Moniz":["Região Autónoma da Madeira",[539,690,898,1106,1210,1418],75],
+  "Porto Santo":["Região Autónoma da Madeira",[539,690,898,1106,1210,1418],75],"Porto de Mós":["Leiria",[254,325,423,521,570,668],50],"Povoação":["Região Autónoma dos Açores",[280,392,504,587,671,755],50],
+  "Proença-a-Nova":["Castelo Branco",[224,308,392,475,531,587],50],"Póvoa de Lanhoso":["Braga",[228,308,392,475,531,600],50],"Póvoa de Varzim":["Porto",[400,531,671,822,899,1054],75],
+  "Redondo":["Évora",[280,392,504,587,671,755],50],"Reguengos de Monsaraz":["Évora",[254,325,423,521,570,668],50],"Resende":["Viseu",[224,308,392,475,531,587],50],
+  "Ribeira Brava":["Região Autónoma da Madeira",[539,690,898,1106,1210,1418],75],"Ribeira Grande":["Região Autónoma dos Açores",[259,332,432,533,583,683],50],"Ribeira de Pena":["Vila Real",[224,308,392,475,531,589],50],
+  "Rio Maior":["Santarém",[265,340,442,545,596,698],50],"Sabrosa":["Vila Real",[224,308,392,475,531,587],50],"Sabugal":["Guarda",[224,308,392,475,531,587],50],
+  "Salvaterra de Magos":["Santarém",[280,392,504,587,671,755],50],"Santa Comba Dão":["Viseu",[224,308,392,475,531,587],50],"Santa Cruz":["Região Autónoma da Madeira",[486,623,810,998,1092,1279],75],
+  "Santa Cruz da Graciosa":["Região Autónoma dos Açores",[280,392,504,587,671,755],50],"Santa Cruz das Flores":["Região Autónoma dos Açores",[280,392,504,587,671,755],50],"Santa Maria da Feira":["Aveiro",[302,392,504,621,679,796],50],
+  "Santa Marta de Penaguião":["Vila Real",[224,308,392,475,531,587],50],"Santana":["Região Autónoma da Madeira",[539,690,898,1106,1210,1418],75],"Santarém":["Santarém",[332,425,553,680,744,872],50],
+  "Santiago do Cacém":["Setúbal",[423,542,705,869,950,1114],75],"Santo Tirso":["Porto",[278,356,463,570,624,731],50],"Sardoal":["Santarém",[296,380,494,608,666,780],50],
+  "Seia":["Guarda",[224,308,392,475,531,587],50],"Seixal":["Setúbal",[513,671,866,1052,1151,1349],100],"Sernancelhe":["Viseu",[224,308,392,475,531,587],50],
+  "Serpa":["Beja",[280,392,504,587,671,755],50],"Sertã":["Castelo Branco",[224,308,392,475,531,587],50],"Sesimbra":["Setúbal",[456,583,759,935,1023,1199],75],
+  "Setúbal":["Setúbal",[507,649,844,1040,1138,1333],75],"Sever do Vouga":["Aveiro",[224,308,392,475,531,587],50],"Silves":["Faro",[444,568,739,911,996,1168],75],
+  "Sines":["Setúbal",[668,856,1113,1371,1500,1758],100],"Sintra":["Lisboa",[514,671,866,1056,1155,1354],100],"Sobral de Monte Agraço":["Lisboa",[336,430,559,689,754,883],50],
+  "Soure":["Coimbra",[254,326,424,522,571,670],50],"Sousel":["Portalegre",[224,308,392,475,531,587],50],"Sátão":["Viseu",[224,308,392,475,531,587],50],
+  "São Brás de Alportel":["Faro",[316,404,526,648,709,830],50],"São João da Madeira":["Aveiro",[325,416,542,667,730,856],50],"São João da Pesqueira":["Viseu",[224,308,392,475,531,587],50],
+  "São Pedro do Sul":["Viseu",[268,343,446,549,601,704],50],"São Roque do Pico":["Região Autónoma dos Açores",[280,392,504,587,671,755],50],"São Vicente":["Região Autónoma da Madeira",[539,690,898,1106,1210,1418],75],
+  "Tabuaço":["Viseu",[224,308,392,475,531,587],50],"Tarouca":["Viseu",[224,308,392,475,531,587],50],"Tavira":["Faro",[521,671,868,1069,1169,1370],100],
+  "Terras de Bouro":["Braga",[364,466,606,747,817,958],50],"Tomar":["Santarém",[326,418,543,669,732,858],50],"Tondela":["Viseu",[258,331,430,530,580,679],50],
+  "Torre de Moncorvo":["Bragança",[224,308,392,475,531,587],50],"Torres Novas":["Santarém",[303,388,505,622,681,798],50],"Torres Vedras":["Lisboa",[393,531,671,806,895,1033],75],
+  "Trancoso":["Guarda",[224,308,392,475,531,587],50],"Trofa":["Porto",[337,432,562,693,758,888],50],"Tábua":["Coimbra",[224,308,392,475,531,587],50],
+  "Vagos":["Aveiro",[280,358,466,574,628,736],50],"Vale de Cambra":["Aveiro",[261,334,435,535,586,686],50],"Valença":["Viana do Castelo",[250,321,417,514,562,659],50],
+  "Valongo":["Porto",[376,531,671,784,895,989],75],"Valpaços":["Vila Real",[224,308,392,475,531,587],50],"Velas":["Região Autónoma dos Açores",[280,392,504,587,671,755],50],
+  "Vendas Novas":["Évora",[315,403,524,646,707,828],50],"Viana do Alentejo":["Évora",[280,392,504,587,671,755],50],"Viana do Castelo":["Viana do Castelo",[350,448,583,718,785,920],50],
+  "Vidigueira":["Beja",[260,333,434,534,585,685],50],"Vieira do Minho":["Braga",[266,340,443,546,597,700],50],"Vila Flor":["Bragança",[224,308,392,475,531,587],50],
+  "Vila Franca de Xira":["Lisboa",[491,629,819,1008,1103,1292],75],"Vila Franca do Campo":["Região Autónoma dos Açores",[280,392,504,587,671,755],50],"Vila Nova da Barquinha":["Santarém",[247,316,411,506,554,649],50],
+  "Vila Nova de Cerveira":["Viana do Castelo",[224,308,392,475,531,590],50],"Vila Nova de Famalicão":["Braga",[311,398,518,638,698,818],50],"Vila Nova de Foz Côa":["Guarda",[224,308,392,475,531,587],50],
+  "Vila Nova de Gaia":["Porto",[491,629,819,1008,1103,1292],75],"Vila Nova de Paiva":["Viseu",[224,308,392,475,531,587],50],"Vila Nova de Poiares":["Coimbra",[224,308,392,475,531,587],50],
+  "Vila Pouca de Aguiar":["Vila Real",[224,308,392,475,531,587],50],"Vila Real":["Vila Real",[280,392,504,587,671,755],50],"Vila Real de Santo António":["Faro",[448,671,866,1034,1146,1257],100],
+  "Vila Velha de Ródão":["Castelo Branco",[224,308,392,475,531,587],50],"Vila Verde":["Braga",[271,347,452,557,609,714],50],"Vila Viçosa":["Évora",[224,308,392,475,531,587],50],
+  "Vila da Praia da Vitória":["Região Autónoma dos Açores",[304,392,506,623,682,799],50],"Vila de Rei":["Castelo Branco",[224,308,392,475,531,587],50],"Vila do Bispo":["Faro",[421,539,701,864,945,1108],75],
+  "Vila do Conde":["Porto",[385,493,641,790,864,1013],50],"Vila do Porto":["Região Autónoma dos Açores",[280,392,504,587,671,755],50],"Vimioso":["Bragança",[224,308,392,475,531,587],50],
+  "Vinhais":["Bragança",[224,308,392,475,531,587],50],"Viseu":["Viseu",[306,392,511,629,688,806],50],"Vizela":["Braga",[266,340,443,546,597,700],50],
+  "Vouzela":["Viseu",[259,332,432,533,583,683],50],"Águeda":["Aveiro",[283,362,471,580,635,744],50],"Évora":["Évora",[390,531,671,800,895,1026],75],
+  "Ílhavo":["Aveiro",[375,531,671,784,895,986],75],"Óbidos":["Leiria",[372,477,620,764,836,979],50]
 };
-const TIPS=["T1","T2","T3","T4","T5"];
+const nQuartos=tip=>parseInt(tip.slice(1),10);
+// Nome a mostrar: a Portaria distingue Calheta e Lagoa dos Açores/Madeira com "(R.A.A.)"/"(R.A.M.)"; o distrito já o indica.
+const nomeConcelho=c=>c.replace(/ \(R\.A\.[AM]\.\)$/,"");
 const $=id=>document.getElementById(id);
 const eur=v=>isFinite(v)?v.toLocaleString("pt-PT",{maximumFractionDigits:0})+" €":"–";
 
-const sel=$("concelho");
-Object.keys(LIMITS).forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;if(c==="Lisboa")o.selected=true;sel.appendChild(o)});
-const oo=document.createElement("option");oo.value="__other";oo.textContent="Outro concelho (introduzir limite)";sel.appendChild(oo);
+const sel=$("concelho"),selD=$("distrito");
+const porNome=(a,b)=>a.localeCompare(b,"pt");
+// Distritos por ordem alfabética, regiões autónomas no fim.
+const DISTRITOS=[...new Set(Object.values(CONCELHOS).map(c=>c[0]))].sort((a,b)=>(a.startsWith("Região")-b.startsWith("Região"))||porNome(a,b));
+DISTRITOS.forEach(d=>selD.add(new Option(d,d)));
+function encherConcelhos(d,escolhido){
+  sel.innerHTML="";
+  Object.keys(CONCELHOS).filter(c=>CONCELHOS[c][0]===d).sort(porNome).forEach(c=>sel.add(new Option(nomeConcelho(c),c)));
+  // Por omissão, o concelho com o nome do distrito (a capital), se existir.
+  sel.value=escolhido&&CONCELHOS[escolhido]?escolhido:(CONCELHOS[d]&&CONCELHOS[d][0]===d?d:sel.options[0].value);
+}
+selD.value="Lisboa";encherConcelhos("Lisboa","Lisboa");
+selD.addEventListener("change",()=>{encherConcelhos(selD.value);sel.dispatchEvent(new Event("change"))});
 
 let modo="q",calculated=false;
 let ten={a:0,total:0,wc:false,p:1,prop:0};
@@ -431,9 +539,9 @@ let Senhorio=null;
 const convidado=()=>!Senhorio;
 
 function baseLimit(){
-  const t=TIPS.indexOf($("tip").value);
-  if(sel.value==="__other")return parseFloat($("customLimit").value)||0;
-  return LIMITS[sel.value][t];
+  // Acima de T5: T5 + n × valor por quarto do concelho (nota do anexo da Portaria).
+  const [,v,extra]=CONCELHOS[sel.value],t=nQuartos($("tip").value);
+  return t<=5?v[t]:v[5]+(t-5)*extra;
 }
 // Limite da casa com as majorações cumulativas da Portaria 454/2026/1, art. 2.º, n.º 4.
 function limites(){
@@ -443,7 +551,6 @@ function limites(){
 }
 
 function calc(){
-  $("customWrap").hidden=sel.value!=="__other";
   if(Senhorio)Senhorio.antes();
   if(!calculated){limparInquilino();if(Senhorio)Senhorio.limpar();return}
   const {L,maj,Lm}=limites();
@@ -469,7 +576,7 @@ function estadoRenda(max){
 // Sem as duas áreas não há valor fiável, por isso não se mostra nenhum.
 function renderTenant(Lm){
   const st=$("tSt"),{maj}=limites();
-  $("tLoc").textContent=sel.value==="__other"?"–":sel.value;
+  $("tLoc").textContent=nomeConcelho(sel.value);
   $("tCasa").textContent=Lm?eur(Math.floor(Lm)):"–";
   $("tCasaT").textContent=Lm?`(${$("tip").value}${maj?`, com majoração de ${Math.round(maj*100)} %`:""}; o limite é repartido pelos quartos de acordo com a área)`:"";
   $("tA").textContent=ten.a?ten.a+" m²"+(ten.wc?", com casa de banho privativa":""):"–";
@@ -488,7 +595,7 @@ function renderTenant(Lm){
   estadoRenda(max);
 }
 function renderTenantApt(max){
-  $("tLoc").textContent=sel.value==="__other"?"–":sel.value;
+  $("tLoc").textContent=nomeConcelho(sel.value);
   $("tTip").textContent=$("tip").value;
   $("tM").textContent=eur(max);
   $("tPP").textContent="";
@@ -499,7 +606,7 @@ $("qA").addEventListener("input",()=>{ten.a=Math.round(parseFloat($("qA").value)
 $("qT").addEventListener("input",()=>{ten.total=Math.round(parseFloat($("qT").value)||0);recalc()});
 $("qW").addEventListener("change",()=>{ten.wc=$("qW").checked;recalc()});
 $("tr").addEventListener("input",()=>{ten.prop=parseFloat($("tr").value)||0;recalc()});
-["concelho","customLimit","park","energy"].forEach(id=>{$(id).addEventListener("input",recalc);$(id).addEventListener("change",recalc)});
+["concelho","park","energy"].forEach(id=>{$(id).addEventListener("input",recalc);$(id).addEventListener("change",recalc)});
 
 document.querySelectorAll('[role=tab]').forEach(b=>b.addEventListener("click",()=>{
   document.querySelectorAll('[role=tab]').forEach(x=>{x.setAttribute("aria-selected",x===b);$(x.getAttribute("aria-controls")).hidden=x!==b});
@@ -524,6 +631,9 @@ function setView(v){
 }
 function setModo(m){
   modo=m;document.body.dataset.modo=m;
+  // Um T0 não tem quartos: só pode ser arrendado inteiro.
+  $("tip").querySelector('[value="T0"]').disabled=m==="q";
+  if(m==="q"&&$("tip").value==="T0"){$("tip").value="T1";$("tip").dispatchEvent(new Event("change"))}
   $("m-q").setAttribute("aria-pressed",m==="q");
   $("m-apt").setAttribute("aria-pressed",m==="apt");
   try{localStorage.setItem("modo",m)}catch(e){}
@@ -552,15 +662,53 @@ const MKT_EST={
   "Matosinhos":"Porto","Vila Nova de Gaia":"Porto","Guimarães":"Braga","Portimão":"Faro","Fundão":"Castelo Branco"
 };
 // Renda mediana por m² dos novos contratos de arrendamento, últimos 12 meses até ao 2.º trimestre de 2026 (INE).
+// Concelhos sem valor: o INE não divulga (poucos contratos).
 const APT_M2={
-  "Almada":13.71,"Amadora":13.30,"Aveiro":9.75,"Braga":8.68,"Bragança":5.00,"Cascais":16.83,"Coimbra":9.44,
-  "Évora":8.72,"Faro":10.29,"Funchal":14.03,"Fundão":4.86,"Gondomar":9.03,"Guimarães":6.92,"Leiria":7.97,
-  "Lisboa":17.43,"Loures":12.15,"Maia":9.85,"Matosinhos":12.48,"Odivelas":12.90,"Oeiras":15.75,"Ponta Delgada":8.00,
-  "Portalegre":4.96,"Portimão":11.70,"Porto":14.48,"Santarém":7.71,"Seixal":11.44,"Setúbal":11.20,"Sintra":11.41,
-  "Vila Franca de Xira":11.03,"Vila Nova de Gaia":10.85,"Viseu":6.83
+  "Abrantes":5.91,"Aguiar da Beira":4.10,"Albergaria-a-Velha":6.78,"Albufeira":12.22,"Alcanena":5.00,"Alcobaça":7.00,
+  "Alcochete":10.68,"Alcácer do Sal":7.81,"Alenquer":8.79,"Alijó":3.48,"Aljezur":8.99,"Aljustrel":6.94,
+  "Almada":13.71,"Almeida":2.85,"Almeirim":6.99,"Almodôvar":5.27,"Alpiarça":5.21,"Alvaiázere":4.51,
+  "Amadora":13.30,"Amarante":4.84,"Amares":6.06,"Anadia":5.96,"Angra do Heroísmo":5.95,"Ansião":5.00,
+  "Arcos de Valdevez":5.29,"Arganil":4.53,"Arouca":5.28,"Arraiolos":5.09,"Arronches":3.54,"Arruda dos Vinhos":7.87,
+  "Aveiro":9.75,"Azambuja":7.92,"Baião":4.26,"Barcelos":6.59,"Barreiro":11.72,"Batalha":6.48,
+  "Beja":6.80,"Belmonte":3.65,"Benavente":8.05,"Bombarral":6.91,"Borba":3.03,"Braga":8.68,
+  "Bragança":5.00,"Cabeceiras de Basto":4.43,"Cadaval":6.26,"Caldas da Rainha":8.42,"Calheta (R.A.M.)":6.08,"Caminha":6.67,
+  "Campo Maior":3.27,"Cantanhede":6.00,"Carregal do Sal":4.62,"Cartaxo":6.45,"Cascais":16.83,"Castanheira de Pera":5.00,
+  "Castelo Branco":5.32,"Castelo de Paiva":4.20,"Castro Daire":4.78,"Castro Marim":9.18,"Castro Verde":5.63,"Celorico da Beira":3.10,
+  "Celorico de Basto":3.75,"Chamusca":4.03,"Chaves":5.41,"Cinfães":4.24,"Coimbra":9.44,"Condeixa-a-Nova":6.54,
+  "Constância":5.74,"Coruche":6.67,"Covilhã":6.23,"Cuba":3.84,"Câmara de Lobos":7.96,"Elvas":4.93,
+  "Entroncamento":7.28,"Espinho":10.03,"Esposende":7.78,"Estarreja":6.11,"Estremoz":4.78,"Fafe":4.84,
+  "Faro":10.29,"Felgueiras":4.37,"Ferreira do Alentejo":5.00,"Ferreira do Zêzere":5.22,"Figueira da Foz":8.20,"Figueiró dos Vinhos":4.51,
+  "Funchal":14.03,"Fundão":4.86,"Golegã":5.02,"Gondomar":9.03,"Gouveia":3.68,"Grândola":11.13,
+  "Guarda":5.26,"Guimarães":6.92,"Horta":4.41,"Idanha-a-Nova":3.21,"Lagoa":9.93,"Lagoa (R.A.A.)":6.88,
+  "Lagos":12.77,"Lamego":4.88,"Leiria":7.97,"Lisboa":17.43,"Loulé":12.33,"Loures":12.15,
+  "Lourinhã":7.39,"Lousada":4.86,"Lousã":5.48,"Macedo de Cavaleiros":3.75,"Machico":7.08,"Madalena":4.99,
+  "Mafra":10.97,"Maia":9.85,"Mangualde":4.92,"Manteigas":3.92,"Marco de Canaveses":4.88,"Marinha Grande":6.44,
+  "Marvão":2.92,"Matosinhos":12.48,"Mação":4.00,"Mealhada":5.35,"Melgaço":4.21,"Mira":6.30,
+  "Miranda do Corvo":6.40,"Miranda do Douro":3.50,"Mirandela":4.16,"Mogadouro":2.92,"Moimenta da Beira":3.61,"Moita":10.46,
+  "Monchique":7.41,"Mondim de Basto":4.00,"Montemor-o-Novo":5.65,"Montemor-o-Velho":6.45,"Montijo":10.19,"Monção":6.67,
+  "Mora":4.17,"Mortágua":4.48,"Moura":4.82,"Murtosa":6.24,"Mêda":2.65,"Nazaré":9.05,
+  "Nelas":4.91,"Odemira":6.84,"Odivelas":12.90,"Oeiras":15.75,"Olhão":8.75,"Oliveira de Azeméis":5.81,
+  "Oliveira de Frades":4.77,"Oliveira do Bairro":6.13,"Oliveira do Hospital":4.56,"Ourém":6.90,"Ovar":7.50,"Palmela":9.94,
+  "Paredes":5.84,"Paredes de Coura":4.55,"Paços de Ferreira":5.54,"Pedrógão Grande":5.16,"Penacova":4.48,"Penafiel":5.74,
+  "Penalva do Castelo":4.15,"Penela":5.44,"Peniche":7.96,"Peso da Régua":4.76,"Pinhel":2.94,"Pombal":5.75,
+  "Ponta Delgada":8.00,"Ponte da Barca":4.43,"Ponte de Lima":6.14,"Ponte de Sor":5.22,"Portalegre":4.96,"Portimão":11.70,
+  "Porto":14.48,"Porto Santo":9.00,"Porto de Mós":5.63,"Proença-a-Nova":4.06,"Póvoa de Lanhoso":5.00,"Póvoa de Varzim":9.09,
+  "Redondo":4.28,"Reguengos de Monsaraz":5.21,"Ribeira Grande":5.69,"Rio Maior":5.90,"Sabugal":3.29,"Salvaterra de Magos":5.98,
+  "Santa Comba Dão":4.93,"Santa Cruz":11.46,"Santa Maria da Feira":6.75,"Santarém":7.71,"Santiago do Cacém":9.89,"Santo Tirso":5.88,
+  "Seia":4.13,"Seixal":11.44,"Serpa":4.35,"Sertã":4.50,"Sesimbra":10.19,"Setúbal":11.20,
+  "Sever do Vouga":4.61,"Silves":10.19,"Sines":15.07,"Sintra":11.41,"Sobral de Monte Agraço":7.10,"Soure":5.90,
+  "Sousel":3.81,"Sátão":3.76,"São Brás de Alportel":6.93,"São João da Madeira":7.30,"São João da Pesqueira":4.31,"São Pedro do Sul":6.18,
+  "Tarouca":3.25,"Tavira":11.46,"Tomar":7.22,"Tondela":5.84,"Torre de Moncorvo":3.13,"Torres Novas":6.66,
+  "Torres Vedras":8.89,"Trancoso":3.67,"Trofa":7.59,"Tábua":4.56,"Vagos":6.34,"Vale de Cambra":5.84,
+  "Valença":5.65,"Valongo":8.59,"Valpaços":3.81,"Velas":6.13,"Vendas Novas":7.07,"Viana do Alentejo":3.76,
+  "Viana do Castelo":7.80,"Vidigueira":4.00,"Vieira do Minho":5.70,"Vila Flor":2.72,"Vila Franca de Xira":11.03,"Vila Nova da Barquinha":5.57,
+  "Vila Nova de Cerveira":4.98,"Vila Nova de Famalicão":6.90,"Vila Nova de Foz Côa":3.01,"Vila Nova de Gaia":10.85,"Vila Nova de Paiva":4.21,"Vila Nova de Poiares":4.90,
+  "Vila Pouca de Aguiar":4.00,"Vila Real":6.29,"Vila Real de Santo António":9.92,"Vila Velha de Ródão":3.98,"Vila Verde":6.01,"Vila Viçosa":4.44,
+  "Vila da Praia da Vitória":6.52,"Vila de Rei":4.00,"Vila do Bispo":9.36,"Vila do Conde":8.67,"Viseu":6.83,"Vizela":5.51,
+  "Vouzela":6.18,"Águeda":6.26,"Évora":8.72,"Ílhavo":8.40,"Óbidos":8.67
 };
 // Área útil típica por tipologia, usada só quando a área do apartamento não é indicada.
-const APT_A_TIPICA={T1:55,T2:80,T3:100,T4:125,T5:150};
+const APT_A_TIPICA={T0:35,T1:55,T2:80,T3:100,T4:125,T5:150,T6:175,T7:200,T8:225};
 
 let apt={a:0,prop:0,auto:false};
 let rooms=[{a:12,rent:true,wc:false,p:1,prop:0},{a:10,rent:true,wc:false,p:1,prop:0},{a:9,rent:true,wc:false,p:1,prop:0}];
@@ -586,7 +734,7 @@ function mktRefApt(){
 }
 
 function syncRooms(){
-  const n=TIPS.indexOf($("tip").value)+1;
+  const n=nQuartos($("tip").value);
   while(rooms.length<n)rooms.push({a:9,rent:true,wc:false,p:1,prop:0});
   rooms.length=n;
   const box=$("rooms");box.innerHTML="";
@@ -619,7 +767,7 @@ function limpar(){
 function render(L,maj,Lm){
   const fin=$("fin").value;
   $("limitV").textContent=L?eur(Math.floor(Lm)):"–";
-  $("limitT").textContent=L?`limite da casa (${$("tip").value}, ${sel.value==="__other"?"concelho indicado":sel.value}${maj?`, +${Math.round(maj*100)} %`:""})`:"Introduza o limite do concelho";
+  $("limitT").textContent=L?`limite da casa (${$("tip").value}, ${nomeConcelho(sel.value)}${maj?`, +${Math.round(maj*100)} %`:""})`:"Introduza o limite do concelho";
   const prazo=parseFloat($("prazo").value)||0;
   const items=[];
   const add=(ok,t)=>items.push(`<li><span class="ic ${ok===true?"ok":ok===false?"bad":"warn"}">${ok===true?"✓":ok===false?"✕":"!"}</span><span>${t}</span></li>`);
@@ -665,7 +813,7 @@ function render(L,maj,Lm){
   // o limite da casa fica como referência (a parte dos quartos não arrendados não é redistribuída).
   if(L){
     const nR=rooms.filter(r=>r.rent).length,sumMax=rooms.reduce((s,r,i)=>s+(r.rent?maxes[i]:0),0);
-    const casa=`limite da casa: ${eur(Math.floor(Lm))} (${$("tip").value}, ${sel.value==="__other"?"concelho indicado":sel.value}${maj?`, +${Math.round(maj*100)} %`:""})`;
+    const casa=`limite da casa: ${eur(Math.floor(Lm))} (${$("tip").value}, ${nomeConcelho(sel.value)}${maj?`, +${Math.round(maj*100)} %`:""})`;
     $("limitV").textContent=eur(sumMax);
     $("limitT").textContent=(nR===rooms.length?`renda máxima total dos ${nR} quartos`:`renda máxima dos quartos arrendados (${nR} de ${rooms.length})`)+" · "+casa;
   }
