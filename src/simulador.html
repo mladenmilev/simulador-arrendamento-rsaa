@@ -238,7 +238,6 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
         <div class="field checks">
           <label><input type="checkbox" id="qW"> Casa de banho privativa</label>
         </div>
-        <p class="hint" style="margin:-6px 0 10px">No RSAA, o arrendamento de um quarto só é possível em contrato de residência temporária (com residência fiscal noutro concelho).</p>
       </div>
 
       <div class="fillrow" style="margin-top:18px">
@@ -275,6 +274,8 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
           <input type="number" id="tr" min="0" step="1" inputmode="numeric">
         </div>
         <p class="tstat warn" id="tSt">Indique a renda atual ou proposta pelo senhorio para verificar.</p>
+        <h3 style="font-size:1rem;margin:16px 0 0">Para o contrato ficar no RSAA</h3>
+        <ul class="checklist" id="tReq" style="margin-top:8px"></ul>
         <p class="hint">A renda máxima não inclui despesas (água, luz, internet), que são pagas à parte.</p>
       </div>
       <!-- senhorio:inicio -->
@@ -559,6 +560,19 @@ function calc(){
 }
 function recalc(){if(Senhorio)Senhorio.applyAuto();calc()}
 
+// Condições de elegibilidade (DL 97/2026, Anexo III, arts. 3.º e 5.º). Não alteram a renda máxima.
+function requisitosInquilino(){
+  const i=t=>`<li><span class="ic warn">!</span><span>${t}</span></li>`;
+  $("tReq").innerHTML=(modo==="apt"?[
+    "Residência permanente: prazo mínimo de 3 anos.",
+    "Residência temporária: prazo mínimo de 3 meses (renovável) e só se tiver residência fiscal noutro concelho (ex.: estudante ou trabalhador deslocado).",
+  ]:[
+    "Contrato de residência temporária: no RSAA, um quarto só pode ser arrendado nesta modalidade.",
+    "Tem de ter residência fiscal noutro concelho (ex.: estudante ou trabalhador deslocado).",
+    "Prazo mínimo de 3 meses, renovável.",
+    "O quarto tem de ter janela para o exterior e acesso à entrada, a uma casa de banho completa e à cozinha.",
+  ]).concat("A renda máxima é a mesma para contratos temporários e permanentes. Se as condições não se cumprirem, o contrato não fica no RSAA.").map(i).join("");
+}
 function limparInquilino(){
   ["tLoc","tTip","tA","tM","tCasa"].forEach(id=>$(id).textContent="–");
   $("tPP").textContent=$("tCasaT").textContent="";
@@ -638,6 +652,7 @@ function setModo(m){
   $("m-apt").setAttribute("aria-pressed",m==="apt");
   try{localStorage.setItem("modo",m)}catch(e){}
   if(Senhorio)Senhorio.mudouModo();
+  requisitosInquilino();
   recalc();
 }
 $("m-q").addEventListener("click",()=>setModo("q"));
