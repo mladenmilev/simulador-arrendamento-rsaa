@@ -137,9 +137,9 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
     <div>
       <h1>Simulador de Arrendamento Acessível (RSAA)</h1>
       <!-- senhorio:inicio -->
-      <p class="lede only-sen">Calcula a renda máxima de cada quarto, ou do apartamento inteiro, no Regime Simplificado de Arrendamento Acessível (RSAA), que dá isenção total de IRS ao senhorio. Valores da Portaria n.º 454/2026/1, de 13 de outubro de 2026.</p>
+      <p class="lede only-sen">Calcula a renda máxima (teto) de cada quarto, ou do apartamento inteiro, para o contrato beneficiar do Regime Simplificado de Arrendamento Acessível (RSAA), que dá isenção total de IRS ao senhorio. Pode cobrar menos; acima do teto o contrato é legal, mas fica na tributação normal. Valores da Portaria n.º 454/2026/1, de 13 de outubro de 2026.</p>
       <!-- senhorio:fim -->
-      <p class="lede only-inq">Indique as características do apartamento<span class="only-q"> e do seu quarto</span> e veja a renda máxima permitida no arrendamento acessível (RSAA).</p>
+      <p class="lede only-inq">Indique as características do apartamento<span class="only-q"> e do seu quarto</span> e veja a renda máxima para o contrato beneficiar do arrendamento acessível (RSAA). Acima desse valor o contrato continua válido, mas fica fora do RSAA.</p>
     </div>
   </header>
   <div class="viewbar">
@@ -261,7 +261,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
         <button type="button" class="btn primary" id="fillMax">Calcular</button>
       </div>
       <!-- senhorio:inicio -->
-      <p class="hint only-sen" style="margin:-4px 0 8px">Calcula a renda máxima <span class="only-q">de cada quarto</span><span class="only-apt">do apartamento</span>. Se já indicou uma renda proposta, verifica se está dentro do limite. Se estiver vazia, é preenchida com o máximo (arredondado para baixo) e acompanha automaticamente as alterações seguintes, até a editar à mão.</p>
+      <p class="hint only-sen" style="margin:-4px 0 8px">Calcula o teto do RSAA <span class="only-q">de cada quarto</span><span class="only-apt">do apartamento</span>. Se já indicou uma renda proposta, verifica se está dentro do teto. Se estiver vazia, é preenchida com o máximo (arredondado para baixo) e acompanha automaticamente as alterações seguintes, até a editar à mão.</p>
       <!-- senhorio:fim -->
     </section>
 
@@ -273,8 +273,8 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
           <dt class="only-apt">Tipologia</dt><dd class="only-apt" id="tTip">–</dd>
           <dt class="only-q">Área do quarto</dt><dd class="only-q" id="tA">–</dd>
           <dt class="only-q"><label for="tp" style="font-weight:400;margin:0">Pessoas no quarto</label></dt><dd class="only-q"><select id="tp" style="width:auto"><option value="1">1</option><option value="2">2</option></select></dd>
-          <dt class="only-q">Renda máxima da casa toda</dt><dd class="only-q"><span id="tCasa">–</span> <span class="hint" id="tCasaT"></span></dd>
-          <dt>Renda máxima permitida</dt><dd><span class="tbig" id="tM">–</span> <span class="hint" id="tPP"></span></dd>
+          <dt class="only-q">Renda máxima da casa toda no RSAA</dt><dd class="only-q"><span id="tCasa">–</span> <span class="hint" id="tCasaT"></span></dd>
+          <dt>Renda máxima no RSAA</dt><dd><span class="tbig" id="tM">–</span> <span class="hint" id="tPP"></span></dd>
         </dl>
         <div class="field">
           <label for="tr">Renda atual ou proposta pelo senhorio (€/mês)</label>
@@ -283,17 +283,18 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
         <p class="tstat warn" id="tSt">Indique a renda atual ou proposta pelo senhorio para verificar.</p>
         <h3 style="font-size:1rem;margin:16px 0 0">Para o contrato ficar no RSAA</h3>
         <ul class="checklist" id="tReq" style="margin-top:8px"></ul>
-        <p class="hint">A renda máxima não inclui despesas (água, luz, internet), que são pagas à parte.</p>
+        <p class="hint">É o teto para o contrato beneficiar do RSAA (isenção de IRS para o senhorio), não um preço de referência: a renda pode ser mais baixa, consoante a localização e o estado do imóvel. Acima deste valor o contrato é legal, mas fica fora do RSAA. Não inclui despesas (água, luz, internet), que são pagas à parte.</p>
       </div>
       <!-- senhorio:inicio -->
       <div class="only-sen">
       <div class="limit-big"><span class="v" id="limitV">–</span><span class="t" id="limitT"></span></div>
-      <p class="hint" id="areaT" style="margin:-6px 0 10px"></p>
+      <p class="hint" style="margin:-6px 0 6px">Teto para beneficiar do RSAA (isenção de IRS), não um preço de referência. Pode cobrar menos; acima deste valor o contrato é legal, mas fica na tributação normal.</p>
+      <p class="hint" id="areaT" style="margin:0 0 10px"></p>
       <div class="only-apt" id="aptRes"></div>
       <div class="split only-q" id="split" role="img" aria-label="Divisão do limite pelos quartos"></div>
       <div class="tbl only-q">
         <table>
-          <thead><tr><th>Quarto</th><th class="num">Área p/ cálculo</th><th class="num">Renda máx.</th><th class="num">Por pessoa</th><th class="num"><span class="only-sen">Proposta</span><span class="only-inq">Renda</span></th><th>Estado</th></tr></thead>
+          <thead><tr><th>Quarto</th><th class="num">Área p/ cálculo</th><th class="num">Máx. RSAA</th><th class="num">Por pessoa</th><th class="num"><span class="only-sen">Proposta</span><span class="only-inq">Renda</span></th><th>Estado</th></tr></thead>
           <tbody id="tbody"></tbody>
         </table>
       </div>
@@ -342,7 +343,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
       </ul>
       <h3>O contrato</h3>
       <ol>
-        <li>Um contrato por quarto, com renda igual ou inferior ao limite calculado acima. Quartos só em residência temporária; em residência permanente, só o apartamento inteiro.</li>
+        <li>Um contrato por quarto, com renda igual ou inferior ao teto calculado acima (acima dele o contrato é válido, mas sem isenção). Quartos só em residência temporária; em residência permanente, só o apartamento inteiro.</li>
         <li>Prazo mínimo: 3 meses (renovável) para residência temporária; 3 anos para residência permanente.</li>
         <li>Residência temporária só se o inquilino tiver residência fiscal noutro concelho. Peça comprovativo.</li>
         <li>Pode ter duas pessoas no mesmo quarto: a lei exige no mínimo uma. As duas constam do contrato e a renda máxima do quarto não aumenta.</li>
@@ -358,7 +359,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
       </ol>
       <h3>O que faz perder a isenção</h3>
       <ul>
-        <li>Cobrar acima do limite ou encurtar o prazo mínimo.</li>
+        <li>Cobrar acima do teto do RSAA ou encurtar o prazo mínimo.</li>
         <li>Nesse caso, tem de declarar o incumprimento e pagar a diferença de imposto com juros compensatórios.</li>
       </ul>
     </div>
@@ -589,8 +590,8 @@ function estadoRenda(max){
   const st=$("tSt");
   if(document.activeElement!==$("tr"))$("tr").value=ten.prop||"";
   if(!ten.prop){st.className="tstat warn";st.textContent="Indique a renda atual ou proposta pelo senhorio para verificar."}
-  else if(ten.prop<=max){st.className="tstat ok";st.textContent=`A renda de ${eur(ten.prop)} está dentro do limite.`}
-  else{st.className="tstat bad";st.textContent=`A renda de ${eur(ten.prop)} está ${eur(ten.prop-max)} acima do limite. Com este valor, o contrato não pode ficar no arrendamento acessível.`}
+  else if(ten.prop<=max){st.className="tstat ok";st.textContent=`A renda de ${eur(ten.prop)} está dentro do teto do RSAA.`}
+  else{st.className="tstat bad";st.textContent=`A renda de ${eur(ten.prop)} está ${eur(ten.prop-max)} acima do teto do RSAA. O contrato é válido, mas não beneficia do RSAA (o senhorio fica na tributação normal).`}
 }
 // Inquilino, modo quartos: só o seu quarto. Portaria 454/2026/1, art. 2.º, n.º 2:
 // limite do quarto = limite da casa × área do quarto (+25 % com casa de banho privativa) ÷ soma das áreas dos quartos.
@@ -599,7 +600,7 @@ function renderTenant(Lm){
   const st=$("tSt"),{maj}=limites();
   $("tLoc").textContent=nomeConcelho(sel.value);
   $("tCasa").textContent=Lm?eur(Math.floor(Lm)):"–";
-  $("tCasaT").textContent=Lm?`(${$("tip").value}${maj?`, com majoração de ${Math.round(maj*100)} %`:""}; o limite é repartido pelos quartos de acordo com a área)`:"";
+  $("tCasaT").textContent=Lm?`(${$("tip").value}${maj?`, com majoração de ${Math.round(maj*100)} %`:""}; o teto é repartido pelos quartos de acordo com a área)`:"";
   $("tA").textContent=ten.a?ten.a+" m²"+(ten.wc?", com casa de banho privativa":""):"–";
   $("tp").value=ten.p;
   if(ten.total&&ten.total<ten.a){$("tM").textContent="–";$("tPP").textContent="";st.className="tstat warn";st.textContent="A área de todos os quartos não pode ser menor do que a área do seu quarto.";return}
@@ -612,7 +613,7 @@ function renderTenant(Lm){
   const max=Math.floor(Lm*(ten.wc?ten.a*1.25:ten.a)/ten.total);
   $("qHint").textContent=`O seu quarto tem ${Math.round(ten.a/ten.total*100)} % da área dos quartos${ten.wc?`; conta como ${Math.round(ten.a*1.25/ten.total*100)} % por ter casa de banho privativa`:""}. Não conte sala, cozinha nem casas de banho.`;
   $("tM").textContent=eur(max);
-  $("tPP").textContent=`(${ten.p===2?`${eur(Math.floor(max/2))} por pessoa · `:""}${Math.round(max/Math.floor(Lm)*100)} % da renda máxima da casa)`;
+  $("tPP").textContent=`(${ten.p===2?`${eur(Math.floor(max/2))} por pessoa · `:""}${Math.round(max/Math.floor(Lm)*100)} % do teto da casa)`;
   estadoRenda(max);
 }
 function renderTenantApt(max){
@@ -789,7 +790,7 @@ function limpar(){
 function render(L,maj,Lm){
   const fin=$("fin").value;
   $("limitV").textContent=L?eur(Math.floor(Lm)):"–";
-  $("limitT").textContent=L?`limite da casa (${$("tip").value}, ${nomeConcelho(sel.value)}${maj?`, +${Math.round(maj*100)} %`:""})`:"Introduza o limite do concelho";
+  $("limitT").textContent=L?`teto RSAA da casa (${$("tip").value}, ${nomeConcelho(sel.value)}${maj?`, +${Math.round(maj*100)} %`:""})`:"Introduza o limite do concelho";
   const prazo=parseFloat($("prazo").value)||0;
   const items=[];
   const add=(ok,t)=>items.push(`<li><span class="ic ${ok===true?"ok":ok===false?"bad":"warn"}">${ok===true?"✓":ok===false?"✕":"!"}</span><span>${t}</span></li>`);
@@ -799,10 +800,10 @@ function render(L,maj,Lm){
     let st,ok=true;
     if(apt.auto)st='<span class="pill ok">Máximo (automático)</span>';
     else if(!apt.prop)st='<span class="pill warn">Sem proposta</span>';
-    else if(apt.prop<=max)st='<span class="pill ok">Dentro do limite</span>';
-    else{st=`<span class="pill bad">${eur(apt.prop-max)} acima</span>`;ok=false}
-    $("aptRes").innerHTML=`<dl class="tres"><dt>Renda máxima</dt><dd>${eur(max)}</dd><dt>Renda proposta</dt><dd>${apt.prop?eur(apt.prop):"–"}</dd><dt>Estado</dt><dd>${st}</dd></dl>`;
-    add(ok, ok?"Renda proposta dentro do limite do apartamento.":"A renda proposta está acima do limite: baixe-a ou o contrato não terá isenção.");
+    else if(apt.prop<=max)st='<span class="pill ok">Dentro do teto</span>';
+    else{st=`<span class="pill bad">${eur(apt.prop-max)} acima do teto</span>`;ok=false}
+    $("aptRes").innerHTML=`<dl class="tres"><dt>Máx. RSAA</dt><dd>${eur(max)}</dd><dt>Renda proposta</dt><dd>${apt.prop?eur(apt.prop):"–"}</dd><dt>Estado</dt><dd>${st}</dd></dl>`;
+    add(ok, ok?"Renda proposta dentro do teto RSAA do apartamento.":"A renda proposta está acima do teto do RSAA: baixe-a para ter isenção de IRS, ou o contrato fica na tributação normal.");
     requisitos(add,fin,prazo,false);
     $("checklist").innerHTML=items.join("");
     comparar(apt.prop&&apt.prop<=max?apt.prop:max, parseFloat($("mkt").value)||0, true);
@@ -823,21 +824,21 @@ function render(L,maj,Lm){
     if(!r.rent)st='<span class="pill warn">Não arrendado</span>';
     else if(r.auto)st='<span class="pill ok">Máximo (automático)</span>';
     else if(!r.prop)st='<span class="pill warn">Sem proposta</span>';
-    else if(r.prop<=max)st='<span class="pill ok">Dentro do limite</span>';
-    else{st=`<span class="pill bad">${eur(r.prop-max)} acima</span>`;allOk=false}
+    else if(r.prop<=max)st='<span class="pill ok">Dentro do teto</span>';
+    else{st=`<span class="pill bad">${eur(r.prop-max)} acima do teto</span>`;allOk=false}
     if(r.rent){anyRent=true;sumRSAA+=r.prop&&r.prop<=max?r.prop:max;sumMkt+=parseFloat($("mkt").value)||0}
     tb.insertAdjacentHTML("beforeend",`<tr><td>Quarto ${i+1}${r.p===2?" (2 pessoas)":""}</td><td class="num">${calcA.toLocaleString("pt-PT",{maximumFractionDigits:0})} m²</td><td class="num"><strong>${eur(max)}</strong></td><td class="num">${r.p===2?eur(per):"–"}</td><td class="num">${r.prop?eur(r.prop):"–"}</td><td>${st}</td></tr>`);
     const w=total>0?(r.a/total*100):0;
     sp.insertAdjacentHTML("beforeend",`<div class="${r.rent?"":"off"}" style="flex:${w} 1 0" title="Quarto ${i+1}: ${eur(max)}">Q${i+1} · ${eur(max)}</div>`);
   });
-  add(allOk&&anyRent, allOk?"Rendas propostas dentro do limite de cada quarto.":"Há rendas acima do limite: baixe-as ou o contrato não terá isenção.");
+  add(allOk&&anyRent, allOk?"Rendas propostas dentro do teto RSAA de cada quarto.":"Há rendas acima do teto do RSAA: baixe-as para ter isenção de IRS, ou esses contratos ficam na tributação normal.");
   // No modo quartos, o valor em destaque é o que os quartos arrendados podem render;
   // o limite da casa fica como referência (a parte dos quartos não arrendados não é redistribuída).
   if(L){
     const nR=rooms.filter(r=>r.rent).length,sumMax=rooms.reduce((s,r,i)=>s+(r.rent?maxes[i]:0),0);
-    const casa=`limite da casa: ${eur(Math.floor(Lm))} (${$("tip").value}, ${nomeConcelho(sel.value)}${maj?`, +${Math.round(maj*100)} %`:""})`;
+    const casa=`teto RSAA da casa: ${eur(Math.floor(Lm))} (${$("tip").value}, ${nomeConcelho(sel.value)}${maj?`, +${Math.round(maj*100)} %`:""})`;
     $("limitV").textContent=eur(sumMax);
-    $("limitT").textContent=(nR===rooms.length?`renda máxima total dos ${nR} quartos`:`renda máxima dos quartos arrendados (${nR} de ${rooms.length})`)+" · "+casa;
+    $("limitT").textContent=(nR===rooms.length?`teto RSAA total dos ${nR} quartos`:`teto RSAA dos quartos arrendados (${nR} de ${rooms.length})`)+" · "+casa;
   }
   // DL 97/2026, Anexo III, art. 3.º, n.º 2: partes de habitação só em contratos de residência temporária.
   if(fin==="perm")add(false,"No RSAA, arrendar quartos (parte da habitação) só é possível em residência temporária (DL 97/2026, Anexo III, art. 3.º, n.º 2). Para residência permanente, arrende o apartamento inteiro.");
