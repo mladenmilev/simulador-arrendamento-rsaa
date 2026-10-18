@@ -96,13 +96,14 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--tile);outline-o
       </form>
     </section>
   </div>
-  <p class="privacidade">Privacidade: guardamos apenas o nome, o e-mail, o método de identificação e a data. Os valores introduzidos no simulador não são guardados. Este simulador não substitui um contabilista ou advogado.</p>
+  <p class="privacidade">Privacidade: guardamos apenas o nome, o e-mail, o método de identificação e a data. Os valores introduzidos no simulador não são guardados. Com o seu consentimento, usamos o Google Analytics para medir visitas de forma agregada. Este simulador não substitui um contabilista ou advogado.</p>
 </div>
 <p class="versao" id="versao"></p>
 
 <script type="module">
 import { auth, db, local } from "/js/firebase.js";
 import { VERSAO } from "/js/versao.js";
+import { evento } from "/js/analytics.js";
 import { GoogleAuthProvider, signInWithPopup, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
@@ -123,6 +124,7 @@ const abrir = () => {
 };
 $("convidado").addEventListener("click", () => {
   try { localStorage.setItem("convidado", "1"); } catch (e) {}
+  evento("entrar_convidado");
   location.href = "/simulador?vista=inquilino";
 });
 
@@ -153,6 +155,7 @@ $("google").addEventListener("click", async () => {
   try {
     const { user } = await signInWithPopup(auth, new GoogleAuthProvider());
     await registar(user, { nome: user.displayName || user.email, email: user.email, metodo: "google" });
+    evento("login", { method: "google" });
     abrir();
   } catch (e) {
     emCurso = false; ocupado(false);
@@ -173,6 +176,7 @@ $("form").addEventListener("submit", async ev => {
   try {
     const user = auth.currentUser?.isAnonymous ? auth.currentUser : (await signInAnonymously(auth)).user;
     await registar(user, { nome, email, metodo: "formulario" });
+    evento("login", { method: "formulario" });
     abrir();
   } catch (e) {
     emCurso = false; ocupado(false);

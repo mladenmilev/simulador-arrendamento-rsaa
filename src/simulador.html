@@ -638,6 +638,8 @@ function fillMax(){
   const first=!calculated;calculated=true;
   if(Senhorio&&document.body.dataset.view!=="inq")Senhorio.preencher();
   recalc();
+  // Google Analytics (carregado pela moldura só com consentimento): sem dados pessoais.
+  if(window.gtag&&window.google_tag_manager)gtag("event","calcular",{vista:document.body.dataset.view,modo});
   if(first&&matchMedia("(max-width:860px)").matches)$("h-res").scrollIntoView({behavior:"smooth"});
 }
 $("fillMax").addEventListener("click",fillMax);

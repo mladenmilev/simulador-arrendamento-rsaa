@@ -24,6 +24,7 @@
 // (as regras só a entregam com registo); o convidado recebe a versão só com a vista do inquilino.
 import { auth, db, local } from "/js/firebase.js";
 import { VERSAO } from "/js/versao.js";
+import "/js/analytics.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
