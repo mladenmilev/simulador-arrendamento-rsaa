@@ -46,10 +46,13 @@ function versao(texto, inquilino) {
 
 export function extrair(inquilino = false) {
   const html = versao(readFileSync(ORIGEM, "utf8"), inquilino);
+  // Título e estilos só no <head>: o JavaScript do simulador pode conter estas etiquetas em texto
+  // (ex.: a página "Análise da situação" gerada no navegador).
+  const cabeca = html.slice(0, html.indexOf("</head>"));
   const corpo = unico(html, /<body[^>]*>([\s\S]*)<\/body>/g, "body");
   return {
-    titulo: unico(html, /<title>([\s\S]*?)<\/title>/g, "title"),
-    css: unico(html, /<style>([\s\S]*?)<\/style>/g, "style"),
+    titulo: unico(cabeca, /<title>([\s\S]*?)<\/title>/g, "title"),
+    css: unico(cabeca, /<style>([\s\S]*?)<\/style>/g, "style"),
     js: unico(corpo, /<script>([\s\S]*?)<\/script>/g, "script"),
     html: corpo.replace(/<script>[\s\S]*?<\/script>/, "").trim(),
   };
