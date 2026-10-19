@@ -2,6 +2,7 @@
 //   public/renda-acessivel/index.html      – índice por distrito
 //   public/renda-acessivel/<concelho>.html – uma página por concelho (308)
 //   public/perguntas-frequentes.html       – perguntas frequentes (com dados estruturados FAQPage)
+//   public/contacto.html                    – contacto do autor (e-mail protegido contra robôs)
 //   public/sitemap.xml
 // Os ficheiros gerados não vão para o git; são criados por `npm run dev` e `npm run deploy`.
 import { readFileSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
@@ -67,7 +68,7 @@ const rodape = `
     <p>Calcule a renda máxima de cada quarto, com casa de banho privativa e majorações, verifique a renda proposta e veja se compensa face ao mercado.</p>
     <a class="btn primary" href="/">Abrir o simulador</a>
   </section>
-  <p class="nota"><a href="/perguntas-frequentes">Perguntas frequentes sobre o RSAA</a> · <a href="/renda-acessivel/">Renda acessível por concelho</a></p>
+  <p class="nota"><a href="/perguntas-frequentes">Perguntas frequentes sobre o RSAA</a> · <a href="/renda-acessivel/">Renda acessível por concelho</a> · <a href="/contacto">Contacto</a></p>
   <p class="nota">Valores da <a href="${PORTARIA}" target="_blank" rel="noopener">Portaria n.º 454/2026/1</a>, de 13 de outubro (anexo), que regulamenta o RSAA (Decreto-Lei n.º 97/2026, Anexo III). Atualizados automaticamente a 1 de janeiro de cada ano pelo coeficiente do NRAU. Página informativa; não substitui um contabilista ou advogado. Não afiliado ao IHRU.</p>
 </div>
 <p class="versao" id="versao"></p>
@@ -229,6 +230,40 @@ ${FAQ.map(([q, r], i) => `
   </section>`).join("")}` + rodape;
 }
 
+// Contacto: o e-mail não aparece no HTML. Está guardado em partes invertidas e só é montado no navegador
+// depois de um clique, o que trava a maioria dos robôs que recolhem endereços.
+function paginaContacto() {
+  const url = `${SITE}/contacto`;
+  const titulo = "Contacto – Simulador de Arrendamento Acessível (RSAA)";
+  const descricao = "Sugestões, correções ou interesse em usar o simulador RSAA: contacte o autor.";
+  const jsonld = { "@context": "https://schema.org", "@type": "ContactPage", name: titulo, url };
+  return cabeca({ titulo, descricao, url, jsonld, migalhas: "Contacto" }) + `
+  <h1>Contacto</h1>
+  <p class="lede">Sugestões, correções ou interesse em usar o simulador? Escreva para:</p>
+  <p class="contacto"><button type="button" class="btn" id="mostrar" data-u="velim.nedalm" data-d="moc.liamg">Mostrar e-mail</button></p>
+  <noscript><p class="hint">Ative o JavaScript para ver o endereço de e-mail.</p></noscript>
+  <p class="hint">Este simulador é informativo e não substitui um contabilista ou advogado; não é possível responder a pedidos de aconselhamento sobre casos concretos.</p>
+  <script>
+  document.getElementById("mostrar").addEventListener("click", function () {
+    var r = function (s) { return s.split("").reverse().join(""); };
+    var e = r(this.dataset.u) + "@" + r(this.dataset.d);
+    var a = document.createElement("a");
+    a.href = "mailto:" + e; a.textContent = e;
+    this.replaceWith(a);
+  });
+  </script>
+</div>
+<p class="versao" id="versao"></p>
+<script type="module">
+import { VERSAO } from "/js/versao.js";
+import "/js/analytics.js";
+document.getElementById("versao").textContent = "v" + VERSAO;
+</script>
+</body>
+</html>
+`;
+}
+
 export function gerar() {
   const todos = lerConcelhos();
   const nomes = Object.keys(todos);
@@ -241,14 +276,15 @@ export function gerar() {
   for (const c of nomes) writeFileSync(pasta + slug(c) + ".html", paginaConcelho(c, todos[c], todos, rankT2));
   writeFileSync(pasta + "index.html", paginaIndice(todos));
   writeFileSync(raiz + "public/perguntas-frequentes.html", paginaFAQ());
+  writeFileSync(raiz + "public/contacto.html", paginaContacto());
   const hoje = new Date().toISOString().slice(0, 10);
-  const urls = ["/", "/perguntas-frequentes", "/renda-acessivel/", ...nomes.map(c => `/renda-acessivel/${slug(c)}`)];
+  const urls = ["/", "/perguntas-frequentes", "/contacto", "/renda-acessivel/", ...nomes.map(c => `/renda-acessivel/${slug(c)}`)];
   writeFileSync(raiz + "public/sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url><loc>${SITE}${u}</loc><lastmod>${hoje}</lastmod></url>`).join("\n")}
 </urlset>
 `);
-  console.log(`Páginas SEO geradas: ${nomes.length} concelhos + índice + perguntas frequentes + sitemap (${urls.length} endereços)`);
+  console.log(`Páginas SEO geradas: ${nomes.length} concelhos + índice + perguntas frequentes + contacto + sitemap (${urls.length} endereços)`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) gerar();

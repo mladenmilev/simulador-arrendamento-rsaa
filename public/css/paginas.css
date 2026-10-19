@@ -31,3 +31,6 @@ td.num{white-space:nowrap}
 @media (max-width:640px){.indice ol{columns:1}}
 .faq{scroll-margin-top:16px}
 .faq p{max-width:72ch}
+.contacto{font-size:1.15rem;margin:18px 0}
+.contacto a{font-weight:600}
+button.btn{font:inherit;font-weight:600;cursor:pointer;background:transparent;color:var(--tile)}
