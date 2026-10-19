@@ -1,6 +1,7 @@
 // Gera as páginas públicas para SEO a partir da tabela CONCELHOS de src/simulador.html (fonte única):
 //   public/renda-acessivel/index.html      – índice por distrito
 //   public/renda-acessivel/<concelho>.html – uma página por concelho (308)
+//   public/perguntas-frequentes.html       – perguntas frequentes (com dados estruturados FAQPage)
 //   public/sitemap.xml
 // Os ficheiros gerados não vão para o git; são criados por `npm run dev` e `npm run deploy`.
 import { readFileSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
@@ -29,7 +30,7 @@ const limite = ([, v, extra], t) => (t <= 5 ? v[t] : v[5] + (t - 5) * extra);
 const porNome = (a, b) => a.localeCompare(b, "pt");
 const ordemDistritos = (a, b) => (a.startsWith("Região") - b.startsWith("Região")) || porNome(a, b);
 
-function cabeca({ titulo, descricao, url, jsonld }) {
+function cabeca({ titulo, descricao, url, jsonld, migalhas = '<a href="/renda-acessivel/">Renda acessível por concelho</a>' }) {
   return `<!DOCTYPE html>
 <html lang="pt-PT">
 <head>
@@ -56,7 +57,7 @@ function cabeca({ titulo, descricao, url, jsonld }) {
 </head>
 <body>
 <div class="wrap">
-  <nav class="migalhas" aria-label="Navegação"><a href="/">Simulador RSAA</a> › <a href="/renda-acessivel/">Renda acessível por concelho</a></nav>`;
+  <nav class="migalhas" aria-label="Navegação"><a href="/">Simulador RSAA</a> › ${migalhas}</nav>`;
 }
 
 const rodape = `
@@ -65,6 +66,7 @@ const rodape = `
     <p>Calcule a renda máxima de cada quarto, com casa de banho privativa e majorações, verifique a renda proposta e veja se compensa face ao mercado.</p>
     <a class="btn primary" href="/">Abrir o simulador</a>
   </section>
+  <p class="nota"><a href="/perguntas-frequentes">Perguntas frequentes sobre o RSAA</a> · <a href="/renda-acessivel/">Renda acessível por concelho</a></p>
   <p class="nota">Valores da <a href="${PORTARIA}" target="_blank" rel="noopener">Portaria n.º 454/2026/1</a>, de 13 de outubro (anexo), que regulamenta o RSAA (Decreto-Lei n.º 97/2026, Anexo III). Atualizados automaticamente a 1 de janeiro de cada ano pelo coeficiente do NRAU. Página informativa; não substitui um contabilista ou advogado. Não afiliado ao IHRU.</p>
 </div>
 <p class="versao" id="versao"></p>
@@ -165,6 +167,67 @@ ${distritos.map(d => `
   </section>`).join("")}` + rodape;
 }
 
+const DL = "Decreto-Lei n.º 97/2026, Anexo III";
+const PT = "Portaria n.º 454/2026/1";
+// Perguntas frequentes: fonte única do texto visível e dos dados estruturados (FAQPage).
+// Respostas em HTML simples; o texto para os dados estruturados é obtido retirando as etiquetas.
+export const FAQ = [
+  ["O que é o Regime Simplificado de Arrendamento Acessível (RSAA)?",
+   `É um regime fiscal criado pelo ${DL}, em vigor desde 1 de setembro de 2026. Os contratos de arrendamento com renda igual ou inferior a um teto definido por concelho e tipologia ficam com <strong>isenção total de IRS ou IRC</strong> sobre as rendas, enquanto o contrato cumprir as regras (art. 6.º). Se o senhorio optar pelo englobamento dos rendimentos prediais, as rendas isentas contam apenas para determinar a taxa aplicável aos restantes rendimentos.`],
+  ["Qual é a renda máxima no RSAA no meu concelho?",
+   `Os tetos estão no anexo da ${PT}, de 13 de outubro, para os 308 concelhos e para as tipologias T0 a T5, variando entre 224 € (T0) e 2066 € (T5 em Lisboa). Pode consultá-los na <a href="/renda-acessivel/">tabela por concelho</a> ou calcular o seu caso no <a href="/">simulador</a>.`],
+  ["A renda máxima do RSAA é o valor que devo cobrar ou pagar?",
+   `Não. É o <strong>teto para o contrato beneficiar do RSAA</strong>, não um preço de referência. A renda pode ser mais baixa, consoante a localização e o estado do imóvel. Uma renda acima do teto é legal, mas o contrato fica fora do RSAA e o senhorio paga imposto sobre as rendas pela tributação normal.`],
+  ["Como são definidos os tetos de renda?",
+   `Têm por base 80 % da mediana das rendas divulgada pelo INE para o concelho do imóvel (${DL}, art. 4.º) e são fixados em euros para cada tipologia. A área do imóvel não entra no cálculo: um T2 de 60 m² e um T2 de 110 m² no mesmo concelho têm o mesmo teto.`],
+  ["Há majorações ao teto de renda?",
+   `Sim, cumulativas (${PT}, art. 2.º, n.º 4): <strong>+10 %</strong> se o arrendamento incluir estacionamento privativo e <strong>+10 %</strong> se o imóvel tiver certificado energético A ou superior, válido à data do contrato. Com as duas, o teto sobe 20 %.`],
+  ["Qual é o teto para tipologias acima de T5?",
+   `É o valor de T5 mais um montante por cada quarto adicional, que conforme o concelho é de 50 €, 75 € ou 100 € (nota ao anexo da ${PT}). Por exemplo, um T6 tem o teto do T5 mais um desses montantes.`],
+  ["Posso arrendar um quarto no RSAA?",
+   `Sim, mas só em contratos de <strong>residência temporária</strong>, com um inquilino que tenha residência fiscal noutro concelho, por exemplo um estudante ou trabalhador deslocado (${DL}, art. 3.º). O quarto tem de ter janela para o exterior (ou varanda ou marquise em contacto direto com o exterior), e o inquilino acesso autónomo à entrada da habitação, a uma casa de banho completa e à cozinha. Em residência permanente só é possível arrendar a habitação inteira.`],
+  ["Como se calcula a renda máxima de um quarto?",
+   `O teto da casa é repartido em proporção da área: <strong>teto do quarto = teto da casa × área do quarto ÷ soma das áreas de todos os quartos</strong> (${PT}, art. 2.º, n.º 2). A área de um quarto com casa de banho privativa conta mais 25 %; a soma das áreas não é majorada. Sala, cozinha e casas de banho não contam. Exemplo: num T3 com teto de 1193 € e quartos de 12, 10 e 9 m², o quarto de 12 m² tem um teto de 461 €.`],
+  ["Quais são os prazos mínimos dos contratos?",
+   `<strong>3 anos</strong> para residência permanente e <strong>3 meses</strong> para residência temporária, que pode ser renovada enquanto a finalidade temporária se mantiver (${DL}, art. 5.º).`],
+  ["As despesas de água, luz ou internet contam para o teto?",
+   `Não. Os tetos não incluem as despesas e encargos previstos no artigo 1078.º do Código Civil (${DL}, art. 4.º, n.º 3). Convém escrever no contrato quais despesas são pagas à parte e como são divididas. Se a renda incluir despesas, é o valor total cobrado que deve respeitar o teto.`],
+  ["Como é que o senhorio adere ao RSAA?",
+   `Depois de comunicar o contrato no Portal das Finanças, o senhorio submete na plataforma eletrónica do IHRU, até 15 de janeiro do ano seguinte ao da celebração, a cópia do contrato e o comprovativo dessa comunicação. O IHRU comunica o contrato à Autoridade Tributária até ao fim de fevereiro, e a isenção produz efeitos desde a data do contrato (${DL}, art. 6.º).`],
+  ["O que acontece se as regras deixarem de ser cumpridas?",
+   `Perdem-se os benefícios fiscais desde o momento do incumprimento. O senhorio tem de o declarar e pagar a diferença de imposto, acrescida de juros compensatórios. A verificação cabe ao IHRU, com audiência prévia dos interessados (${DL}, art. 7.º).`],
+  ["Os tetos de renda mudam?",
+   `Sim. São atualizados automaticamente a 1 de janeiro de cada ano pelo coeficiente de atualização das rendas (NRAU, art. 24.º), e podem ser revistos por alteração da portaria (${PT}, art. 3.º). Este simulador é atualizado quando os valores mudam.`],
+  ["Sou inquilino: como verifico se a minha renda está dentro do teto?",
+   `Use a vista do inquilino do <a href="/">simulador</a>, que não exige identificação. Para um quarto precisa da área do seu quarto e da soma das áreas de todos os quartos da casa (peça-as ao senhorio); para a casa inteira basta o concelho e a tipologia. Se a renda estiver acima do teto, o contrato é válido, mas não fica no RSAA.`],
+  ["Este simulador é oficial?",
+   `Não. É uma ferramenta informativa independente, não afiliada ao IHRU, que usa os valores da ${PT}. A Portaria prevê que o IHRU disponibilize uma ferramenta de cálculo na sua plataforma eletrónica (art. 4.º). O simulador não substitui um contabilista ou advogado.`],
+];
+
+function paginaFAQ() {
+  const url = `${SITE}/perguntas-frequentes`;
+  const titulo = "Perguntas frequentes sobre o arrendamento acessível (RSAA)";
+  const descricao = "Respostas sobre o RSAA: tetos de renda por concelho, majorações, arrendamento de quartos, prazos mínimos, despesas, adesão no IHRU e isenção de IRS.";
+  const texto = h => h.replace(/<[^>]+>/g, "");
+  const jsonld = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQ.map(([q, r]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: texto(r) } })),
+  };
+  const id = i => "p" + (i + 1);
+  return cabeca({ titulo, descricao, url, jsonld, migalhas: "Perguntas frequentes" }) + `
+  <h1>Perguntas frequentes sobre o RSAA</h1>
+  <p class="lede">O essencial sobre o Regime Simplificado de Arrendamento Acessível, para senhorios e inquilinos, com referência aos artigos da lei.</p>
+  <nav class="indice" aria-label="Perguntas">
+    <ol>${FAQ.map(([q], i) => `<li><a href="#${id(i)}">${esc(q)}</a></li>`).join("")}</ol>
+  </nav>
+${FAQ.map(([q, r], i) => `
+  <section class="faq" id="${id(i)}">
+    <h2>${esc(q)}</h2>
+    <p>${r}</p>
+  </section>`).join("")}` + rodape;
+}
+
 export function gerar() {
   const todos = lerConcelhos();
   const nomes = Object.keys(todos);
@@ -176,14 +239,15 @@ export function gerar() {
   mkdirSync(pasta, { recursive: true });
   for (const c of nomes) writeFileSync(pasta + slug(c) + ".html", paginaConcelho(c, todos[c], todos, rankT2));
   writeFileSync(pasta + "index.html", paginaIndice(todos));
+  writeFileSync(raiz + "public/perguntas-frequentes.html", paginaFAQ());
   const hoje = new Date().toISOString().slice(0, 10);
-  const urls = ["/", "/renda-acessivel/", ...nomes.map(c => `/renda-acessivel/${slug(c)}`)];
+  const urls = ["/", "/perguntas-frequentes", "/renda-acessivel/", ...nomes.map(c => `/renda-acessivel/${slug(c)}`)];
   writeFileSync(raiz + "public/sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url><loc>${SITE}${u}</loc><lastmod>${hoje}</lastmod></url>`).join("\n")}
 </urlset>
 `);
-  console.log(`Páginas SEO geradas: ${nomes.length} concelhos + índice + sitemap (${urls.length} endereços)`);
+  console.log(`Páginas SEO geradas: ${nomes.length} concelhos + índice + perguntas frequentes + sitemap (${urls.length} endereços)`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) gerar();

@@ -22,3 +22,8 @@ td.num{white-space:nowrap}
 .btn{display:inline-block;border:1px solid var(--tile);border-radius:8px;padding:11px 20px;font-weight:600;text-decoration:none}
 .btn.primary{background:var(--tile);color:var(--surface)}
 .nota{font-size:.82rem;color:var(--muted);margin-top:28px}
+.indice ol{padding-left:22px;columns:2;column-gap:28px;font-size:.92rem}
+.indice li{break-inside:avoid;margin-bottom:6px}
+@media (max-width:640px){.indice ol{columns:1}}
+.faq{scroll-margin-top:16px}
+.faq p{max-width:72ch}
