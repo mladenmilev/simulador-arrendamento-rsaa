@@ -27,6 +27,7 @@
 @media (max-width:860px){.grid{grid-template-columns:1fr;gap:28px}.wrap{padding-top:28px}}
 .marca{display:flex;gap:18px;align-items:center;margin-bottom:22px}
 .marca .tiles{flex:none}
+a.marca{color:inherit;text-decoration:none}
 @media (max-width:860px){.marca .tiles{width:52px;height:52px}}
 h1{font-size:clamp(1.8rem,4vw,2.6rem)}
 .lede{color:var(--muted);font-size:1.08rem;margin:0 0 22px;max-width:56ch}
@@ -60,10 +61,10 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--tile);outline-o
 <div class="wrap">
   <div class="grid">
     <section>
-      <div class="marca">
+      <a class="marca" href="/">
         <div class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
         <h1>Simulador de Arrendamento Acessível (RSAA)</h1>
-      </div>
+      </a>
       <p class="lede">Calcule a renda máxima que um apartamento inteiro ou cada quarto pode ter para beneficiar do Regime Simplificado de Arrendamento Acessível (RSAA), que dá isenção total de IRS ao senhorio. A renda pode ser mais baixa; acima desse teto o arrendamento é legal, mas fica na tributação normal.</p>
       <ul class="lista">
         <li><span class="ic">1</span><span>Limites por concelho e tipologia da Portaria n.º 454/2026/1, com majorações por estacionamento e certificado energético. <a href="/renda-acessivel/">Ver a tabela por concelho</a> · <a href="/perguntas-frequentes">Perguntas frequentes</a>.</span></li>
@@ -141,9 +142,16 @@ $("convidado").addEventListener("click", () => {
 });
 
 // Quem já se identificou neste navegador segue diretamente para o simulador.
+// Quem já se identificou segue diretamente para o simulador, exceto se veio do logótipo/título (?inicio=1):
+// nesse caso fica na página de entrada, com um atalho para o simulador.
+const inicio = new URLSearchParams(location.search).has("inicio");
 onAuthStateChanged(auth, async user => {
   if (!user || emCurso) return;
-  try { if ((await getDoc(doc(db, "registos", user.uid))).exists()) abrir(); } catch (e) {}
+  try {
+    if (!(await getDoc(doc(db, "registos", user.uid))).exists()) return;
+    if (!inicio) return abrir();
+    $("msg").innerHTML = 'Tem sessão iniciada. <a href="/simulador">Abrir o simulador</a>';
+  } catch (e) {}
 });
 
 async function registar(user, dados) {

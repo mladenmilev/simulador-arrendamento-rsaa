@@ -35,6 +35,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Public Sans"
 h1,h2,h3{font-family:"Fraunces",Georgia,"Times New Roman",serif;font-weight:700;line-height:1.15;margin:0}
 a{color:var(--tile)}
 .wrap{max-width:1120px;margin:0 auto;padding:28px 20px 60px}
+a.casa{color:inherit;text-decoration:none}
+a.casa:hover{opacity:.85}
 header.top{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;margin-bottom:28px}
 .tiles{width:72px;height:72px;display:grid;grid-template-columns:1fr 1fr;gap:3px}
 .tiles span{background:var(--tile);border-radius:3px;position:relative;overflow:hidden}
@@ -134,9 +136,9 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    <a href="/?inicio=1" class="casa" aria-label="Página inicial"><div class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span></div></a>
     <div>
-      <h1>Simulador de Arrendamento Acessível (RSAA)</h1>
+      <h1><a href="/?inicio=1" class="casa">Simulador de Arrendamento Acessível (RSAA)</a></h1>
       <!-- senhorio:inicio -->
       <p class="lede only-sen">Calcula a renda máxima (teto) de cada quarto, ou do apartamento inteiro, para o contrato beneficiar do Regime Simplificado de Arrendamento Acessível (RSAA), que dá isenção total de IRS ao senhorio. Pode cobrar menos; acima do teto o contrato é legal, mas fica na tributação normal. Valores da Portaria n.º 454/2026/1, de 13 de outubro de 2026.</p>
       <!-- senhorio:fim -->
