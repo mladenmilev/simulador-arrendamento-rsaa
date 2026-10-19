@@ -23,3 +23,7 @@ auth-debug.log
 
 # Prospeção comercial (contactos de terceiros, não publicar)
 business_model/
+
+# Gerado por scripts/gerar-paginas.mjs
+public/renda-acessivel/
+public/sitemap.xml

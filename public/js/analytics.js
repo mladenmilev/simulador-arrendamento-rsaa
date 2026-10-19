@@ -1,7 +1,9 @@
 // Google Analytics 4 com consentimento prévio (RGPD): o gtag.js só é carregado depois de "Aceitar".
 // Sem consentimento não há cookies nem pedidos ao Google; os eventos ficam apenas na fila local.
-// Em ambiente local (emuladores) o Analytics nunca é carregado.
-import { local } from "/js/firebase.js";
+// Em ambiente local (localhost ou rede local) o Analytics nunca é carregado.
+// Não depende do Firebase, para as páginas públicas (concelhos) carregarem depressa.
+const h = location.hostname;
+const local = h === "localhost" || h === "127.0.0.1" || /^(192\.168|10)\./.test(h);
 
 const ID = "G-F08WS0ML0L";
 const CHAVE = "analytics";

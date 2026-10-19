@@ -4,6 +4,7 @@ import { watch } from "node:fs";
 import { dirname, basename } from "node:path";
 import browserSync from "browser-sync";
 import { publicar, ORIGEM } from "./publicar-conteudo.mjs";
+import { gerar } from "./gerar-paginas.mjs";
 
 if (!process.env.FIRESTORE_EMULATOR_HOST) {
   console.error("Use `npm run dev`: este script só corre com os emuladores, para nunca escrever na produção.");
@@ -11,6 +12,7 @@ if (!process.env.FIRESTORE_EMULATOR_HOST) {
 }
 
 await publicar();
+gerar();
 
 const bs = browserSync.create();
 bs.init({ server: { baseDir: "public", serveStaticOptions: { extensions: ["html"] } }, files: ["public/**/*"], port: 3000, notify: false, open: false, ui: false });
@@ -21,7 +23,7 @@ watch(dirname(ORIGEM), (_, f) => {
   if (f !== basename(ORIGEM)) return;
   clearTimeout(t);
   t = setTimeout(async () => {
-    try { await publicar(); bs.reload(); } catch (e) { console.error(e.message); }
+    try { await publicar(); gerar(); bs.reload(); } catch (e) { console.error(e.message); }
   }, 200);
 });
 

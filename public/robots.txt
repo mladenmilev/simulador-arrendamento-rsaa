@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /simulador
+
+Sitemap: https://simulador-arrendamento-pt.web.app/sitemap.xml

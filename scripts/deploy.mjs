@@ -1,7 +1,7 @@
 // Publicação com versão: sobe a versão minor (semver), publica e regista a versão no git.
 //   1. exige o git sem alterações por guardar (cada versão corresponde a um commit);
 //   2. sobe a versão minor em package.json e public/js/versao.js;
-//   3. publica o simulador no Firestore, as regras e o site;
+//   3. gera as páginas públicas (concelhos, sitemap), publica o simulador no Firestore, as regras e o site;
 //   4. se correr bem, faz commit e cria a tag vX.Y.Z; se falhar, repõe a versão anterior.
 import { readFileSync, writeFileSync } from "node:fs";
 import { execSync, spawnSync } from "node:child_process";
@@ -34,7 +34,8 @@ function escreverVersao(v) {
 console.log(`\nA publicar a versão ${versao} (anterior: ${pkg.version})\n`);
 escreverVersao(versao);
 
-const ok = corre("node", ["scripts/publicar-conteudo.mjs"])
+const ok = corre("node", ["scripts/gerar-paginas.mjs"])
+  && corre("node", ["scripts/publicar-conteudo.mjs"])
   && corre("firebase", ["deploy", "--only", "firestore:rules,hosting"]);
 
 if (!ok) {
