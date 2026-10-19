@@ -1,2 +1,2 @@
 // Atualizado automaticamente por scripts/deploy.mjs. Não editar à mão.
-export const VERSAO = "1.10.0";
+export const VERSAO = "1.11.0";
