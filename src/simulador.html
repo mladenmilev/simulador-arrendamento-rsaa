@@ -155,6 +155,10 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
   #relatorio .comparacao th{width:62%}
   #relatorio .comparacao tr.total th,#relatorio .comparacao tr.total td{font-weight:700;color:#0E1726}
   #relatorio ul{margin:0;padding-left:4mm}
+  #relatorio ul.colunas{columns:2;column-gap:7mm}
+  #relatorio ul.colunas li{break-inside:avoid}
+  #relatorio ul.req{list-style:none;padding-left:0}
+  #relatorio ul.req b{display:inline-block;width:4mm}
   #relatorio li{margin-bottom:.6mm}
   #relatorio .nota{font-size:7.6pt;color:#555}
   #relatorio .rodape{margin-top:3mm;padding-top:1.5mm;border-top:.25mm solid #ddd;font-size:7.4pt;color:#555}
@@ -359,6 +363,10 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
           <div><p>Mercado, líquido por ano<span id="netMEst" hidden> (estimativa)</span></p><p class="big" id="netM">–</p></div>
         </div>
         <p class="hint" id="cmpNote"></p>
+      </div>
+      <div class="exportar" id="exportarSenZona" hidden>
+        <button type="button" class="btn" id="exportarSen">Exportar relatório (PDF)</button>
+        <p class="hint">Abre a janela de impressão: escolha «Guardar como PDF». O relatório é gerado no seu dispositivo; nada é enviado.</p>
       </div>
       <!-- senhorio:fim -->
     </section>
@@ -675,6 +683,19 @@ function renderTenantApt(max){
 // Relatório do inquilino: montado no navegador com os valores do ecrã e impresso (ou guardado em PDF).
 // Nada é enviado nem processado no servidor.
 const TAXA_IRS_EXEMPLO=0.25; // taxa autónoma normal sobre rendas, só para o exemplo do senhorio
+// Comum aos relatórios do inquilino e do senhorio: mostra só o relatório e abre a impressão (Guardar como PDF).
+function imprimirRelatorio(html,tipo){
+  const r=document.getElementById("relatorio")||document.body.appendChild(Object.assign(document.createElement("div"),{id:"relatorio"}));
+  r.innerHTML=html;
+  document.documentElement.classList.add("a-imprimir");
+  const fim=()=>{document.documentElement.classList.remove("a-imprimir");removeEventListener("afterprint",fim)};
+  addEventListener("afterprint",fim);
+  if(window.gtag&&window.google_tag_manager)gtag("event","exportar_relatorio",{tipo,modo});
+  print();
+}
+const cabecalhoRelatorio=(titulo)=>`<h1>${titulo}</h1>
+    <p class="sub">${new Date().toLocaleDateString("pt-PT",{day:"numeric",month:"long",year:"numeric"})} · Simulador de Arrendamento Acessível · ${location.origin}</p>`;
+const RODAPE_RELATORIO=`<p class="rodape">Fontes: Portaria n.º 454/2026/1, de 13 de outubro (tetos por concelho e tipologia); Decreto-Lei n.º 97/2026, Anexo III (regime do RSAA). Documento informativo gerado pelo Simulador de Arrendamento Acessível; não substitui um contabilista ou advogado e não é um documento oficial.</p>`;
 function exportarRelatorio(){
   if(tenMax==null)return;
   const {Lm,maj}=limites(),max=tenMax,quarto=modo!=="apt",tip=$("tip").value;
@@ -714,10 +735,8 @@ function exportarRelatorio(){
     <p class="nota">Valores líquidos estimados com a taxa autónoma típica de ${pct} %, sem descontar encargos (IMI, condomínio, seguros, obras) nem reduções de taxa para contratos longos; a situação de cada senhorio pode ser diferente.</p>`;
   }
   const condicoes=[...document.querySelectorAll("#tReq li")].map(li=>`<li>${e(li.textContent.trim().replace(/^!\s*/,""))}</li>`).join("");
-  const r=document.getElementById("relatorio")||document.body.appendChild(Object.assign(document.createElement("div"),{id:"relatorio"}));
-  r.innerHTML=`
-    <h1>Arrendamento acessível (RSAA): análise da renda</h1>
-    <p class="sub">${e(new Date().toLocaleDateString("pt-PT",{day:"numeric",month:"long",year:"numeric"}))} · Simulador de Arrendamento Acessível · ${e(location.origin)}</p>
+  imprimirRelatorio(`
+    ${cabecalhoRelatorio("Arrendamento acessível (RSAA): análise da renda")}
     <div class="duas">
       <div><h2>Os seus dados</h2><table>${dados.join("")}</table></div>
       <div><h2>Resultado</h2><table>${res.join("")}</table><div class="destaque${classe}">${e(estado)}</div></div>
@@ -742,12 +761,7 @@ function exportarRelatorio(){
     </div>
     <h2>Condições para o contrato ficar no RSAA</h2>
     <ul>${condicoes}</ul>
-    <p class="rodape">Fontes: Portaria n.º 454/2026/1, de 13 de outubro (tetos por concelho e tipologia); Decreto-Lei n.º 97/2026, Anexo III (regime do RSAA). Documento informativo gerado pelo Simulador de Arrendamento Acessível; não substitui um contabilista ou advogado e não é um documento oficial.</p>`;
-  document.documentElement.classList.add("a-imprimir");
-  const fim=()=>{document.documentElement.classList.remove("a-imprimir");removeEventListener("afterprint",fim)};
-  addEventListener("afterprint",fim);
-  if(window.gtag&&window.google_tag_manager)gtag("event","exportar_relatorio",{modo});
-  print();
+    ${RODAPE_RELATORIO}`,"inquilino");
 }
 $("exportar").addEventListener("click",exportarRelatorio);
 $("tp").addEventListener("change",()=>{ten.p=+$("tp").value;recalc()});
@@ -911,12 +925,14 @@ function syncRooms(){
 
 function antes(){$("fiscalWrap").hidden=$("fin").value!=="temp"}
 function limpar(){
+  $("exportarSenZona").hidden=true;
   $("limitV").textContent="–";
   $("limitT").textContent="Preencha os dados da casa e clique em Calcular";
   ["areaT","aptRes","split","tbody","checklist","cmpNote"].forEach(id=>$(id).innerHTML="");
   $("netR").textContent=$("netM").textContent="–";
 }
 function render(L,maj,Lm){
+  $("exportarSenZona").hidden=false;
   const fin=$("fin").value;
   $("limitV").textContent=L?eur(Math.floor(Lm)):"–";
   $("limitT").textContent=L?`teto RSAA da casa (${$("tip").value}, ${nomeConcelho(sel.value)}${maj?`, +${Math.round(maj*100)} %`:""})`:"Introduza o limite do concelho";
@@ -1029,6 +1045,79 @@ $("tip").addEventListener("change",()=>{
   const auto=rooms.some(r=>r.auto);syncRooms();if(auto)rooms.forEach(r=>{if(r.rent)r.auto=true});
 });
 syncRooms();mktRef();
+// Relatório do senhorio: primeiro as mais-valias para o senhorio, depois o que muda para o inquilino.
+function relatorio(){
+  const {L,maj,Lm}=limites(),tip=$("tip").value,quartos=modo!=="apt";
+  const t=(parseFloat($("tax").value)||0)/100,pctT=Math.round(t*1000)/10,mkt=parseFloat($("mkt").value)||0;
+  const e=x=>String(x).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+  const linha=(k,v)=>`<tr><th>${e(k)}</th><td>${e(v)}</td></tr>`;
+  const fin=$("fin").value,prazo=parseFloat($("prazo").value)||0;
+  const majs=[$("park").checked?"estacionamento (+10 %)":"",$("energy").checked?"certificado A+ (+10 %)":""].filter(Boolean);
+  // Contratos: um por quarto arrendado, ou o apartamento inteiro
+  let contratos;
+  if(quartos){
+    const total=rooms.reduce((s,r)=>s+r.a,0);
+    contratos=rooms.map((r,i)=>({nome:`Quarto ${i+1}`,area:r.wc?r.a*1.25:r.a,wc:r.wc,p:r.p,rent:r.rent,prop:r.prop,max:total>0?Math.floor(Lm*(r.wc?r.a*1.25:r.a)/total):0}));
+  }else contratos=[{nome:"Apartamento",rent:true,prop:apt.prop,max:Math.floor(Lm)}];
+  const ativos=contratos.filter(c=>c.rent),n=ativos.length;
+  const renda=c=>c.prop&&c.prop<=c.max?c.prop:c.max;           // renda no RSAA (proposta, ou o teto se faltar ou passar)
+  const anualRSAA=ativos.reduce((s,c)=>s+renda(c),0)*12,irsEvitado=Math.round(anualRSAA*t);
+  const anualMkt=Math.round(mkt*n*12*(1-t)),difMkt=anualRSAA-anualMkt;
+  const equilMkt=n?Math.ceil(anualRSAA/12/n/(1-t||1)):0;
+  const acima=ativos.filter(c=>c.prop>c.max);
+  const estado=c=>!c.rent?"não arrendado":!c.prop?"sem proposta":c.prop<=c.max?"dentro do teto":`${eur(c.prop-c.max)} acima`;
+  const dados=[
+    linha("Concelho",`${nomeConcelho(sel.value)} (${CONCELHOS[sel.value][0]})`),
+    linha("Tipologia",`${tip}${majs.length?" · "+majs.join(", "):""}`),
+    linha("Contrato",`${fin==="temp"?"residência temporária":"residência permanente"}, ${prazo} meses`),
+    linha("Despesas",$("desp").checked?"pagas à parte":"incluídas na renda"),
+  ];
+  const resumo=[
+    linha("Teto RSAA da casa",eur(Math.floor(Lm))+" por mês"),
+    linha(quartos?`Teto dos quartos arrendados (${n})`:"Teto do apartamento",eur(ativos.reduce((s,c)=>s+c.max,0))+" por mês"),
+    linha("Rendas no RSAA (até ao teto)",eur(anualRSAA/12)+" por mês"),
+  ];
+  const tabela=quartos?`<h2>Quartos</h2><table><tr><th style="width:auto">Quarto</th><th style="width:auto">Área p/ cálculo</th><th style="width:auto">Teto RSAA</th><th style="width:auto">Proposta</th><th style="width:auto">Estado</th></tr>${
+    contratos.map(c=>`<tr><td>${c.nome}${c.p===2?" (2 pessoas)":""}</td><td>${Math.round(c.area)} m²${c.wc?" (c/ WC)":""}</td><td>${eur(c.max)}</td><td>${c.prop?eur(c.prop):"–"}</td><td>${estado(c)}</td></tr>`).join("")}</table>`
+    :`<div class="destaque${acima.length?" acima":""}">Teto RSAA do apartamento: ${eur(contratos[0].max)} por mês · renda proposta: ${apt.prop?eur(apt.prop):"não indicada"} (${estado(contratos[0])}).</div>`;
+  let avisoAcima="";
+  if(acima.length){
+    const propA=acima.reduce((s,c)=>s+c.prop,0),maxA=acima.reduce((s,c)=>s+c.max,0);
+    const livre=Math.round(propA*12*(1-t)),rsaa=maxA*12,d=rsaa-livre;
+    avisoAcima=`<div class="destaque acima"><strong>${quartos?(acima.length===1?acima[0].nome+" tem renda":acima.length+" quartos têm rendas"):"A renda proposta está"} acima do teto:</strong> ${acima.length===1?"esse contrato fica":"esses contratos ficam"} fora do RSAA. Com as rendas propostas (${eur(propA)}/mês) recebe ${eur(livre)} líquidos por ano no regime normal; com o teto (${eur(maxA)}/mês), ${eur(rsaa)} isentos. ${d>=0?`O RSAA rende mais ${eur(d)} por ano.`:`O regime normal rende mais ${eur(-d)} por ano.`}</div>`;
+  }
+  const req=[...document.querySelectorAll("#checklist li")].map(li=>{const ic=li.querySelector(".ic");return `<li><b>${e(ic?ic.textContent:"")}</b>${e(li.textContent.replace(ic?ic.textContent:"","").trim())}</li>`}).join("");
+  imprimirRelatorio(`
+    ${cabecalhoRelatorio("Arrendamento acessível (RSAA): análise para o senhorio")}
+    <div class="duas">
+      <div><h2>Contrato e casa</h2><table>${dados.join("")}</table></div>
+      <div><h2>Resultado</h2><table>${resumo.join("")}</table></div>
+    </div>
+    ${tabela}
+    <h2>Mais-valias para o senhorio</h2>
+    <div class="duas">
+      <div><table>
+        <tr><th>Rendimento anual no RSAA (até ao teto)</th><td class="n">${eur(anualRSAA)}</td></tr>
+        <tr><th>IRS que deixa de pagar (taxa de ${pctT.toLocaleString("pt-PT")} %)</th><td class="n">${eur(irsEvitado)}</td></tr>
+      </table>
+      <p>As rendas do contrato ficam <strong>isentas de IRS (ou IRC)</strong> enquanto cumprir as regras, incluindo renovações (DL n.º 97/2026, Anexo III, art. 6.º).</p></div>
+      <div>${mkt?`<table class="comparacao">
+        <tr><th>RSAA, líquido por ano</th><td class="n">${eur(anualRSAA)}</td></tr>
+        <tr><th>Mercado: ${eur(mkt)} × ${n} × 12 − IRS</th><td class="n">${eur(anualMkt)}</td></tr>
+        <tr class="total"><th>${difMkt>=0?"O RSAA rende mais":"O mercado rende mais"}</th><td class="n">${eur(Math.abs(difMkt))}</td></tr>
+      </table>
+      <p>O mercado só compensa acima de ${eur(equilMkt)} por ${quartos?"quarto":"mês"}${quartos?" e por mês":""}.</p>`:`<p>Indique a renda de mercado no simulador para comparar.</p>`}</div>
+    </div>
+    ${avisoAcima}
+    <p class="nota">Valores líquidos estimados com a taxa de IRS indicada (${pctT.toLocaleString("pt-PT")} %), sem descontar encargos (IMI, condomínio, seguros, obras) nem reduções de taxa para contratos longos. Renda de mercado: valor indicado no simulador.</p>
+    <h2>Requisitos do contrato</h2>
+    <ul class="req colunas">${req}</ul>
+    <h2>E para o inquilino?</h2>
+    <p>Para o inquilino, o RSAA não altera impostos: o benefício é a <strong>renda limitada ao teto</strong>, a <strong>estabilidade</strong> do prazo mínimo (3 anos, ou 3 meses renováveis em residência temporária), as <strong>despesas definidas à parte</strong> e um <strong>contrato formal</strong>, comunicado às Finanças e com recibos eletrónicos. Um imóvel no RSAA é, por isso, mais atrativo para quem procura casa.</p>
+    ${RODAPE_RELATORIO}`,"senhorio");
+}
+$("exportarSen").addEventListener("click",relatorio);
+
 return {antes,limpar,render,applyAuto,preencher,mudouModo:mktRef};
 })();
 // senhorio:fim
