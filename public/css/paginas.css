@@ -7,7 +7,7 @@
 .migalhas{font-size:.85rem;color:var(--muted);margin-bottom:18px}
 h1{font-size:clamp(1.7rem,4vw,2.4rem);margin-bottom:10px}
 h2{font-size:1.3rem;margin:28px 0 10px}
-.lede{color:var(--muted);font-size:1.05rem;max-width:68ch}
+.lede{color:var(--muted);font-size:1.05rem}
 .hint{font-size:.85rem;color:var(--muted)}
 .tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
 table{border-collapse:collapse;width:100%;font-size:.95rem}
@@ -30,7 +30,6 @@ td.num{white-space:nowrap}
 .indice li{break-inside:avoid;margin-bottom:6px}
 @media (max-width:640px){.indice ol{columns:1}}
 .faq{scroll-margin-top:16px}
-.faq p{max-width:72ch}
 .contacto{font-size:1.15rem;margin:18px 0}
 .contacto a{font-weight:600}
 button.btn{font:inherit;font-weight:600;cursor:pointer;background:transparent;color:var(--tile)}
