@@ -131,6 +131,26 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .tabpanel ol,.tabpanel ul{margin:0;padding-left:22px}
 .tabpanel li{margin-bottom:6px}
 .note{font-size:.85rem;color:var(--muted);margin-top:18px}
+.exportar{margin-top:18px;padding-top:16px;border-top:1px dashed var(--line)}
+.exportar .hint{margin-top:8px}
+#relatorio{display:none}
+@media print{
+  @page{size:A4;margin:16mm}
+  html.a-imprimir body>*:not(#relatorio){display:none!important}
+  html.a-imprimir #relatorio{display:block!important}
+  #relatorio{color:#111;background:#fff;font:10.5pt/1.5 "IBM Plex Sans",system-ui,sans-serif}
+  #relatorio h1{font:800 18pt/1.2 Manrope,system-ui,sans-serif;margin:0 0 2mm;color:#0E1726}
+  #relatorio h2{font:800 12pt/1.3 Manrope,system-ui,sans-serif;margin:6mm 0 2mm;color:#0B6E61;break-after:avoid}
+  #relatorio .sub{color:#555;margin:0 0 4mm}
+  #relatorio table{width:100%;border-collapse:collapse;margin:1mm 0}
+  #relatorio th,#relatorio td{border-bottom:.3mm solid #ddd;padding:1.4mm 2mm;text-align:left;vertical-align:top}
+  #relatorio th{width:45%;font-weight:500;color:#444}
+  #relatorio .destaque{border:.4mm solid #0B6E61;border-radius:3mm;padding:3mm 4mm;margin:2mm 0;break-inside:avoid}
+  #relatorio .destaque.acima{border-color:#A3282F}
+  #relatorio ul{margin:1mm 0;padding-left:5mm}
+  #relatorio li{margin-bottom:1mm}
+  #relatorio .rodape{margin-top:6mm;padding-top:2mm;border-top:.3mm solid #ddd;font-size:8.5pt;color:#555}
+}
 .sources{font-size:.85rem;columns:2;column-gap:24px;padding-left:18px}
 @media (max-width:860px){input,select,textarea{font-size:16px!important}.sources a{display:inline-block;padding:6px 0}}
 @media (max-width:640px){.sources{columns:1}.room .r3{grid-template-columns:1fr 1fr}}
@@ -289,6 +309,10 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
         <p class="tstat warn" id="tSt">Indique a renda atual ou proposta pelo senhorio para verificar.</p>
         <h3 style="font-size:1rem;margin:16px 0 0">Para o contrato ficar no RSAA</h3>
         <ul class="checklist" id="tReq" style="margin-top:8px"></ul>
+        <div class="exportar" id="exportarZona" hidden>
+          <button type="button" class="btn" id="exportar">Exportar relatório (PDF)</button>
+          <p class="hint">Abre a janela de impressão: escolha «Guardar como PDF». O relatório é gerado no seu dispositivo; nada é enviado.</p>
+        </div>
         <p class="hint">É o teto para o contrato beneficiar do RSAA (isenção de IRS para o senhorio), não um preço de referência: a renda pode ser mais baixa, consoante a localização e o estado do imóvel. Acima deste valor o contrato é legal, mas fica fora do RSAA. Não inclui despesas (água, luz, internet), que são pagas à parte.</p>
       </div>
       <!-- senhorio:inicio -->
@@ -591,12 +615,17 @@ function requisitosInquilino(){
     "O quarto tem de ter janela para o exterior e acesso à entrada, a uma casa de banho completa e à cozinha.",
   ]).concat("A renda máxima é a mesma para contratos temporários e permanentes. Se as condições não se cumprirem, o contrato não fica no RSAA.").map(i).join("");
 }
+// Teto calculado para o inquilino (null enquanto faltarem dados): base do relatório exportável.
+let tenMax=null;
+function semTeto(){tenMax=null;$("exportarZona").hidden=true}
 function limparInquilino(){
+  semTeto();
   ["tLoc","tTip","tA","tM","tCasa"].forEach(id=>$(id).textContent="–");
   $("tPP").textContent=$("tCasaT").textContent="";
   $("tSt").className="tstat warn";$("tSt").textContent=modo==="apt"?"Clique em Calcular para ver a renda máxima.":"Indique a área do seu quarto e a soma das áreas de todos os quartos, e clique em Calcular.";
 }
 function estadoRenda(max){
+  tenMax=max;$("exportarZona").hidden=false;
   const st=$("tSt");
   if(document.activeElement!==$("tr"))$("tr").value=ten.prop||"";
   if(!ten.prop){st.className="tstat warn";st.textContent="Indique a renda atual ou proposta pelo senhorio para verificar."}
@@ -607,6 +636,7 @@ function estadoRenda(max){
 // limite do quarto = limite da casa × área do quarto (+25 % com casa de banho privativa) ÷ soma das áreas dos quartos.
 // Sem as duas áreas não há valor fiável, por isso não se mostra nenhum.
 function renderTenant(Lm){
+  semTeto();
   const st=$("tSt"),{maj}=limites();
   $("tLoc").textContent=nomeConcelho(sel.value);
   $("tCasa").textContent=Lm?eur(Math.floor(Lm)):"–";
@@ -633,6 +663,66 @@ function renderTenantApt(max){
   $("tPP").textContent="";
   estadoRenda(max);
 }
+// Relatório do inquilino: montado no navegador com os valores do ecrã e impresso (ou guardado em PDF).
+// Nada é enviado nem processado no servidor.
+const TAXA_IRS_EXEMPLO=0.25; // taxa autónoma normal sobre rendas, só para o exemplo do senhorio
+function exportarRelatorio(){
+  if(tenMax==null)return;
+  const {Lm,maj}=limites(),max=tenMax,quarto=modo!=="apt",tip=$("tip").value;
+  const e=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+  const linha=(k,v)=>`<tr><th>${e(k)}</th><td>${e(v)}</td></tr>`;
+  const majs=[$("park").checked?"estacionamento privativo (+10 %)":"",$("energy").checked?"certificado energético A ou superior (+10 %)":""].filter(Boolean);
+  const dados=[
+    linha("Concelho",`${nomeConcelho(sel.value)} (${CONCELHOS[sel.value][0]})`),
+    linha("Tipologia",tip),
+    linha("Arrendamento",quarto?"Um quarto":"Apartamento inteiro"),
+    linha("Majorações",majs.length?majs.join("; "):"nenhuma"),
+  ];
+  if(quarto)dados.push(
+    linha("Área do quarto",`${ten.a} m²${ten.wc?" (com casa de banho privativa: conta 25 % mais)":""}`),
+    linha("Área total dos quartos",`${ten.total} m²`),
+    linha("Pessoas no quarto",String(ten.p)));
+  dados.push(linha("Renda atual ou proposta",ten.prop?eur(ten.prop)+" por mês":"não indicada"));
+  const res=[linha(quarto?"Teto RSAA do quarto":"Teto RSAA do apartamento",eur(max)+" por mês")];
+  if(quarto){res.push(linha("Teto RSAA da casa toda",eur(Math.floor(Lm))+" por mês"),linha("Parte do quarto",`${Math.round(max/Math.floor(Lm)*100)} % do teto da casa`));if(ten.p===2)res.push(linha("Por pessoa",eur(Math.floor(max/2))))}
+  let estado,classe="";
+  if(!ten.prop)estado="Não indicou a renda: o valor acima é o máximo que o contrato pode ter para beneficiar do RSAA.";
+  else if(ten.prop<=max)estado=`A renda de ${eur(ten.prop)} está dentro do teto do RSAA (${eur(max-ten.prop)} abaixo). O contrato pode beneficiar do regime, se cumprir as restantes condições.`;
+  else{estado=`A renda de ${eur(ten.prop)} está ${eur(ten.prop-max)} acima do teto do RSAA. O contrato é legal, mas não beneficia do regime: o senhorio fica na tributação normal. Com uma renda até ${eur(max)}, passaria a ter isenção de IRS.`;classe=" acima"}
+  const base=ten.prop&&ten.prop<=max?ten.prop:max,irs=Math.round(base*12*TAXA_IRS_EXEMPLO);
+  const condicoes=[...document.querySelectorAll("#tReq li")].map(li=>`<li>${e(li.textContent.trim().replace(/^!\s*/,""))}</li>`).join("");
+  const r=document.getElementById("relatorio")||document.body.appendChild(Object.assign(document.createElement("div"),{id:"relatorio"}));
+  r.innerHTML=`
+    <h1>Arrendamento acessível (RSAA): análise da renda</h1>
+    <p class="sub">${e(new Date().toLocaleDateString("pt-PT",{day:"numeric",month:"long",year:"numeric"}))} · Simulador de Arrendamento Acessível · ${e(location.origin)}</p>
+    <h2>Os seus dados</h2><table>${dados.join("")}</table>
+    <h2>Resultado</h2><table>${res.join("")}</table>
+    <div class="destaque${classe}">${e(estado)}</div>
+    <h2>O que é o teto do RSAA</h2>
+    <p>É a renda máxima que um contrato pode ter para beneficiar do Regime Simplificado de Arrendamento Acessível. Não é um preço de referência: a renda pode ser mais baixa, consoante a localização e o estado do imóvel. ${quarto?"Num quarto, o teto da casa é repartido em proporção da área de cada quarto (Portaria n.º 454/2026/1, art. 2.º, n.º 2).":"No apartamento inteiro, o teto depende só do concelho, da tipologia e das majorações."}</p>
+    <h2>Vantagens para o inquilino</h2>
+    <ul>
+      <li><strong>Renda limitada:</strong> no RSAA, a renda não pode passar o teto fixado por lei para o concelho e a tipologia.</li>
+      <li><strong>Estabilidade:</strong> prazo mínimo de 3 anos em residência permanente, ou de 3 meses, renovável, em residência temporária.</li>
+      <li><strong>Despesas à parte e claras:</strong> o teto não inclui despesas (água, luz, internet), que devem ficar definidas no contrato.</li>
+      <li><strong>Contrato formal:</strong> o contrato é comunicado às Finanças e há recibos de renda eletrónicos, que permitem deduzir parte das rendas no IRS, nas condições da lei.</li>
+    </ul>
+    <h2>Vantagens para o senhorio</h2>
+    <ul>
+      <li><strong>Isenção total de IRS (ou IRC)</strong> sobre as rendas do contrato, enquanto cumprir as regras, incluindo renovações (Decreto-Lei n.º 97/2026, Anexo III, art. 6.º).</li>
+      <li><strong>Exemplo:</strong> com uma renda de ${eur(base)} por mês, à taxa autónoma de ${Math.round(TAXA_IRS_EXEMPLO*100)} %, o senhorio deixa de pagar cerca de <strong>${eur(irs)} de IRS por ano</strong> (${eur(base)} × 12 × ${Math.round(TAXA_IRS_EXEMPLO*100)} %). Estimativa: a taxa aplicável depende da situação de cada senhorio.</li>
+      <li>A adesão é feita na plataforma do IHRU, até 15 de janeiro do ano seguinte ao contrato.</li>
+    </ul>
+    <h2>Condições para o contrato ficar no RSAA</h2>
+    <ul>${condicoes}</ul>
+    <p class="rodape">Fontes: Portaria n.º 454/2026/1, de 13 de outubro (tetos por concelho e tipologia); Decreto-Lei n.º 97/2026, Anexo III (regime do RSAA). Documento informativo gerado pelo Simulador de Arrendamento Acessível; não substitui um contabilista ou advogado e não é um documento oficial.</p>`;
+  document.documentElement.classList.add("a-imprimir");
+  const fim=()=>{document.documentElement.classList.remove("a-imprimir");removeEventListener("afterprint",fim)};
+  addEventListener("afterprint",fim);
+  if(window.gtag&&window.google_tag_manager)gtag("event","exportar_relatorio",{modo});
+  print();
+}
+$("exportar").addEventListener("click",exportarRelatorio);
 $("tp").addEventListener("change",()=>{ten.p=+$("tp").value;recalc()});
 $("qA").addEventListener("input",()=>{ten.a=Math.round(parseFloat($("qA").value)||0);recalc()});
 $("qT").addEventListener("input",()=>{ten.total=Math.round(parseFloat($("qT").value)||0);recalc()});
