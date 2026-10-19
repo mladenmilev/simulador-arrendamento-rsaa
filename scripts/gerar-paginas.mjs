@@ -3,6 +3,7 @@
 //   public/renda-acessivel/<concelho>.html – uma página por concelho (308)
 //   public/perguntas-frequentes.html       – perguntas frequentes (com dados estruturados FAQPage)
 //   public/contacto.html                    – contacto do autor (e-mail protegido contra robôs)
+//   public/dados/concelhos.json             – tetos por concelho para a página de entrada (concelho lembrado)
 //   public/sitemap.xml
 // Os ficheiros gerados não vão para o git; são criados por `npm run dev` e `npm run deploy`.
 import { readFileSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
@@ -109,6 +110,7 @@ function paginaConcelho(c, dados, todos, rankT2) {
     ],
   };
   return cabeca({ titulo, descricao, url, jsonld }) + `
+  <script>try{localStorage.setItem("concelho",${JSON.stringify(c)})}catch(e){}</script>
   <h1>Renda acessível em ${esc(onde)} (RSAA)</h1>
   <p class="lede">Concelho de ${esc(n)}, ${esc(distrito)}. Estes são os valores máximos de renda mensal para um contrato beneficiar do Regime Simplificado de Arrendamento Acessível (RSAA), que dá isenção total de IRS ao senhorio. A renda pode ser mais baixa; acima destes valores o contrato é legal, mas fica na tributação normal.</p>
 
@@ -277,6 +279,9 @@ export function gerar() {
   writeFileSync(pasta + "index.html", paginaIndice(todos));
   writeFileSync(raiz + "public/perguntas-frequentes.html", paginaFAQ());
   writeFileSync(raiz + "public/contacto.html", paginaContacto());
+  mkdirSync(raiz + "public/dados", { recursive: true });
+  writeFileSync(raiz + "public/dados/concelhos.json", JSON.stringify(Object.fromEntries(
+    nomes.map(c => [c, { nome: nome(c), d: todos[c][0], v: todos[c][1], x: todos[c][2], s: slug(c) }]))));
   const hoje = new Date().toISOString().slice(0, 10);
   const urls = ["/", "/perguntas-frequentes", "/contacto", "/renda-acessivel/", ...nomes.map(c => `/renda-acessivel/${slug(c)}`)];
   writeFileSync(raiz + "public/sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>

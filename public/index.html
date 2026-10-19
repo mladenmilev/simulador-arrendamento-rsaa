@@ -102,14 +102,14 @@ input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(-
       <p class="nota-teto">O teto é o máximo para beneficiar do RSAA: a renda pode ser mais baixa; acima dele o contrato é legal, mas fica na tributação normal.</p>
     </div>
     <div class="exemplo" aria-label="Exemplo de cálculo">
-      <div class="meta"><span>Exemplo · Odivelas · T3 · por quartos</span><span>Portaria n.º 454/2026/1</span></div>
-      <div><div class="rot">Teto RSAA da casa</div><div class="valor">1193 €</div></div>
+      <div class="meta"><span id="exLocal">Exemplo · Odivelas · T3 · por quartos</span><span>Portaria n.º 454/2026/1</span></div>
+      <div><div class="rot">Teto RSAA da casa</div><div class="valor" id="exValor">1193 €</div></div>
       <div class="barra">
-        <div style="flex:12 1 0;background:#14B8A6">Q1 · 461 €</div>
-        <div style="flex:10 1 0;background:#5EEAD4">Q2 · 384 €</div>
-        <div style="flex:9 1 0;background:#99F6E4">Q3 · 346 €</div>
+        <div style="flex:12 1 0;background:#14B8A6" id="exQ1">Q1 · 461 €</div>
+        <div style="flex:10 1 0;background:#5EEAD4" id="exQ2">Q2 · 384 €</div>
+        <div style="flex:9 1 0;background:#99F6E4" id="exQ3">Q3 · 346 €</div>
       </div>
-      <p>Quartos de 12, 10 e 9 m². O teto é repartido pela área de cada quarto.</p>
+      <p>Quartos de 12, 10 e 9 m². O teto é repartido pela área de cada quarto. <a id="exLink" href="/renda-acessivel/odivelas" style="color:#9FE3D6">Ver todos os tetos de Odivelas</a></p>
     </div>
   </section>
 
@@ -186,6 +186,22 @@ const abrir = () => {
   try { localStorage.removeItem("convidado"); } catch (e) {}
   location.replace(paraSenhorio ? "/simulador?vista=senhorio" : "/simulador");
 };
+// Cartão de exemplo com o concelho lembrado neste navegador (escolhido no simulador ou numa página de concelho).
+(async () => {
+  let c; try { c = localStorage.getItem("concelho"); } catch (e) {}
+  if (!c || c === "Odivelas") return;
+  try {
+    const dados = (await (await fetch("/dados/concelhos.json")).json())[c];
+    if (!dados) return;
+    const t3 = dados.v[3], q = a => Math.floor(t3 * a / 31) + " €";
+    $("exLocal").textContent = `O seu concelho · ${dados.nome} · T3 · por quartos`;
+    $("exValor").textContent = t3 + " €";
+    $("exQ1").textContent = "Q1 · " + q(12); $("exQ2").textContent = "Q2 · " + q(10); $("exQ3").textContent = "Q3 · " + q(9);
+    $("exLink").textContent = `Ver todos os tetos de ${dados.nome}`;
+    $("exLink").href = "/renda-acessivel/" + dados.s;
+  } catch (e) {}
+})();
+
 const entrarConvidado = () => {
   try { localStorage.setItem("convidado", "1"); } catch (e) {}
   evento("entrar_convidado");

@@ -545,7 +545,10 @@ function encherConcelhos(d,escolhido){
   // Por omissão, o concelho com o nome do distrito (a capital), se existir.
   sel.value=escolhido&&CONCELHOS[escolhido]?escolhido:(CONCELHOS[d]&&CONCELHOS[d][0]===d?d:sel.options[0].value);
 }
-selD.value="Lisboa";encherConcelhos("Lisboa","Lisboa");
+// Concelho lembrado neste navegador (escolhido aqui ou numa página de concelho); por omissão, Lisboa.
+const lembrado=(()=>{try{const c=localStorage.getItem("concelho");return CONCELHOS[c]?c:null}catch(e){return null}})();
+selD.value=lembrado?CONCELHOS[lembrado][0]:"Lisboa";encherConcelhos(selD.value,lembrado||"Lisboa");
+sel.addEventListener("change",()=>{try{localStorage.setItem("concelho",sel.value)}catch(e){}});
 selD.addEventListener("change",()=>{encherConcelhos(selD.value);sel.dispatchEvent(new Event("change"))});
 
 let modo="q",calculated=false;
