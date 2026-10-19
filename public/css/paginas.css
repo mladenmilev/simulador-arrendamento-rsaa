@@ -1,15 +1,14 @@
 /* Páginas públicas de concelhos (SEO). */
 .wrap{max-width:860px;margin:0 auto;padding:24px 20px 48px}
-.topo{display:flex;gap:12px;align-items:center;color:var(--ink);text-decoration:none;font-family:"Fraunces",Georgia,serif;font-weight:700;font-size:1.05rem;margin-bottom:16px}
-.topo .tiles{width:34px;height:34px;gap:2px;flex:none}
-.topo .tiles span::after{border-width:1.5px}
+.topo{display:flex;gap:10px;align-items:center;color:var(--ink);text-decoration:none;font-family:Manrope,system-ui,sans-serif;font-weight:800;font-size:1.05rem;margin-bottom:16px}
+.topo .tiles{--s:34px}
 .topo:hover{opacity:.85}
 .migalhas{font-size:.85rem;color:var(--muted);margin-bottom:18px}
 h1{font-size:clamp(1.7rem,4vw,2.4rem);margin-bottom:10px}
 h2{font-size:1.3rem;margin:28px 0 10px}
 .lede{color:var(--muted);font-size:1.05rem}
 .hint{font-size:.85rem;color:var(--muted)}
-.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:18px}
 table{border-collapse:collapse;width:100%;font-size:.95rem}
 th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left}
 tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
@@ -21,10 +20,11 @@ td.num{white-space:nowrap}
 .lista-concelhos{list-style:none;padding:0;columns:3;column-gap:24px}
 .lista-concelhos li{break-inside:avoid;margin-bottom:6px}
 @media (max-width:640px){.lista-concelhos{columns:2}}
-.cta{margin-top:32px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px}
+.cta{margin-top:32px;background:var(--navy);color:var(--on-navy);border-radius:24px;padding:28px}
+.cta p{color:var(--navy-muted)}
 .cta h2{margin-top:0}
-.btn{display:inline-block;border:1px solid var(--tile);border-radius:8px;padding:11px 20px;font-weight:600;text-decoration:none}
-.btn.primary{background:var(--tile);color:var(--surface)}
+.btn{display:inline-flex;align-items:center;min-height:48px;border:1px solid var(--tile);border-radius:999px;padding:12px 24px;font-weight:600;text-decoration:none}
+.btn.primary{background:var(--tile);color:var(--on-tile)}
 .nota{font-size:.82rem;color:var(--muted);margin-top:28px}
 .indice ol{padding-left:22px;columns:2;column-gap:28px;font-size:.92rem}
 .indice li{break-inside:avoid;margin-bottom:6px}

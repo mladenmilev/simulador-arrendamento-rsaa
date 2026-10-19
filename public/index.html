@@ -19,99 +19,149 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Simulador de Arrendamento Acessível (RSAA)","url":"https://simulador-arrendamento-pt.web.app/","applicationCategory":"FinanceApplication","operatingSystem":"Web","inLanguage":"pt-PT","description":"Calcula a renda máxima de um apartamento ou de cada quarto para beneficiar do Regime Simplificado de Arrendamento Acessível (RSAA), com vista para senhorio e inquilino.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/tema.css">
 <style>
-.wrap{max-width:1040px;margin:0 auto;padding:40px 20px 60px}
-.grid{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,5fr);gap:40px;align-items:start}
-@media (max-width:860px){.grid{grid-template-columns:1fr;gap:28px}.wrap{padding-top:28px}}
-.marca{display:flex;gap:18px;align-items:center;margin-bottom:22px}
-.marca .tiles{flex:none}
-a.marca{color:inherit;text-decoration:none}
-@media (max-width:860px){.marca .tiles{width:52px;height:52px}}
-h1{font-size:clamp(1.8rem,4vw,2.6rem)}
-.lede{color:var(--muted);font-size:1.08rem;margin:0 0 22px;max-width:56ch}
-.lista{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}
-.lista li{display:grid;grid-template-columns:26px 1fr;gap:10px}
-.lista .ic{width:24px;height:24px;border-radius:50%;background:var(--tile-soft);color:var(--tile);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px}
-.panel h2{font-size:1.35rem;margin-bottom:6px}
-.panel .msg{color:var(--muted);margin:0 0 18px}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+.topo{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:22px 0}
+.marca{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-family:Manrope,sans-serif;font-weight:800;font-size:18px}
+.marca .tiles{--s:34px}
+.marca b{color:var(--tile);font-weight:800}
+.nav{display:flex;gap:6px;flex-wrap:wrap;font-weight:500;font-size:15px}
+.nav a{color:var(--muted);text-decoration:none;padding:11px 14px;border-radius:999px}
+.nav a:hover{background:var(--surface);color:var(--ink)}
+.nav a.cta{background:var(--navy);color:var(--on-navy);font-weight:600;padding:11px 18px}
+.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:40px;align-items:center;padding:32px 0 48px}
+.hero .txt{display:flex;flex-direction:column;gap:20px}
+.selo{align-self:flex-start;background:var(--tile-soft);color:var(--tile);font-size:14px;font-weight:600;padding:6px 12px;border-radius:999px}
+h1{font-size:clamp(2.3rem,5.4vw,3.8rem);line-height:1.02;letter-spacing:-.02em}
+.lede{margin:0;font-size:1.15rem;color:var(--muted)}
+.acoes{display:flex;gap:12px;flex-wrap:wrap}
+.botao{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:12px 24px;border-radius:999px;font:inherit;font-weight:600;text-decoration:none;cursor:pointer;border:1px solid var(--field);background:var(--surface);color:var(--ink)}
+.botao.primario{background:var(--tile);border-color:var(--tile);color:var(--on-tile)}
+.botao.escuro{background:var(--navy);border-color:var(--navy);color:var(--on-navy)}
+.botao:disabled{opacity:.5;cursor:wait}
+.botao.largo{width:100%}
+.nota-teto{margin:0;font-size:.88rem;color:var(--muted)}
+.exemplo{background:var(--navy);color:var(--on-navy);border-radius:24px;padding:30px;display:flex;flex-direction:column;gap:18px}
+.exemplo .meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:14px;color:var(--navy-muted)}
+.exemplo .rot{font-size:14px;color:var(--navy-muted)}
+.exemplo .valor{font-family:Manrope,sans-serif;font-weight:800;font-size:clamp(3rem,7vw,4.5rem);line-height:1;letter-spacing:-.03em}
+.barra{display:flex;height:40px;border-radius:10px;overflow:hidden;gap:3px}
+.barra div{display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#042F2A;white-space:nowrap;overflow:hidden}
+.exemplo p{margin:0;font-size:15px;color:#CBD5E1}
+.numeros{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px;padding-bottom:56px}
+.numeros div{background:var(--surface);border-radius:18px;padding:22px 24px}
+.numeros strong{display:block;font-family:Manrope,sans-serif;font-weight:800;font-size:30px;color:var(--tile)}
+.numeros span{display:block;font-weight:600;margin:2px 0 6px}
+.numeros p{margin:0;color:var(--muted);font-size:.95rem}
+.acesso-zona{background:var(--surface);border-top:1px solid var(--line)}
+.acesso{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:24px;padding:56px 0;align-items:start}
+.cartao{border:1px solid var(--line);border-radius:var(--raio);padding:28px;display:flex;flex-direction:column;gap:14px;background:var(--surface)}
+.cartao.inquilino{background:var(--tile-soft);border-color:transparent}
+.cartao h2{font-size:1.6rem}
+.cartao .msg{margin:0;color:var(--muted)}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tags span{background:var(--tile-soft);color:var(--tile);border-radius:999px;padding:2px 10px;font-size:.85rem;font-weight:600}
 label{display:block;font-weight:600;font-size:.92rem;margin-bottom:4px}
-input[type=text],input[type=email]{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
-input:focus-visible,button:focus-visible{outline:3px solid var(--tile);outline-offset:2px}
+input[type=text],input[type=email]{width:100%;min-height:46px;padding:10px 14px;border:1px solid var(--field);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--tile);outline-offset:2px}
 .field{margin-bottom:12px}
-.btn{width:100%;border:1px solid var(--tile);background:transparent;color:var(--tile);padding:11px 14px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer;display:flex;gap:10px;align-items:center;justify-content:center}
-.btn.primary{background:var(--tile);color:var(--surface)}
-.btn:disabled{opacity:.5;cursor:wait}
-.google{background:var(--surface);color:var(--ink);border-color:var(--line)}
-.ou{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:.85rem;margin:18px 0}
-.ou::before,.ou::after{content:"";flex:1;border-top:1px solid var(--line)}
-.consent{display:flex;gap:10px;align-items:flex-start;font-weight:400;font-size:.88rem;color:var(--muted);margin:4px 0 16px}
+.consent{display:flex;gap:10px;align-items:flex-start;font-weight:400;font-size:.88rem;color:var(--muted);margin:0}
 .consent input{margin-top:4px;flex:none}
-.hint{font-size:.82rem;color:var(--muted);margin:10px 0 0}
-.erro{background:var(--bad-soft);color:var(--bad);padding:10px 12px;border-radius:8px;font-size:.9rem;margin:0 0 14px}
-.sub{margin:0 0 6px;font-weight:600}
-.sub .tag{display:inline-block;background:var(--tile-soft);color:var(--tile);border-radius:99px;padding:1px 10px;font-size:.85rem;margin-right:4px}
-.convidado{margin-top:28px}
-.privacidade{font-size:.82rem;color:var(--muted);margin-top:36px}
+.hint{font-size:.82rem;color:var(--muted);margin:0}
+.ou{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:.85rem}
+.ou::before,.ou::after{content:"";flex:1;border-top:1px solid var(--line)}
+.erro{background:var(--bad-soft);color:var(--bad);padding:10px 12px;border-radius:10px;font-size:.9rem;margin:0}
+.rodape{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:24px 0;font-size:.85rem;color:var(--muted);border-top:1px solid var(--line)}
+.rodape p{margin:0;flex:1 1 520px}
+.rodape nav{display:flex;gap:16px;flex-wrap:wrap}
+.rodape nav a{padding:4px 0}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="grid">
-    <section>
-      <a class="marca" href="/">
-        <div class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-        <h1>Simulador de Arrendamento Acessível (RSAA)</h1>
-      </a>
-      <p class="lede">Calcule a renda máxima que um apartamento inteiro ou cada quarto pode ter para beneficiar do Regime Simplificado de Arrendamento Acessível (RSAA), que dá isenção total de IRS ao senhorio. A renda pode ser mais baixa; acima desse teto o arrendamento é legal, mas fica na tributação normal.</p>
-      <ul class="lista">
-        <li><span class="ic">1</span><span>Limites por concelho e tipologia da Portaria n.º 454/2026/1, com majorações por estacionamento e certificado energético. <a href="/renda-acessivel/">Ver a tabela por concelho</a> · <a href="/perguntas-frequentes">Perguntas frequentes</a>.</span></li>
-        <li><span class="ic">2</span><span>Arrendamento do apartamento inteiro ou por quartos, com o teto RSAA da casa dividido de acordo com a área de cada quarto.</span></li>
-        <li><span class="ic">3</span><span>Vista para o senhorio, com a lista de requisitos e a comparação com o mercado, e vista para o inquilino, para verificar a renda atual ou proposta pelo senhorio.</span></li>
-      </ul>
+  <header class="topo">
+    <a class="marca" href="/"><span class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span></span>Simulador <b>RSAA</b></a>
+    <nav class="nav" aria-label="Principal">
+      <a href="/renda-acessivel/">Concelhos</a>
+      <a href="/perguntas-frequentes">Perguntas</a>
+      <a class="cta" href="#acesso">Entrar</a>
+    </nav>
+  </header>
 
-      <div class="panel convidado" id="convidadoBox">
+  <section class="hero">
+    <div class="txt">
+      <span class="selo">Novo regime · desde 1 de setembro de 2026</span>
+      <h1>Renda acessível, sem contas de cabeça.</h1>
+      <p class="lede">Saiba em segundos o teto do Regime Simplificado de Arrendamento Acessível (RSAA) para a sua casa ou para cada quarto, verifique a renda e veja se a isenção de IRS compensa.</p>
+      <div class="acoes">
+        <a class="botao primario" href="#acesso">Simular como senhorio</a>
+        <button type="button" class="botao" id="convidado2">Sou inquilino</button>
+      </div>
+      <p class="nota-teto">O teto é o máximo para beneficiar do RSAA: a renda pode ser mais baixa; acima dele o contrato é legal, mas fica na tributação normal.</p>
+    </div>
+    <div class="exemplo" aria-label="Exemplo de cálculo">
+      <div class="meta"><span>Exemplo · Odivelas · T3 · por quartos</span><span>Portaria n.º 454/2026/1</span></div>
+      <div><div class="rot">Teto RSAA da casa</div><div class="valor">1193 €</div></div>
+      <div class="barra">
+        <div style="flex:12 1 0;background:#14B8A6">Q1 · 461 €</div>
+        <div style="flex:10 1 0;background:#5EEAD4">Q2 · 384 €</div>
+        <div style="flex:9 1 0;background:#99F6E4">Q3 · 346 €</div>
+      </div>
+      <p>Quartos de 12, 10 e 9 m². O teto é repartido pela área de cada quarto.</p>
+    </div>
+  </section>
+
+  <section class="numeros" aria-label="O que o simulador faz">
+    <div><strong>308</strong><span>concelhos</span><p>Todos os tetos da Portaria, de T0 a T8, com majorações. <a href="/renda-acessivel/">Ver a tabela</a></p></div>
+    <div><strong>2 vistas</strong><span>senhorio e inquilino</span><p>O inquilino verifica a renda sem se identificar.</p></div>
+    <div><strong>✓ / ✕</strong><span>requisitos do contrato</span><p>Prazos, residência fiscal, área mínima e despesas verificados.</p></div>
+  </section>
+</div>
+
+<div class="acesso-zona">
+  <div class="wrap">
+    <section class="acesso" id="acesso">
+      <div class="cartao" aria-labelledby="h-id">
+        <h2 id="h-id">Acesso completo</h2>
+        <div class="tags"><span>Senhorio</span><span>Inquilino</span></div>
+        <p class="msg" id="msg">Todas as funcionalidades, para senhorio e inquilino. A identificação é necessária para continuarmos a melhorar o serviço.</p>
+        <p class="erro" id="erro" role="alert" hidden></p>
+        <label class="consent"><input type="checkbox" id="consent"> <span>Aceito que o meu nome e e-mail sejam guardados para identificar quem usa o simulador e melhorar o serviço. Os dados não são partilhados com terceiros nem usados para publicidade.</span></label>
+        <button type="button" class="botao largo" id="google">
+          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          Entrar com Google
+        </button>
+        <p class="hint">Com a conta Google, recebemos apenas o nome e o e-mail. Não há acesso ao Gmail nem a outros dados.</p>
+        <div class="ou">ou</div>
+        <form id="form" novalidate>
+          <div class="field">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" autocomplete="name" maxlength="100" required>
+          </div>
+          <div class="field">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" autocomplete="email" maxlength="200" required>
+          </div>
+          <button type="submit" class="botao escuro largo" id="enviar">Continuar com nome e e-mail</button>
+        </form>
+      </div>
+      <div class="cartao inquilino" id="convidadoBox">
         <h2>É inquilino?</h2>
-        <p class="msg">Verifique se a renda do seu quarto ou apartamento está dentro do limite do RSAA, sem se identificar.</p>
-        <button type="button" class="btn primary" id="convidado">Continuar como inquilino, sem identificação</button>
+        <p class="msg">Verifique se a renda do seu quarto ou apartamento está dentro do teto do RSAA, sem se identificar.</p>
         <p class="hint">Só a vista do inquilino. A vista do senhorio requer identificação.</p>
+        <button type="button" class="botao primario largo" id="convidado">Continuar como inquilino</button>
       </div>
     </section>
 
-    <section class="panel" aria-labelledby="h-id">
-      <h2 id="h-id">Acesso completo</h2>
-      <p class="sub"><span class="tag">Senhorio</span><span class="tag">Inquilino</span></p>
-      <p class="msg" id="msg">Todas as funcionalidades, para senhorio e inquilino. A identificação é necessária para continuarmos a melhorar o serviço.</p>
-      <p class="erro" id="erro" role="alert" hidden></p>
-
-      <label class="consent"><input type="checkbox" id="consent"> <span>Aceito que o meu nome e e-mail sejam guardados para identificar quem usa o simulador e melhorar o serviço. Os dados não são partilhados com terceiros nem usados para publicidade.</span></label>
-
-      <button type="button" class="btn google" id="google">
-        <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-        Entrar com Google
-      </button>
-      <p class="hint">Com a conta Google, recebemos apenas o nome e o e-mail. Não há acesso ao Gmail nem a outros dados.</p>
-
-      <div class="ou">ou</div>
-
-      <form id="form" novalidate>
-        <div class="field">
-          <label for="nome">Nome</label>
-          <input type="text" id="nome" autocomplete="name" maxlength="100" required>
-        </div>
-        <div class="field">
-          <label for="email">E-mail</label>
-          <input type="email" id="email" autocomplete="email" maxlength="200" required>
-        </div>
-        <button type="submit" class="btn primary" id="enviar">Continuar</button>
-      </form>
-    </section>
+    <footer class="rodape">
+      <p>Privacidade: guardamos apenas o nome, o e-mail, o método de identificação e a data. Os valores introduzidos no simulador não são guardados. Com o seu consentimento, usamos o Google Analytics para medir visitas de forma agregada. Ferramenta informativa, não afiliada ao IHRU; não substitui um contabilista ou advogado.</p>
+      <nav aria-label="Rodapé"><a href="/renda-acessivel/">Concelhos</a><a href="/perguntas-frequentes">Perguntas frequentes</a><a href="/contacto">Contacto</a></nav>
+    </footer>
   </div>
-  <p class="privacidade">Privacidade: guardamos apenas o nome, o e-mail, o método de identificação e a data. Os valores introduzidos no simulador não são guardados. Com o seu consentimento, usamos o Google Analytics para medir visitas de forma agregada. Este simulador não substitui um contabilista ou advogado. <a href="/contacto">Contacto</a>.</p>
+  <p class="versao" id="versao"></p>
 </div>
-<p class="versao" id="versao"></p>
 
 <script type="module">
 import { auth, db, local } from "/js/firebase.js";
@@ -130,18 +180,20 @@ let emCurso = false;
 const paraSenhorio = new URLSearchParams(location.search).has("identificar");
 if (paraSenhorio) {
   $("msg").textContent = "Identifique-se para aceder à vista do senhorio.";
+  $("acesso").scrollIntoView();
 }
 const abrir = () => {
   try { localStorage.removeItem("convidado"); } catch (e) {}
   location.replace(paraSenhorio ? "/simulador?vista=senhorio" : "/simulador");
 };
-$("convidado").addEventListener("click", () => {
+const entrarConvidado = () => {
   try { localStorage.setItem("convidado", "1"); } catch (e) {}
   evento("entrar_convidado");
   location.href = "/simulador?vista=inquilino";
-});
+};
+$("convidado").addEventListener("click", entrarConvidado);
+$("convidado2").addEventListener("click", entrarConvidado);
 
-// Quem já se identificou neste navegador segue diretamente para o simulador.
 // Quem já se identificou segue diretamente para o simulador, exceto se veio do logótipo/título (?inicio=1):
 // nesse caso fica na página de entrada, com um atalho para o simulador.
 const inicio = new URLSearchParams(location.search).has("inicio");

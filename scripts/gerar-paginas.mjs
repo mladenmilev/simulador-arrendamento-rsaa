@@ -51,7 +51,7 @@ function cabeca({ titulo, descricao, url, jsonld, migalhas = '<a href="/renda-ac
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/tema.css">
 <link rel="stylesheet" href="/css/paginas.css">
 <script type="application/ld+json">${JSON.stringify(jsonld)}</script>

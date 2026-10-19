@@ -1,21 +1,26 @@
+/* Tema "Moderna": verde-petróleo e azul-escuro, Manrope (títulos) e IBM Plex Sans (texto). */
 :root{
-  --bg:#F3F6FA; --surface:#FFFFFF; --ink:#16202C; --muted:#526070;
-  --tile:#1D4F86; --tile-soft:#E2ECF7; --line:#CCD7E3;
-  --ok:#256B45; --ok-soft:#E1F1E7; --bad:#A3282F; --bad-soft:#F8E1E2;
+  --bg:#F4F6F8; --surface:#FFFFFF; --ink:#0E1726; --muted:#475569;
+  --tile:#0B6E61; --tile-soft:#DDF3EE; --on-tile:#FFFFFF; --line:#E2E8F0; --field:#CBD5E1;
+  --navy:#0E1726; --on-navy:#FFFFFF; --navy-muted:#94A3B8;
+  --ok:#256B45; --ok-soft:#E1F1E7; --warn:#8A5300; --warn-soft:#FBEFD9; --bad:#A3282F; --bad-soft:#F8E1E2;
+  --raio:20px;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#0F1620; --surface:#18222E; --ink:#E6EDF5; --muted:#9AAABB;
-    --tile:#7FB0E6; --tile-soft:#1E3248; --line:#2C3A4A;
-    --ok:#7ED3A0; --ok-soft:#173326; --bad:#F2959A; --bad-soft:#3D1D20;
+    --bg:#0B1220; --surface:#131C2E; --ink:#E6EDF5; --muted:#A3B1C2;
+    --tile:#5EEAD4; --tile-soft:#10302C; --on-tile:#04221E; --line:#263449; --field:#3A4A62;
+    --navy:#1B2A44; --on-navy:#FFFFFF; --navy-muted:#A3B1C2;
+    --ok:#7ED3A0; --ok-soft:#173326; --warn:#F2C26B; --warn-soft:#3A2C12; --bad:#F2959A; --bad-soft:#3D1D20;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0F1620; --surface:#18222E; --ink:#E6EDF5; --muted:#9AAABB;
-  --tile:#7FB0E6; --tile-soft:#1E3248; --line:#2C3A4A;
-  --ok:#7ED3A0; --ok-soft:#173326; --bad:#F2959A; --bad-soft:#3D1D20;
+  --bg:#0B1220; --surface:#131C2E; --ink:#E6EDF5; --muted:#A3B1C2;
+  --tile:#5EEAD4; --tile-soft:#10302C; --on-tile:#04221E; --line:#263449; --field:#3A4A62;
+  --navy:#1B2A44; --on-navy:#FFFFFF; --navy-muted:#A3B1C2;
+  --ok:#7ED3A0; --ok-soft:#173326; --warn:#F2C26B; --warn-soft:#3A2C12; --bad:#F2959A; --bad-soft:#3D1D20;
   color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:border-box}
@@ -27,12 +32,13 @@
   .sources li,.lista-concelhos li{margin-bottom:2px}
   .sources a,.lista-concelhos a,.migalhas a{display:inline-block;padding:6px 0}
 }
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
-h1,h2,h3{font-family:"Fraunces",Georgia,"Times New Roman",serif;font-weight:700;line-height:1.15;margin:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3{font-family:Manrope,system-ui,sans-serif;font-weight:800;line-height:1.1;letter-spacing:-.01em;margin:0}
 a{color:var(--tile)}
-.tiles{width:72px;height:72px;display:grid;grid-template-columns:1fr 1fr;gap:3px}
-.tiles span{background:var(--tile);border-radius:3px;position:relative;overflow:hidden}
-.tiles span::after{content:"";position:absolute;inset:22%;border:2px solid var(--bg);border-radius:50%}
-.tiles span:nth-child(2)::after,.tiles span:nth-child(3)::after{border-radius:2px;transform:rotate(45deg)}
+/* Logótipo: quadrado verde-petróleo com duas formas redondas e duas quadradas (cores fixas da marca). */
+/* Tamanho em --s: o espaçamento interior em % seria calculado sobre a largura do elemento à volta. */
+.tiles{--s:40px;width:var(--s);height:var(--s);flex:none;border-radius:28%;background:#0B6E61;display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--s)*.09);padding:calc(var(--s)*.19)}
+.tiles span{background:#FFFFFF;border-radius:50%}
+.tiles span:nth-child(2),.tiles span:nth-child(3){background:#9FE3D6;border-radius:2px}
 .versao{text-align:center;font-size:.75rem;color:var(--muted);opacity:.75;margin:0;padding:8px 20px 20px}
 .estado{min-height:60vh;display:flex;align-items:center;justify-content:center;color:var(--muted)}
