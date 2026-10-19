@@ -60,7 +60,7 @@ function linkPreferencias() {
   a.type = "button";
   a.id = "cookiesLink";
   a.textContent = "Cookies";
-  a.style.cssText = "border:0;background:none;color:inherit;font:inherit;text-decoration:underline;cursor:pointer;padding:0";
+  a.style.cssText = "border:0;background:none;color:inherit;font:inherit;text-decoration:underline;cursor:pointer;padding:6px 2px";
   a.addEventListener("click", aviso);
   v.append(" · ", a);
 }

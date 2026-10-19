@@ -21,6 +21,12 @@
 *,*::before,*::after{box-sizing:border-box}
 /* Garante que [hidden] esconde mesmo elementos com display próprio. */
 [hidden]{display:none!important}
+/* Telemóvel: campos com 16 px (evita o zoom automático do iPhone ao tocar) e links de lista fáceis de tocar. */
+@media (max-width:860px){
+  input,select,textarea{font-size:16px!important}
+  .sources li,.lista-concelhos li{margin-bottom:2px}
+  .sources a,.lista-concelhos a,.migalhas a{display:inline-block;padding:6px 0}
+}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
 h1,h2,h3{font-family:"Fraunces",Georgia,"Times New Roman",serif;font-weight:700;line-height:1.15;margin:0}
 a{color:var(--tile)}
