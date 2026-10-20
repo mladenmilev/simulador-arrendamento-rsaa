@@ -56,7 +56,7 @@ h1{font-size:clamp(1.7rem,3.4vw,2.5rem);letter-spacing:-.02em}
 .tres{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;margin:16px 0;align-items:baseline}
 .tres dt{color:var(--muted);font-size:.92rem}
 .tres dd{margin:0;font-weight:600}
-@media (max-width:860px){.grid{grid-template-columns:1fr}header.top{grid-template-columns:1fr}.tiles{--s:48px}}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}header.top{grid-template-columns:1fr}.tiles{--s:48px}}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px}
 .panel h2{font-size:1.25rem;margin-bottom:14px}
 label{display:block;font-weight:600;font-size:.92rem;margin-bottom:4px}
@@ -88,11 +88,14 @@ body:not([data-view="inq"]) .only-inq{display:none!important}
 .seg button[aria-pressed="true"]{background:var(--navy);color:var(--on-navy)}
 .fillrow select{width:auto}
 .rooms{display:flex;flex-direction:column;gap:10px;margin-top:6px}
-.room{border:1px solid var(--line);border-radius:16px;padding:14px;background:var(--bg)}
+.room{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--bg)}
 .room-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .room-head strong{font-family:Manrope,system-ui,sans-serif;font-weight:800;font-size:1.05rem}
-.room .r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end}
-.room .flags{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px;font-size:.88rem}
+.room .r3{display:grid;grid-template-columns:76px 1fr 1fr;gap:8px;align-items:end}
+.room .r3 strong{font-family:Manrope,system-ui,sans-serif;font-weight:800;align-self:center}
+.room .r3 label{font-size:.75rem;font-weight:500;color:var(--muted);margin-bottom:2px}
+.room .r3 input{min-height:38px;padding:6px 10px}
+.room .flags{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:8px;font-size:.85rem}
 .room .flags label{display:flex;gap:6px;align-items:center;font-weight:500;margin:0}
 .btn{border:1px solid var(--field);background:var(--surface);color:var(--ink);padding:10px 18px;border-radius:999px;font:inherit;font-weight:600;cursor:pointer;min-height:44px}
 .btn.primary{background:var(--tile);border-color:var(--tile);color:var(--on-tile);padding:10px 28px}
@@ -142,13 +145,21 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .inq-intro{margin:-6px 0 22px}
 .inq-intro h2{font-size:clamp(1.5rem,3vw,2.1rem);letter-spacing:-.02em}
 .inq-intro p{margin:8px 0 0;color:var(--muted);max-width:760px}
-body[data-view="inq"] .grid{grid-template-columns:minmax(0,420px) minmax(0,1fr)}
-body[data-view="inq"] .panel.res{background:none;border:0;padding:0}
-body[data-view="inq"] #h-res{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.grid{grid-template-columns:minmax(0,420px) minmax(0,1fr)}
+body:not([data-view="inq"]) #ti-q{order:-1}
+.panel.res{background:none;border:0;padding:0}
+#h-res{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .passo-h{display:flex;align-items:center;gap:8px;font-size:1rem!important;margin:0 0 8px!important}
 .passo-h label{margin:0;font-size:inherit;font-weight:inherit}
+.passo-h em{font-style:normal;font-weight:400;font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:.88rem;color:var(--muted)}
+.sep{border-top:1px solid var(--line);margin:20px 0 18px}
+.cmp-duas{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
+.cmp{border-radius:14px;padding:12px 14px;background:var(--bg)}
+.cmp.win{background:var(--v-ok-soft);outline:2px solid var(--v-ok);outline-offset:-2px}
+.cmp>span{display:block;font-size:.85rem;color:var(--muted)}
+.cmp b{display:block;font:800 1.6rem/1.2 Manrope,system-ui,sans-serif}
+.cmp small{display:block;font-size:.78rem;color:var(--muted)}
 .passo-num{display:inline-grid;place-items:center;width:24px;height:24px;flex:none;border-radius:50%;background:var(--tile);color:var(--on-tile);font:700 .78rem "IBM Plex Sans",system-ui,sans-serif}
-body[data-view="inq"] #h-dados{display:flex;align-items:center;gap:8px;font-size:1rem;margin-bottom:10px}
 .renda-campo{display:flex;align-items:baseline;gap:8px;border:2px solid var(--tile);border-radius:14px;padding:6px 14px;background:var(--surface)}
 .renda-campo input{border:0;min-height:0;padding:4px 0;font:800 2rem/1.1 Manrope,system-ui,sans-serif;background:none;width:100%;min-width:0}
 .renda-campo input:focus-visible{outline:none}
@@ -159,8 +170,8 @@ body[data-view="inq"] #h-dados{display:flex;align-items:center;gap:8px;font-size
 .escolha button small{display:block;font-weight:400;font-size:.8rem;color:var(--muted)}
 .escolha button[aria-pressed="true"]{border:2px solid var(--tile);background:var(--tile-soft);padding:10px 11px}
 .lbl-inq{font-weight:600;font-size:.92rem;margin:4px 0 6px}.lbl-inq span{font-weight:400;color:var(--muted)}
-body[data-view="inq"] #fillMax{width:100%;padding:14px 20px;font-size:1.02rem}
-body[data-view="inq"] .fillrow{margin-bottom:4px}
+#fillMax{width:100%;padding:14px 20px;font-size:1.02rem}
+.fillrow{margin-bottom:4px}
 .veredicto{--c:var(--muted);--m:var(--muted);--fundo:var(--surface);--pista:var(--line);background:var(--fundo);border:2px solid var(--c);border-radius:20px;padding:22px 24px;display:flex;flex-direction:column;gap:10px}
 .veredicto.ok{--c:var(--v-ok);--m:var(--v-ok-m);--fundo:var(--v-ok-soft);--pista:var(--v-ok-pista)}
 .veredicto.fora{--c:var(--v-fora);--m:var(--v-fora-m);--fundo:var(--v-fora-soft);--pista:var(--v-fora-pista)}
@@ -180,7 +191,7 @@ body[data-view="inq"] .fillrow{margin-bottom:4px}
 .veredicto .barra s{position:absolute;top:21px;transform:translateX(-50%);font-size:.75rem;font-weight:700;text-decoration:none;white-space:nowrap}
 .veredicto .txt{font-size:1.02rem}
 .veredicto .det{font-size:.85rem;color:var(--m)}
-.inq-cartoes{display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px}
+.inq-cartoes{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:16px}
 .cartao-inq{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px}
 .cartao-inq h3{font-size:1.05rem;color:var(--tile);margin:0 0 8px}
 .cartao-inq p{margin:0 0 10px}
@@ -189,7 +200,7 @@ body[data-view="inq"] .fillrow{margin-bottom:4px}
 .info-inq{background:var(--v-info);border-radius:14px;padding:14px 18px;font-size:.92rem;margin:16px 0 0}
 .ic.info{background:var(--line);color:var(--muted);font-family:Georgia,serif;font-style:italic}
 .so-assist,.progresso{display:none}
-@media (max-width:860px){body[data-view="inq"] .grid{grid-template-columns:1fr}}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
 /* Telemóvel: um passo de cada vez e, no fim, só o resultado. */
 body.assistente .so-assist{display:flex}
 body.assistente .progresso{display:block;margin-bottom:16px}
@@ -233,7 +244,7 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
   .info-inq{font-size:.88rem}
 }
 @media (max-width:860px){input,select,textarea{font-size:16px!important}.sources a{display:inline-block;padding:6px 0}}
-@media (max-width:640px){.sources{columns:1}.room .r3{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.sources{columns:1}.room .r3{grid-template-columns:1fr 1fr}.room .r3 strong{grid-column:1/-1}.cmp-duas{gap:8px}.cmp b{font-size:1.3rem}}
 </style>
 </head>
 <body>
@@ -242,9 +253,6 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
     <a href="/?inicio=1" class="casa" aria-label="Página inicial"><div class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span></div></a>
     <div>
       <h1><a href="/?inicio=1" class="casa">Simulador de Arrendamento Acessível (RSAA)</a></h1>
-      <!-- senhorio:inicio -->
-      <p class="lede only-sen">Calcula o valor máximo da renda de cada quarto, ou do apartamento inteiro, para o contrato beneficiar do Regime Simplificado de Arrendamento Acessível (RSAA), que dá isenção total de IRS ao senhorio. Não é um limite à renda: pode cobrar menos ou mais; acima desse valor o contrato é legal, mas fica na tributação normal. Valores da Portaria n.º 454/2026/1, de 13 de outubro de 2026.</p>
-      <!-- senhorio:fim -->
     </div>
   </header>
   <div class="viewbar">
@@ -255,6 +263,12 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
     </div>
   </div>
   <p class="senlock" id="senLock" hidden>A vista do senhorio requer identificação. <a href="/?identificar=1">Identificar-me</a></p>
+  <!-- senhorio:inicio -->
+  <div class="inq-intro only-sen">
+    <h2>Quanto pode pedir para o contrato ficar no RSAA?</h2>
+    <p>Indique a casa, os quartos e o contrato. Vê o valor máximo de cada quarto, se as suas rendas cabem no RSAA e quanto ganha face ao mercado.</p>
+  </div>
+  <!-- senhorio:fim -->
   <div class="inq-intro only-inq">
     <h2>A sua renda pode ficar no arrendamento acessível?</h2>
     <p>Indique a renda e a casa. Vê de imediato se está dentro do valor máximo do RSAA e o que isso significa para si e para o senhorio.</p>
@@ -262,51 +276,22 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
 
   <div class="grid">
     <section class="panel form" aria-label="Dados da simulação">
-      <div class="progresso only-inq" aria-hidden="true"><div><i id="passoBarra"></i></div><span id="passoN"></span></div>
-      <div class="passo only-inq" data-passo="1">
+      <div class="progresso" aria-hidden="true"><div><i id="passoBarra"></i></div><span id="passoN"></span></div>
+      <div class="passo only-inq" data-pi="1">
         <h2 class="passo-h"><span class="passo-num">1</span><label for="tr">A sua renda</label></h2>
         <div class="renda-campo"><input type="number" id="tr" min="0" step="1" inputmode="numeric" placeholder="0" aria-describedby="trHint"><span>€ / mês</span></div>
         <p class="hint" id="trHint" style="margin-bottom:20px">Renda atual ou proposta pelo senhorio, sem despesas (água, luz, internet).</p>
-        <h2 class="passo-h"><span class="passo-num">2</span><span id="tiLbl">O que arrenda</span></h2>
+      </div>
+      <div class="passo" data-pi="1" data-ps="1">
+        <h2 class="passo-h"><span class="passo-num"><span class="only-inq">2</span><span class="only-sen">1</span></span><span id="tiLbl">O que arrenda</span></h2>
         <div class="escolha" role="group" aria-labelledby="tiLbl">
           <button type="button" id="ti-apt" aria-pressed="false">Apartamento inteiro</button>
-          <button type="button" id="ti-q" aria-pressed="true">Um quarto<small>numa casa partilhada</small></button>
+          <button type="button" id="ti-q" aria-pressed="true"><span class="only-inq">Um quarto</span><span class="only-sen">Quartos</span><small><span class="only-inq">numa casa partilhada</span><span class="only-sen">um contrato por quarto</span></small></button>
         </div>
       </div>
-      <!-- senhorio:inicio -->
-      <div class="only-sen">
-      <h2>Contrato</h2>
-      <div class="row2">
-        <div class="field">
-          <label for="fin">Finalidade</label>
-          <select id="fin">
-            <option value="temp">Residência temporária (estudante, professor deslocado)</option>
-            <option value="perm">Residência permanente</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="prazo">Prazo (meses)</label>
-          <input type="number" id="prazo" min="1" value="10">
-        </div>
-      </div>
-      <div class="field checks" id="fiscalWrap">
-        <label><input type="checkbox" id="fiscal" checked> Inquilino tem residência fiscal noutro concelho</label>
-      </div>
-      <div class="field checks">
-        <label><input type="checkbox" id="desp" checked> Despesas (água, luz, internet) pagas à parte</label>
-      </div>
-      </div>
-      <!-- senhorio:fim -->
 
-      <div class="passo" data-passo="2">
-      <h2 id="h-dados" style="margin-top:20px"><span class="passo-num only-inq">3</span>A casa</h2>
-      <div class="field only-sen">
-        <span class="lbl" id="mlbl" style="display:block;font-weight:600;font-size:.92rem;margin-bottom:6px">O que vai arrendar?</span>
-        <div class="seg" role="group" aria-labelledby="mlbl">
-          <button type="button" id="m-q" aria-pressed="true">Quartos</button>
-          <button type="button" id="m-apt" aria-pressed="false">Apartamento inteiro</button>
-        </div>
-      </div>
+      <div class="passo" data-pi="2" data-ps="1">
+      <h2 class="passo-h" id="h-dados"><span class="passo-num"><span class="only-inq">3</span><span class="only-sen">2</span></span>A casa</h2>
       <div class="row2">
         <div class="field">
           <label for="distrito">Distrito / Região</label>
@@ -325,7 +310,7 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
           </select>
         </div>
       </div>
-      <p class="lbl-inq only-inq">Extras da casa <span>(opcional)</span></p>
+      <p class="lbl-inq">Extras da casa <span>(opcional)</span></p>
       <div class="field checks">
         <label><input type="checkbox" id="park"> Inclui estacionamento privativo (+10 %)</label>
         <label><input type="checkbox" id="energy"> Certificado energético A ou superior (+10 %)</label>
@@ -333,26 +318,75 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
       </div>
 
       <!-- senhorio:inicio -->
-      <div class="row2 campos only-apt">
-        <div class="field">
-          <label for="aptA">Área útil (m²) <span style="font-weight:400;color:var(--muted)">– opcional</span></label>
-          <input type="number" id="aptA" min="0" step="1" inputmode="numeric">
-          <p class="hint" id="aptAHint"></p>
+      <div class="passo only-sen" data-ps="2">
+        <div class="sep"></div>
+        <h2 class="passo-h only-q"><span class="passo-num">3</span>Os quartos <em id="nQ"></em></h2>
+        <p class="hint only-q" style="margin:-4px 0 10px">Indique a área útil de todos os quartos, mesmo os que não arrenda. Se deixar a renda vazia, ao calcular é preenchida com o valor máximo e acompanha as alterações seguintes, até a editar à mão.</p>
+        <div class="rooms only-q" id="rooms"></div>
+        <h2 class="passo-h only-apt"><span class="passo-num">3</span>O apartamento</h2>
+        <div class="row2 campos only-apt">
+          <div class="field">
+            <label for="aptR">Renda proposta (€/mês)</label>
+            <input type="number" id="aptR" min="0" step="1" inputmode="numeric">
+            <p class="hint">Vazia: ao calcular, é preenchida com o valor máximo.</p>
+          </div>
+          <div class="field">
+            <label for="aptA">Área útil (m²) <span style="font-weight:400;color:var(--muted)">– opcional</span></label>
+            <input type="number" id="aptA" min="0" step="1" inputmode="numeric">
+            <p class="hint" id="aptAHint"></p>
+          </div>
         </div>
-        <div class="field only-sen">
-          <label for="aptR">Renda proposta (€/mês)</label>
-          <input type="number" id="aptR" min="0" step="1" inputmode="numeric">
+      </div>
+      <div class="passo only-sen" data-ps="3">
+        <div class="sep"></div>
+        <h2 class="passo-h"><span class="passo-num">4</span>O contrato</h2>
+        <div class="row2">
+          <div class="field">
+            <label for="fin">Finalidade</label>
+            <select id="fin">
+              <option value="temp">Residência temporária (estudante, professor deslocado)</option>
+              <option value="perm">Residência permanente</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="prazo">Prazo (meses)</label>
+            <input type="number" id="prazo" min="1" value="10">
+          </div>
+        </div>
+        <div class="field checks" id="fiscalWrap">
+          <label><input type="checkbox" id="fiscal" checked> Inquilino com residência fiscal noutro concelho</label>
+        </div>
+        <div class="field checks">
+          <label><input type="checkbox" id="desp" checked> Despesas (água, luz, internet) pagas à parte</label>
+        </div>
+        <div class="sep"></div>
+        <h2 class="passo-h"><span class="passo-num">5</span>Mercado e impostos <em>(opcional)</em></h2>
+        <div class="row2 campos">
+          <div class="field">
+            <label for="mkt">Renda de mercado <span class="only-q">por quarto</span><span class="only-apt">do apartamento</span> (€/mês) <span class="pill warn" id="mktEst" hidden>estimativa</span></label>
+            <input type="number" id="mkt" min="0" value="450">
+            <p class="hint" id="mktRef"></p>
+          </div>
+          <div class="field">
+            <label for="tax">Taxa de IRS sobre rendas (%)</label>
+            <input type="number" id="tax" min="0" max="60" step="0.5" value="25">
+            <p class="hint">Confirme a taxa aplicável com um contabilista.</p>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="round">Arredondar</label>
+            <select id="round">
+              <option value="1">Sem arredondamento</option>
+              <option value="5">Para baixo, múltiplo de 5 €</option>
+              <option value="10">Para baixo, múltiplo de 10 €</option>
+            </select>
+          </div>
         </div>
       </div>
       <!-- senhorio:fim -->
 
-      <!-- senhorio:inicio -->
-      <h2 style="margin-top:6px" class="only-q only-sen">Quartos</h2>
-      <p class="hint only-q only-sen" style="margin-top:-8px;margin-bottom:8px"><span class="only-sen">O número de quartos segue a tipologia. Indique a área útil de todos, mesmo os que não arrenda.</span><span class="only-inq">Indique a área de cada quarto da casa (peça-a ao senhorio). É necessária para calcular a parte do seu quarto.</span></p>
-      <div class="rooms only-q only-sen" id="rooms"></div>
-      <!-- senhorio:fim -->
-
-      <div class="only-q only-inq passo" data-passo="3">
+      <div class="only-q only-inq passo" data-pi="3">
         <h2 class="passo-h" style="margin-top:6px"><span class="passo-num">4</span>O seu quarto</h2>
         <div class="row2 alinhar">
           <div class="field">
@@ -374,31 +408,18 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
         </div>
       </div>
 
-      <div class="so-assist nav-passos only-inq"><button type="button" class="btn" id="anterior">← Voltar</button><button type="button" class="btn primary" id="seguinte">Continuar</button></div>
+      <div class="so-assist nav-passos"><button type="button" class="btn" id="anterior">← Voltar</button><button type="button" class="btn primary" id="seguinte">Continuar</button></div>
 
       <div class="fillrow" style="margin-top:18px">
-        <!-- senhorio:inicio -->
-        <div class="only-sen">
-          <label for="round">Arredondar</label>
-          <select id="round">
-            <option value="1">Sem arredondamento</option>
-            <option value="5">Para baixo, múltiplo de 5 €</option>
-            <option value="10">Para baixo, múltiplo de 10 €</option>
-          </select>
-        </div>
-        <!-- senhorio:fim -->
         <button type="button" class="btn primary" id="fillMax"><span class="only-sen">Calcular</span><span class="only-inq">Verificar a minha renda</span></button>
       </div>
-      <!-- senhorio:inicio -->
-      <p class="hint only-sen" style="margin:-4px 0 8px">Calcula o valor máximo do RSAA <span class="only-q">de cada quarto</span><span class="only-apt">do apartamento</span>. Se já indicou uma renda proposta, verifica se está dentro desse valor. Se estiver vazia, é preenchida com o máximo (arredondado para baixo) e acompanha automaticamente as alterações seguintes, até a editar à mão.</p>
-      <!-- senhorio:fim -->
-      <p class="hint only-inq nota-local" style="text-align:center;margin:6px 0 0">O cálculo é feito no seu dispositivo; nada é enviado.</p>
+      <p class="hint nota-local" style="text-align:center;margin:6px 0 0">O cálculo é feito no seu dispositivo; nada é enviado.</p>
     </section>
 
     <section class="panel res" aria-labelledby="h-res" aria-live="polite">
-      <h2 id="h-res"><span class="only-sen">Resultado</span><span class="only-inq">O resultado</span></h2>
+      <h2 id="h-res">O resultado</h2>
+      <p class="so-assist" style="margin:0 0 12px"><button type="button" class="btn" id="alterar">← Alterar dados</button></p>
       <div class="only-inq">
-        <p class="so-assist" style="margin:0 0 12px"><button type="button" class="btn" id="alterar">← Alterar dados</button></p>
         <div class="veredicto neutro" id="tVer"></div>
         <div class="inq-cartoes">
           <div class="cartao-inq" id="exportarZona" hidden>
@@ -416,43 +437,40 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
       </div>
       <!-- senhorio:inicio -->
       <div class="only-sen">
-      <div class="limit-big"><span class="v" id="limitV">–</span><span class="t" id="limitT"></span></div>
-      <p class="hint" style="margin:-6px 0 6px">Valor máximo para beneficiar do RSAA (isenção de IRS). Não é um limite à renda nem um preço de referência: pode cobrar menos ou mais; acima deste valor o contrato é legal, mas fica na tributação normal.</p>
-      <p class="hint" id="areaT" style="margin:0 0 10px"></p>
-      <div class="only-apt" id="aptRes"></div>
-      <div class="split only-q" id="split" role="img" aria-label="Divisão do valor máximo pelos quartos"></div>
-      <div class="tbl only-q">
-        <table>
-          <thead><tr><th>Quarto</th><th class="num">Área p/ cálculo</th><th class="num">Máx. RSAA</th><th class="num">Por pessoa</th><th class="num"><span class="only-sen">Proposta</span><span class="only-inq">Renda</span></th><th>Estado</th></tr></thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
-      <ul class="checklist" id="checklist"></ul>
-      </div>
-
-      <div class="compare only-sen">
-        <h3 style="font-size:1.05rem;margin-bottom:8px">Comparar com o mercado (fora do RSAA)</h3>
-        <div class="row2 campos">
-          <div class="field">
-            <label for="mkt">Renda de mercado <span class="only-q">por quarto</span><span class="only-apt">do apartamento</span> (€/mês) <span class="pill warn" id="mktEst" hidden>estimativa</span></label>
-            <input type="number" id="mkt" min="0" value="450">
-            <p class="hint" id="mktRef"></p>
+        <div class="veredicto neutro" id="sVer"></div>
+        <div class="inq-cartoes">
+          <div class="cartao-inq">
+            <h3>RSAA ou mercado?</h3>
+            <div class="cmp-duas">
+              <div class="cmp" id="cmpR"><span>RSAA, líquido por ano</span><b id="netR">–</b><small id="netRT"></small></div>
+              <div class="cmp" id="cmpM"><span>Mercado, líquido por ano<span id="netMEst" hidden> (estimativa)</span></span><b id="netM">–</b><small id="netMT"></small></div>
+            </div>
+            <p id="cmpNote" style="margin:0"></p>
           </div>
-          <div class="field">
-            <label for="tax">Taxa de IRS sobre rendas (%)</label>
-            <input type="number" id="tax" min="0" max="60" step="0.5" value="25">
-            <p class="hint">Confirme a taxa aplicável com um contabilista.</p>
+          <div class="cartao-inq">
+            <h3><span class="only-q">Valor máximo por quarto</span><span class="only-apt">O apartamento</span></h3>
+            <div class="only-apt" id="aptRes"></div>
+            <div class="split only-q" id="split" role="img" aria-label="Divisão do valor máximo pelos quartos"></div>
+            <div class="tbl only-q">
+              <table>
+                <thead><tr><th>Quarto</th><th class="num">Área p/ cálculo</th><th class="num">Máx. RSAA</th><th class="num">Por pessoa</th><th class="num">Proposta</th><th>Estado</th></tr></thead>
+                <tbody id="tbody"></tbody>
+              </table>
+            </div>
+            <p class="hint" id="areaT" style="margin:8px 0 0"></p>
+          </div>
+          <div class="cartao-inq">
+            <h3>Requisitos do contrato</h3>
+            <ul class="checklist" id="checklist"></ul>
+          </div>
+          <div class="cartao-inq" id="exportarSenZona" hidden>
+            <h3>Próximo passo</h3>
+            <p>Guarde a análise ou partilhe-a com o seu contabilista: um relatório de uma página com as mais-valias, a comparação com o mercado e os requisitos.</p>
+            <div class="acoes-rel"><button type="button" class="btn primary" id="analiseSen">Análise da situação</button><button type="button" class="btn" id="exportarSen">Exportar PDF</button></div>
+            <p class="hint">«Análise da situação» abre o relatório numa página nova; «Exportar PDF» guarda-o em PDF. É gerado no seu dispositivo; nada é enviado.</p>
           </div>
         </div>
-        <div class="row2">
-          <div><p>RSAA, líquido por ano</p><p class="big" id="netR">–</p></div>
-          <div><p>Mercado, líquido por ano<span id="netMEst" hidden> (estimativa)</span></p><p class="big" id="netM">–</p></div>
-        </div>
-        <p class="hint" id="cmpNote"></p>
-      </div>
-      <div class="exportar only-sen" id="exportarSenZona" hidden>
-        <div class="acoes-rel"><button type="button" class="btn primary" id="analiseSen">Análise da situação</button><button type="button" class="btn" id="exportarSen">Exportar PDF</button></div>
-        <p class="hint">«Análise da situação» abre o relatório numa página nova; «Exportar PDF» abre a janela de impressão para o guardar («Guardar como PDF»). Tudo é gerado no seu dispositivo; nada é enviado.</p>
+        <p class="info-inq"><strong>O que é o valor máximo do RSAA?</strong> É a renda mensal até à qual o contrato pode entrar no RSAA, com isenção de IRS. Não é um limite à renda nem um preço de referência: acima desse valor, a renda continua a ser permitida, mas o contrato segue a tributação normal. Não inclui despesas (água, luz, internet).</p>
       </div>
       <!-- senhorio:fim -->
     </section>
@@ -737,8 +755,8 @@ const ICONE_VER={
   fora:'<svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5M12 17.3v.2"/></svg>',
   neutro:'<svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.2"/></svg>',
 };
-function mostrarVeredicto(estado,titulo,corpo,texto){
-  const v=$("tVer");v.className="veredicto "+estado;
+function mostrarVeredicto(estado,titulo,corpo,texto,id="tVer"){
+  const v=$(id);v.className="veredicto "+estado;
   v.innerHTML=`<p class="tit">${ICONE_VER[estado]}<span>${titulo}</span></p>${corpo}${texto?`<p class="txt">${texto}</p>`:""}`;
 }
 function limparInquilino(){
@@ -1011,39 +1029,40 @@ document.querySelectorAll('[role=tab]').forEach(b=>b.addEventListener("click",()
 }));
 
 function fillMax(){
-  const first=!calculated;calculated=true;
+  calculated=true;
   if(Senhorio&&document.body.dataset.view!=="inq")Senhorio.preencher();
   recalc();
   // Google Analytics (carregado pela moldura só com consentimento): sem dados pessoais.
   if(window.gtag&&window.google_tag_manager)gtag("event","calcular",{vista:document.body.dataset.view,modo});
   if(document.body.classList.contains("assistente")){document.body.classList.add("com-resultado");scrollTo({top:0})}
-  else if(document.body.dataset.view==="inq"){
-    // Inquilino: leva o veredicto para o ecrã sempre que verifica a renda (se ainda não estiver visível no topo).
-    const t=$("tVer").getBoundingClientRect().top;
+  else{
+    // Leva o veredicto para o ecrã sempre que calcula (se ainda não estiver visível no topo).
+    const t=$(document.body.dataset.view==="inq"?"tVer":"sVer").getBoundingClientRect().top;
     if(t<0||t>innerHeight*.25)scrollTo({top:scrollY+t-16,behavior:"smooth"});
   }
-  else if(first&&matchMedia("(max-width:860px)").matches)$("h-res").scrollIntoView({behavior:"smooth"});
 }
 $("fillMax").addEventListener("click",fillMax);
 
-// Inquilino no telemóvel: um passo de cada vez (a renda, a casa, o quarto) e depois só o resultado.
+// Telemóvel: um passo de cada vez e depois só o resultado.
+// Inquilino: a renda, a casa, o quarto. Senhorio: o que arrenda e a casa, os quartos, o contrato e o mercado.
 const ecraPequeno=matchMedia("(max-width:860px)");
 let passo=1;
 function atualizarAssistente(){
-  const on=ecraPequeno.matches&&document.body.dataset.view==="inq";
+  const on=ecraPequeno.matches,inq=document.body.dataset.view==="inq";
   document.body.classList.toggle("assistente",on);
   if(!on)document.body.classList.remove("com-resultado");
-  const ps=modo==="apt"?[1,2]:[1,2,3];
+  const ps=passosVista();
   if(!ps.includes(passo))passo=ps[ps.length-1];
   const i=ps.indexOf(passo);
-  document.querySelectorAll(".passo").forEach(p=>p.classList.toggle("atual",+p.dataset.passo===passo));
+  document.querySelectorAll(".passo").forEach(p=>p.classList.toggle("atual",+(inq?p.dataset.pi:p.dataset.ps)===passo));
   document.body.classList.toggle("primeiro-passo",i===0);
   document.body.classList.toggle("ultimo-passo",i===ps.length-1);
   $("passoN").textContent=`Passo ${i+1} de ${ps.length}`;
   $("passoBarra").style.width=((i+1)/ps.length*100)+"%";
 }
+function passosVista(){return document.body.dataset.view==="inq"&&modo==="apt"?[1,2]:[1,2,3]}
 function irPasso(d){
-  const ps=modo==="apt"?[1,2]:[1,2,3];
+  const ps=passosVista();
   passo=ps[Math.min(ps.length-1,Math.max(0,ps.indexOf(passo)+d))];
   atualizarAssistente();scrollTo({top:0});
 }
@@ -1067,8 +1086,6 @@ function setModo(m){
   // Um T0 não tem quartos: só pode ser arrendado inteiro.
   $("tip").querySelector('[value="T0"]').disabled=m==="q";
   if(m==="q"&&$("tip").value==="T0"){$("tip").value="T1";$("tip").dispatchEvent(new Event("change"))}
-  $("m-q").setAttribute("aria-pressed",m==="q");
-  $("m-apt").setAttribute("aria-pressed",m==="apt");
   $("ti-q").setAttribute("aria-pressed",m==="q");
   $("ti-apt").setAttribute("aria-pressed",m==="apt");
   try{localStorage.setItem("modo",m)}catch(e){}
@@ -1077,8 +1094,6 @@ function setModo(m){
   requisitosInquilino();
   recalc();
 }
-$("m-q").addEventListener("click",()=>setModo("q"));
-$("m-apt").addEventListener("click",()=>setModo("apt"));
 $("ti-q").addEventListener("click",()=>setModo("q"));
 $("ti-apt").addEventListener("click",()=>setModo("apt"));
 $("v-sen").addEventListener("click",()=>setView("sen"));
@@ -1177,20 +1192,21 @@ function syncRooms(){
   while(rooms.length<n)rooms.push({a:9,rent:true,wc:false,p:1,prop:0});
   rooms.length=n;
   const box=$("rooms");box.innerHTML="";
+  $("nQ").textContent=`· ${n} pela tipologia`;
   rooms.forEach((r,i)=>{
     const d=document.createElement("div");d.className="room";
-    d.innerHTML=`<div class="room-head"><strong>Quarto ${i+1}</strong></div>
-      <div class="r3">
+    d.innerHTML=`<div class="r3">
+        <strong>Quarto ${i+1}</strong>
         <div><label for="a${i}">Área útil (m²)</label><input type="number" id="a${i}" min="0" step="1" inputmode="numeric" value="${r.a}"></div>
-        <div><label for="p${i}">Pessoas</label><select id="p${i}"><option value="1"${r.p==1?" selected":""}>1</option><option value="2"${r.p==2?" selected":""}>2</option></select></div>
-        <div><label for="r${i}">Renda proposta (€)</label><input type="number" id="r${i}" min="0" value="${r.prop||""}"></div>
+        <div><label for="r${i}">Renda proposta (€)</label><input type="number" id="r${i}" min="0" inputmode="numeric" value="${r.prop||""}"></div>
       </div>
       <div class="flags">
-        <label><input type="checkbox" id="x${i}"${r.rent?" checked":""}> Arrendar este quarto</label>
-        <label><input type="checkbox" id="w${i}"${r.wc?" checked":""}> Casa de banho privativa</label>
+        <label><input type="checkbox" id="x${i}"${r.rent?" checked":""}> Arrendado</label>
+        <label title="Casa de banho privativa: a área conta 25 % mais"><input type="checkbox" id="w${i}"${r.wc?" checked":""}> WC privativa (+25 %)</label>
+        <label><input type="checkbox" id="p${i}"${r.p==2?" checked":""}> 2 pessoas</label>
       </div>`;
     box.appendChild(d);
-    const up=(k)=>{r.a=Math.round(parseFloat($("a"+i).value)||0);r.p=+$("p"+i).value;r.prop=parseFloat($("r"+i).value)||0;r.rent=$("x"+i).checked;r.wc=$("w"+i).checked;if(k==="r")r.auto=false;recalc()};
+    const up=(k)=>{r.a=Math.round(parseFloat($("a"+i).value)||0);r.p=$("p"+i).checked?2:1;r.prop=parseFloat($("r"+i).value)||0;r.rent=$("x"+i).checked;r.wc=$("w"+i).checked;if(k==="r")r.auto=false;recalc()};
     ["a","p","r","x","w"].forEach(k=>{$(k+i).addEventListener("input",()=>up(k));$(k+i).addEventListener("change",()=>up(k))});
     $("a"+i).addEventListener("change",()=>{$("a"+i).value=r.a});
   });
@@ -1199,19 +1215,17 @@ function syncRooms(){
 function antes(){$("fiscalWrap").hidden=$("fin").value!=="temp"}
 function limpar(){
   $("exportarSenZona").hidden=true;
-  $("limitV").textContent="–";
-  $("limitT").textContent="Preencha os dados da casa e clique em Calcular";
-  ["areaT","aptRes","split","tbody","checklist","cmpNote"].forEach(id=>$(id).innerHTML="");
+  mostrarVeredicto("neutro","Calcule o valor máximo","","Preencha a casa, os quartos e o contrato, e clique em «Calcular».","sVer");
+  ["areaT","aptRes","split","tbody","checklist","cmpNote","netRT","netMT"].forEach(id=>$(id).innerHTML="");
   $("netR").textContent=$("netM").textContent="–";
+  $("cmpR").classList.remove("win");$("cmpM").classList.remove("win");
 }
 function render(L,maj,Lm){
   $("exportarSenZona").hidden=false;
   const fin=$("fin").value;
-  $("limitV").textContent=L?eur(Math.floor(Lm)):"–";
-  $("limitT").textContent=L?`valor máximo RSAA da casa (${$("tip").value}, ${nomeConcelho(sel.value)}${maj?`, +${Math.round(maj*100)} %`:""})`:"Introduza o limite do concelho";
   const prazo=parseFloat($("prazo").value)||0;
-  const items=[];
-  const add=(ok,t)=>items.push(`<li><span class="ic ${ok===true?"ok":ok===false?"bad":"warn"}">${ok===true?"✓":ok===false?"✕":"!"}</span><span>${t}</span></li>`);
+  const items=[];let falhas=0;
+  const add=(ok,t)=>{if(ok===false)falhas++;items.push(`<li><span class="ic ${ok===true?"ok":ok===false?"bad":"info"}">${ok===true?"✓":ok===false?"✕":"i"}</span><span>${t}</span></li>`)};
   if(modo==="apt"){
     const max=Math.floor(Lm),A=aptArea();
     $("areaT").textContent=`Área útil: ${A} m²${apt.a?"":" (típica)"} · renda máxima por m²: ${A>0?(Lm/A).toLocaleString("pt-PT",{maximumFractionDigits:2})+" €":"–"}`;
@@ -1224,7 +1238,8 @@ function render(L,maj,Lm){
     add(ok, ok?"Renda proposta dentro do valor máximo do RSAA do apartamento.":"A renda proposta está acima do valor máximo do RSAA: para ter isenção de IRS tem de baixar; caso contrário, o contrato (legal) fica na tributação normal.");
     requisitos(add,fin,prazo,false);
     $("checklist").innerHTML=items.join("");
-    comparar(apt.prop&&apt.prop<=max?apt.prop:max, parseFloat($("mkt").value)||0, true);
+    comparar(apt.prop&&apt.prop<=max?apt.prop:max, parseFloat($("mkt").value)||0, true, 1);
+    veredicto(maj,Lm,[{prop:apt.prop,max}],falhas-(ok?0:1));
     return;
   }
   const total=rooms.reduce((s,r)=>s+r.a,0);
@@ -1250,14 +1265,7 @@ function render(L,maj,Lm){
     sp.insertAdjacentHTML("beforeend",`<div class="${r.rent?"":"off"}" style="flex:${w} 1 0" title="Quarto ${i+1}: ${eur(max)}">Q${i+1} · ${eur(max)}</div>`);
   });
   add(allOk&&anyRent, allOk?"Rendas propostas dentro do valor máximo do RSAA de cada quarto.":"Há rendas acima do valor máximo do RSAA: para terem isenção de IRS têm de baixar; caso contrário, esses contratos (legais) ficam na tributação normal.");
-  // No modo quartos, o valor em destaque é o que os quartos arrendados podem render;
-  // o limite da casa fica como referência (a parte dos quartos não arrendados não é redistribuída).
-  if(L){
-    const nR=rooms.filter(r=>r.rent).length,sumMax=rooms.reduce((s,r,i)=>s+(r.rent?maxes[i]:0),0);
-    const casa=`valor máximo RSAA da casa: ${eur(Math.floor(Lm))} (${$("tip").value}, ${nomeConcelho(sel.value)}${maj?`, +${Math.round(maj*100)} %`:""})`;
-    $("limitV").textContent=eur(sumMax);
-    $("limitT").textContent=(nR===rooms.length?`valor máximo RSAA total dos ${nR} quartos`:`valor máximo RSAA dos quartos arrendados (${nR} de ${rooms.length})`)+" · "+casa;
-  }
+  const falhaRendas=!(allOk&&anyRent)?1:0;
   // DL 97/2026, Anexo III, art. 3.º, n.º 2: partes de habitação só em contratos de residência temporária.
   if(fin==="perm")add(false,"No RSAA, arrendar quartos (parte da habitação) só é possível em residência temporária (DL 97/2026, Anexo III, art. 3.º, n.º 2). Para residência permanente, arrende o apartamento inteiro.");
   requisitos(add,fin,prazo,true);
@@ -1265,7 +1273,36 @@ function render(L,maj,Lm){
   add($("desp").checked?true:null, $("desp").checked?"Despesas à parte: o valor máximo do RSAA não as inclui. Escreva no contrato como são divididas.":"Se a renda incluir despesas, é o total cobrado que conta para o valor máximo. Prefira despesas à parte.");
   add(null,"Cabe ao senhorio comunicar cada contrato às Finanças e submeter a cópia e o comprovativo no IHRU até 15 de janeiro do ano seguinte.");
   $("checklist").innerHTML=items.join("");
-  comparar(sumRSAA, sumMkt, anyRent);
+  const nR=rooms.filter(r=>r.rent).length;
+  comparar(sumRSAA, sumMkt, anyRent, nR);
+  // No modo quartos, o veredicto soma os quartos arrendados (a parte dos não arrendados não é redistribuída).
+  veredicto(maj,Lm,rooms.map((r,i)=>({prop:r.prop,max:maxes[i],rent:r.rent})).filter(c=>c.rent),falhas-falhaRendas);
+}
+// Veredicto do senhorio: as rendas propostas face ao valor máximo, e os requisitos do contrato.
+// O valor máximo não é um limite à renda: acima dele, o contrato é legal, mas fica na tributação normal.
+function veredicto(maj,Lm,ativos,falhas){
+  const q=modo!=="apt",n=ativos.length,t=(parseFloat($("tax").value)||0)/100;
+  const somaMax=ativos.reduce((s,c)=>s+c.max,0),somaProp=n&&ativos.every(c=>c.prop)?ativos.reduce((s,c)=>s+c.prop,0):0;
+  const acima=ativos.filter(c=>c.prop>c.max);
+  const det=`<p class="det">${$("tip").value} em ${nomeConcelho(sel.value)} · valor máximo da casa: ${eur(Math.floor(Lm))}${maj?` (com majoração de ${Math.round(maj*100)} %)`:""} · ${$("fin").value==="temp"?"residência temporária":"residência permanente"}, ${parseFloat($("prazo").value)||0} meses</p>`;
+  if(!n){mostrarVeredicto("neutro","Nenhum quarto para arrendar","","Marque pelo menos um quarto como arrendado.","sVer");return}
+  if(!somaProp){
+    mostrarVeredicto("neutro",`Valor máximo do RSAA: ${eur(somaMax)} por mês`,det,`${q?`Para ${n===1?"o quarto arrendado":`os ${n} quartos arrendados`}. `:""}Indique ${q?"as rendas propostas":"a renda proposta"} para verificar; se ${q?"as deixar vazias":"a deixar vazia"}, ao calcular ${q?"são preenchidas":"é preenchida"} com o valor máximo.`,"sVer");
+    return;
+  }
+  const escala=Math.max(somaProp*1.05,somaMax*1.18),pos=v=>(v/escala*100).toFixed(1)+"%";
+  const exc=acima.reduce((s,c)=>s+c.prop-c.max,0);
+  const corpo=`<div class="valor"><b>${eur(somaProp)}<small> /mês</small></b><span>valor máximo${q?` dos ${n} quarto${n>1?"s":""}`:""} <strong>${eur(somaMax)}</strong> · ${acima.length?"acima":"margem"} <strong>${eur(acima.length?exc:somaMax-somaProp)}</strong></span></div>
+      <div class="barra" aria-hidden="true"><i></i><i style="width:${pos(somaProp)}"></i><u style="left:${pos(somaMax)}"></u><s style="left:${pos(somaMax)}">${eur(somaMax)}</s></div>${det}`;
+  if(acima.length){
+    const propA=acima.reduce((s,c)=>s+c.prop,0),maxA=acima.reduce((s,c)=>s+c.max,0);
+    const livre=Math.round(propA*12*(1-t)),rsaa=maxA*12,d=rsaa-livre,um=acima.length===1;
+    mostrarVeredicto("fora",q?`${um?"Um quarto tem":acima.length+" quartos têm"} renda acima do valor máximo`:"A renda proposta está acima do valor máximo do RSAA",corpo,
+      `É legal, mas ${um?"esse contrato fica":"esses contratos ficam"} fora do RSAA e ${um?"é tributado":"são tributados"} normalmente. Com ${um&&!q?"a renda proposta":"as rendas propostas"} recebe ${eur(livre)} líquidos por ano; com o valor máximo, ${eur(rsaa)} isentos: ${d>=0?`o RSAA rende mais <strong>${eur(d)}</strong> por ano`:`o regime normal rende mais <strong>${eur(-d)}</strong> por ano`}.`,"sVer");
+  }else if(falhas)
+    mostrarVeredicto("fora",`${q?"As rendas cabem":"A renda cabe"} no valor máximo, mas há requisitos por cumprir`,corpo,"Sem cumprir todos os requisitos, o contrato não fica no RSAA. Veja os requisitos do contrato.","sVer");
+  else
+    mostrarVeredicto("ok",q?"As rendas propostas cabem no RSAA":"A renda proposta cabe no RSAA",corpo,`Com ${q?"estas rendas":"esta renda"}, pode optar pelo RSAA e ficar <strong>isento de IRS</strong>${t?`: deixa de pagar cerca de <strong>${eur(Math.round(somaProp*12*t))} por ano</strong>`:""}.`,"sVer");
 }
 function requisitos(add,fin,prazo,quartos){
   if(fin==="temp"){
@@ -1280,12 +1317,18 @@ function requisitos(add,fin,prazo,quartos){
     add(null,"Cabe ao senhorio comunicar o contrato às Finanças e submeter a cópia do contrato e o comprovativo no IHRU até 15 de janeiro do ano seguinte.");
   }
 }
-function comparar(rendaRSAA,rendaMkt,anyRent){
-  const tax=(parseFloat($("tax").value)||0)/100;
-  const netR=rendaRSAA*12, netM=rendaMkt*12*(1-tax);
+function comparar(rendaRSAA,rendaMkt,anyRent,n){
+  const tax=(parseFloat($("tax").value)||0)/100,mkt=parseFloat($("mkt").value)||0,pct=(Math.round(tax*1000)/10).toLocaleString("pt-PT");
+  const netR=rendaRSAA*12, netM=rendaMkt*12*(1-tax), tem=anyRent&&rendaMkt>0;
   $("netR").textContent=anyRent?eur(netR):"–";
-  $("netM").textContent=anyRent&&rendaMkt?eur(netM):"–";
-  $("cmpNote").textContent=anyRent&&rendaMkt?(netR>=netM?`O RSAA rende mais ${eur(netR-netM)} por ano, líquido de IRS.`:`O mercado rende mais ${eur(netM-netR)} por ano, já com IRS descontado.`)+" Não inclui despesas nem custos de manutenção.":"";
+  $("netM").textContent=tem?eur(netM):"–";
+  $("netRT").textContent=anyRent?`${eur(rendaRSAA)} × 12, sem IRS`:"";
+  $("netMT").textContent=tem?`${eur(mkt)}${n>1?` × ${n}`:""} × 12 − IRS de ${pct} %`:"";
+  $("cmpR").classList.toggle("win",tem&&netR>=netM);
+  $("cmpM").classList.toggle("win",tem&&netM>netR);
+  const equil=n&&tax<1?Math.ceil(rendaRSAA/n/(1-tax)):0;
+  $("cmpNote").innerHTML=!anyRent?"":!tem?"Indique a renda de mercado para comparar."
+    :`<strong>${netR>=netM?`O RSAA rende mais ${eur(netR-netM)} por ano.`:`O mercado rende mais ${eur(netM-netR)} por ano.`}</strong> O mercado só compensaria acima de ${eur(equil)} por ${modo==="apt"?"mês":"quarto e por mês"}. <span class="hint">Sem despesas nem custos de manutenção.</span>`;
 }
 function applyAuto(){
   const {Lm}=limites();
@@ -1353,7 +1396,7 @@ function relatorio(acao){
   if(!somaProp)cartao=cartaoEstado(0,somaMax,{selo:"Valor máximo do RSAA",texto:`Valor máximo ${quartos?quem:"do apartamento"}. Indique ${quartos?"as rendas":"a renda"} no simulador para comparar.`});
   else if(!acima.length)cartao=cartaoEstado(somaProp,somaMax,{selo:"Dentro do valor máximo · RSAA possível",texto:`Com ${quartos?"estas rendas":"esta renda"}, pode optar pelo RSAA e ficar <strong>isento de IRS</strong> sobre ${quartos?"elas":"ela"}.`});
   else cartao=cartaoEstado(somaProp,somaMax,{selo:quartos?`${acima.length} ${acima.length===1?"quarto acima":"quartos acima"} do valor máximo`:"Acima do valor máximo · fora do RSAA",texto:`${quartos?(acima.length===1?"Esse contrato fica":"Esses contratos ficam"):"O contrato fica"} fora do RSAA: é legal, mas sem isenção de IRS.`});
-  const cls={ok:"ok",bad:"mal",warn:"info"};
+  const cls={ok:"ok",bad:"mal",warn:"info",info:"info"};
   const req=[...document.querySelectorAll("#checklist li")].map(li=>{const ic=li.querySelector(".ic"),k=ic?[...ic.classList].find(c=>cls[c]):"warn";return [cls[k]||"info",escRel(li.textContent.replace(ic?ic.textContent:"","").trim())]});
   // Com muitos quartos (T6 ou mais), a tabela divide-se em duas colunas para o relatório caber numa folha A4.
   const tabelaQuartos=lista=>`<table><tr><th>Quarto</th><th>Área p/ cálculo</th><th>Máx. RSAA</th><th>Proposta</th><th>Estado</th></tr>${
