@@ -179,6 +179,7 @@ ${distritos.map(d => `
 }
 
 const DL = "Decreto-Lei n.º 97/2026, Anexo III";
+const DL_URL = "https://diariodarepublica.pt/dr/detalhe/decreto-lei/97-2026-1124493227";
 const PT = "Portaria n.º 454/2026/1";
 // Perguntas frequentes: fonte única do texto visível e dos dados estruturados (FAQPage).
 // Respostas em HTML simples; o texto para os dados estruturados é obtido retirando as etiquetas.
@@ -213,6 +214,8 @@ export const FAQ = [
    `Perdem-se os benefícios fiscais desde o momento do incumprimento. O senhorio tem de o declarar e pagar a diferença de imposto, acrescida de juros compensatórios. A verificação cabe ao IHRU, com audiência prévia dos interessados (${DL}, art. 7.º).`],
   ["Os valores máximos mudam?",
    `Sim. São atualizados automaticamente a 1 de janeiro de cada ano pelo coeficiente de atualização das rendas (NRAU, art. 24.º), e podem ser revistos por alteração da portaria (${PT}, art. 3.º). Este simulador é atualizado quando os valores mudam.`],
+  ["A renda de um contrato no RSAA pode ser aumentada todos os anos?",
+   `Sim, pelas regras gerais do arrendamento. O RSAA não tem uma regra própria para o aumento anual: os contratos de arrendamento acessível regem-se pelo Código Civil e pelo NRAU (<a href="${DL_URL}" target="_blank" rel="noopener">${DL}</a>, art. 3.º, n.º 3). Pelo artigo 1077.º do Código Civil, o contrato pode definir como a renda é atualizada; se não disser nada, aplica-se o <strong>coeficiente anual publicado pelo INE</strong> (NRAU, art. 24.º), que para 2027 é de 1,0256, ou seja, +2,56 % (Aviso n.º 24199/2026/2). A primeira atualização pode ser pedida um ano depois do início do contrato, e o senhorio comunica-a por escrito com pelo menos 30 dias de antecedência. Os valores máximos do RSAA sobem pelo mesmo coeficiente, a 1 de janeiro de cada ano (${DL}, art. 4.º, n.º 2; <a href="${PORTARIA}" target="_blank" rel="noopener">${PT}</a>, art. 3.º): uma renda atualizada pelo coeficiente legal continua dentro do valor máximo. Já um aumento maior, por exemplo uma percentagem fixa acima do coeficiente, pode fazer a renda passar o valor máximo; a partir desse momento o contrato <strong>perde a isenção de IRS</strong> e o senhorio tem de regularizar o imposto, com juros compensatórios (${DL}, art. 7.º). A isenção mantém-se nas renovações do contrato (art. 6.º, n.º 5).`],
   ["Sou inquilino: como sei se a minha renda permite ao senhorio beneficiar do RSAA?",
    `Use a vista do inquilino do <a href="/">simulador</a>, que não exige identificação. Para um quarto precisa da área do seu quarto e da soma das áreas de todos os quartos da casa (peça-as ao senhorio); para a casa inteira basta o concelho e a tipologia. Se a renda estiver acima do valor máximo, é legal, mas o contrato não fica no RSAA. A «Análise da situação» explica o resultado e pode ser guardada em PDF.`],
   ["Este simulador é oficial?",
