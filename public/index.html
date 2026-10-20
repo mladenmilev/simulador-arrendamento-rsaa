@@ -72,26 +72,16 @@
 .numeros strong{display:block;font:800 30px Manrope,system-ui,sans-serif}
 .numeros span{font-weight:600}
 .numeros p{margin:4px 0 0;color:var(--muted);font-size:.92rem}
-/* Entrada: bloco escuro com o acesso completo e a entrada do inquilino. */
+/* Entrada: bloco escuro com as duas entradas diretas (sem registo). */
 .acesso-zona{background:#0E1726;color:#E2E8F0;padding:56px 0 8px}
 .acesso-zona>.wrap>h2{color:#FFFFFF;font-size:clamp(1.5rem,3vw,1.9rem);margin-bottom:6px}
 .acesso-zona .sub{color:#94A3B8;margin:0 0 22px}
-.acesso{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:20px;align-items:start;scroll-margin-top:16px}
+.acesso{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:stretch;scroll-margin-top:16px}
 .cartao{background:var(--surface);color:var(--ink);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:12px}
 .cartao h3{font-size:1.3rem}
-.cartao .msg{margin:0;color:var(--muted)}
+.cartao .msg{margin:0;color:var(--muted);flex:1}
 .cartao.inquilino{background:var(--tile-soft);border:2px solid var(--tile)}
-label{display:block;font-weight:600;font-size:.92rem;margin-bottom:4px}
-input[type=text],input[type=email]{width:100%;min-height:46px;padding:10px 14px;border:1px solid var(--field);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit}
-input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--tile);outline-offset:2px}
-.campos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.field{margin-bottom:12px}
-.consent{display:flex;gap:10px;align-items:flex-start;font-weight:400;font-size:.88rem;color:var(--muted);margin:0}
-.consent input{margin-top:4px;flex:none}
-.hint{font-size:.82rem;color:var(--muted);margin:0}
-.ou{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:.85rem}
-.ou::before,.ou::after{content:"";flex:1;border-top:1px solid var(--line)}
-.erro{background:var(--bad-soft);color:var(--bad);padding:10px 12px;border-radius:10px;font-size:.9rem;margin:0}
+a:focus-visible,button:focus-visible{outline:3px solid var(--tile);outline-offset:2px}
 .rodape{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:40px;padding:18px 0 8px;border-top:1px solid #263449;font-size:13px;color:#94A3B8}
 .rodape p{margin:0;flex:1 1 520px}
 .rodape nav{display:flex;gap:16px;flex-wrap:wrap}
@@ -115,7 +105,7 @@ input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(-
   <div class="wrap">
     <header class="cab claro">
       <a class="marca" href="/?inicio=1"><span class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span></span><span>Simulador <b>RSAA</b></span></a>
-      <nav aria-label="Principal"><a href="/renda-acessivel/">Valores por concelho</a><a href="/perguntas-frequentes">Perguntas</a><a href="/contacto">Contacto</a><a class="entrar" href="#acesso">Entrar</a></nav>
+      <nav aria-label="Principal"><a href="/renda-acessivel/">Valores por concelho</a><a href="/perguntas-frequentes">Perguntas</a><a href="/contacto">Contacto</a><a class="entrar" href="/simulador">Abrir simulador</a></nav>
     </header>
     <div class="corpo">
       <div>
@@ -123,8 +113,8 @@ input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(-
         <h1>Renda acessível, sem contas de cabeça.</h1>
         <p class="lede">Veja em segundos se uma renda pode ficar no arrendamento acessível (RSAA) e quanto vale a isenção de IRS, para a casa toda ou para cada quarto.</p>
         <div class="portas">
-          <div class="porta"><span class="quem">Sou inquilino</span><h2>A minha renda pode ficar no RSAA?</h2><button type="button" class="botao primario" id="convidado2">Verificar a minha renda →</button><small>Sem identificação</small></div>
-          <div class="porta"><span class="quem">Sou senhorio</span><h2>Quanto posso pedir no RSAA?</h2><a class="botao escuro" href="#acesso" id="irSenhorio">Calcular valores máximos →</a><small>Com identificação gratuita</small></div>
+          <div class="porta"><span class="quem">Sou inquilino</span><h2>A minha renda pode ficar no RSAA?</h2><a class="botao primario" href="/simulador?vista=inquilino">Verificar a minha renda →</a><small>Grátis e sem registo</small></div>
+          <div class="porta"><span class="quem">Sou senhorio</span><h2>Quanto posso pedir no RSAA?</h2><a class="botao escuro" href="/simulador?vista=senhorio">Calcular valores máximos →</a><small>Grátis e sem registo</small></div>
         </div>
         <p class="nota-valor">O valor máximo do RSAA não é um limite à renda: acima dele, a renda continua a ser permitida, mas o contrato segue a tributação normal.</p>
       </div>
@@ -153,7 +143,7 @@ input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(-
   </section>
   <section class="numeros" aria-label="O que o simulador faz">
     <div><strong>308</strong><span>concelhos</span><p>Todos os valores máximos da Portaria, de T0 a T8, com majorações. <a href="/renda-acessivel/">Ver a tabela</a></p></div>
-    <div><strong>2 vistas</strong><span>inquilino e senhorio</span><p>O inquilino verifica a renda sem se identificar.</p></div>
+    <div><strong>2 vistas</strong><span>inquilino e senhorio</span><p>Sem registo nem login, para quem arrenda e para quem procura casa.</p></div>
     <div><strong>✓ / ✕</strong><span>requisitos do contrato</span><p>Prazos, residência fiscal, área mínima e despesas verificados.</p></div>
   </section>
 </div>
@@ -161,37 +151,22 @@ input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(-
 <div class="acesso-zona">
   <div class="wrap">
     <h2>Comece agora</h2>
-    <p class="sub">O inquilino entra sem se identificar. A vista do senhorio pede nome e e-mail.</p>
-    <section class="acesso" id="acesso" aria-label="Entrar">
-      <div class="cartao">
-        <h3>Acesso completo · senhorio e inquilino</h3>
-        <p class="msg" id="msg">Todas as funcionalidades. A identificação é necessária para continuarmos a melhorar o serviço.</p>
-        <p class="erro" id="erro" role="alert" hidden></p>
-        <label class="consent"><input type="checkbox" id="consent"> <span>Aceito que o meu nome e e-mail sejam guardados para identificar quem usa o simulador e melhorar o serviço. Os dados não são partilhados com terceiros nem usados para publicidade.</span></label>
-        <button type="button" class="botao largo" id="google">
-          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-          Entrar com Google
-        </button>
-        <p class="hint">Com a conta Google, recebemos apenas o nome e o e-mail. Não há acesso ao Gmail nem a outros dados.</p>
-        <div class="ou">ou</div>
-        <form id="form" novalidate>
-          <div class="campos">
-            <div class="field"><label for="nome">Nome</label><input type="text" id="nome" autocomplete="name" maxlength="100" required></div>
-            <div class="field"><label for="email">E-mail</label><input type="email" id="email" autocomplete="email" maxlength="200" required></div>
-          </div>
-          <button type="submit" class="botao escuro largo" id="enviar">Continuar com nome e e-mail</button>
-        </form>
+    <p class="sub">Grátis e sem registo. Escolha a sua vista; pode trocar a qualquer momento.</p>
+    <section class="acesso" id="acesso" aria-label="Abrir o simulador">
+      <div class="cartao inquilino">
+        <h3>Sou inquilino</h3>
+        <p class="msg">Verifique se a renda do seu quarto ou apartamento pode ficar no RSAA e o que isso significa para si e para o senhorio.</p>
+        <a class="botao primario largo" href="/simulador?vista=inquilino">Verificar a minha renda</a>
       </div>
-      <div class="cartao inquilino" id="convidadoBox">
-        <h3>É inquilino?</h3>
-        <p class="msg">Verifique se a renda do seu quarto ou apartamento pode ficar no RSAA, sem se identificar.</p>
-        <p class="hint">Só a vista do inquilino. A vista do senhorio requer identificação.</p>
-        <button type="button" class="botao primario largo" id="convidado">Verificar a minha renda</button>
+      <div class="cartao">
+        <h3>Sou senhorio</h3>
+        <p class="msg">Calcule o valor máximo da casa ou de cada quarto, confirme os requisitos do contrato e compare o RSAA com o mercado.</p>
+        <a class="botao escuro largo" href="/simulador?vista=senhorio">Calcular valores máximos</a>
       </div>
     </section>
 
     <footer class="rodape">
-      <p>Privacidade: guardamos apenas o nome, o e-mail, o método de identificação e a data. Os valores de cada simulação ficam registados de forma anónima (sem nome, e-mail nem outro identificador), só para estatísticas agregadas sobre o RSAA. Com o seu consentimento, usamos o Google Analytics para medir visitas de forma agregada. Ferramenta informativa, não afiliada ao IHRU; não substitui um contabilista ou advogado.</p>
+      <p>Privacidade: não pedimos registo nem usamos cookies de publicidade ou de análise. Os valores de cada simulação (concelho, tipologia, áreas, rendas e resultado) ficam registados de forma anónima, sem nome, e-mail nem outro identificador, só para estatísticas agregadas sobre o RSAA. Ferramenta informativa, não afiliada ao IHRU; não substitui um contabilista ou advogado.</p>
       <nav aria-label="Rodapé"><a href="/renda-acessivel/">Valores por concelho</a><a href="/perguntas-frequentes">Perguntas frequentes</a><a href="/contacto">Contacto</a></nav>
     </footer>
     <p class="versao" id="versao"></p>
@@ -199,28 +174,12 @@ input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(-
 </div>
 
 <script type="module">
-import { auth, db, local } from "/js/firebase.js";
 import { VERSAO } from "/js/versao.js";
-import { evento } from "/js/analytics.js";
-import { GoogleAuthProvider, signInWithPopup, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 const $ = id => document.getElementById(id);
+const h = location.hostname, local = h === "localhost" || h === "127.0.0.1" || /^(192\.168|10)\./.test(h);
 $("versao").textContent = `v${VERSAO}${local ? " · local" : ""}`;
-const erro = t => { $("erro").textContent = t; $("erro").hidden = !t; };
-const ocupado = b => ["google", "enviar"].forEach(id => $(id).disabled = b);
-let emCurso = false;
 
-// Vindo de "Identificar-me" (convidado que quer a vista do senhorio): no fim, abre já nessa vista.
-const paraSenhorio = new URLSearchParams(location.search).has("identificar");
-if (paraSenhorio) {
-  $("msg").textContent = "Identifique-se para aceder à vista do senhorio.";
-  $("acesso").scrollIntoView();
-}
-const abrir = () => {
-  try { localStorage.removeItem("convidado"); } catch (e) {}
-  location.replace(paraSenhorio ? "/simulador?vista=senhorio" : "/simulador");
-};
 // Cartão de exemplo com o concelho lembrado neste navegador (escolhido no simulador ou numa página de concelho).
 (async () => {
   let c; try { c = localStorage.getItem("concelho"); } catch (e) {}
@@ -240,77 +199,6 @@ const abrir = () => {
     $("exLink").href = "/renda-acessivel/" + dados.s;
   } catch (e) {}
 })();
-
-const entrarConvidado = () => {
-  try { localStorage.setItem("convidado", "1"); } catch (e) {}
-  evento("entrar_convidado");
-  location.href = "/simulador?vista=inquilino";
-};
-$("convidado").addEventListener("click", entrarConvidado);
-$("convidado2").addEventListener("click", entrarConvidado);
-
-// Quem já se identificou segue diretamente para o simulador, exceto se veio do logótipo/título (?inicio=1):
-// nesse caso fica na página de entrada, com um atalho para o simulador.
-const inicio = new URLSearchParams(location.search).has("inicio");
-onAuthStateChanged(auth, async user => {
-  if (!user || emCurso) return;
-  try {
-    if (!(await getDoc(doc(db, "registos", user.uid))).exists()) return;
-    if (!inicio) return abrir();
-    $("msg").innerHTML = 'Tem sessão iniciada. <a href="/simulador">Abrir o simulador</a>';
-  } catch (e) {}
-});
-
-async function registar(user, dados) {
-  const ref = doc(db, "registos", user.uid);
-  if (!(await getDoc(ref)).exists()) {
-    await setDoc(ref, { ...dados, consentimento: true, criadoEm: serverTimestamp() });
-  }
-}
-
-function precisaConsentimento() {
-  if ($("consent").checked) return false;
-  erro("Para continuar, aceite que o nome e o e-mail sejam guardados.");
-  $("consent").focus();
-  return true;
-}
-
-$("google").addEventListener("click", async () => {
-  erro("");
-  if (precisaConsentimento()) return;
-  emCurso = true; ocupado(true);
-  try {
-    const { user } = await signInWithPopup(auth, new GoogleAuthProvider());
-    await registar(user, { nome: user.displayName || user.email, email: user.email, metodo: "google" });
-    evento("login", { method: "google" });
-    abrir();
-  } catch (e) {
-    emCurso = false; ocupado(false);
-    if (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request") return;
-    console.error(e);
-    erro("Não foi possível entrar com Google. Tente novamente ou use o formulário.");
-  }
-});
-
-$("form").addEventListener("submit", async ev => {
-  ev.preventDefault();
-  erro("");
-  const nome = $("nome").value.trim(), email = $("email").value.trim();
-  if (!nome) { erro("Indique o seu nome."); $("nome").focus(); return; }
-  if (!$("email").checkValidity() || !email.includes(".")) { erro("Indique um e-mail válido."); $("email").focus(); return; }
-  if (precisaConsentimento()) return;
-  emCurso = true; ocupado(true);
-  try {
-    const user = auth.currentUser?.isAnonymous ? auth.currentUser : (await signInAnonymously(auth)).user;
-    await registar(user, { nome, email, metodo: "formulario" });
-    evento("login", { method: "formulario" });
-    abrir();
-  } catch (e) {
-    emCurso = false; ocupado(false);
-    console.error(e);
-    erro("Não foi possível guardar os dados. Tente novamente.");
-  }
-});
 </script>
 </body>
 </html>

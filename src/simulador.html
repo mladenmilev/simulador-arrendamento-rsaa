@@ -89,7 +89,6 @@ body:not([data-modo="apt"]) .only-apt{display:none!important}
 body[data-view="inq"] #h-dados{margin-top:0!important}
 body:not([data-view="inq"]) .only-inq{display:none!important}
 .viewbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:-8px 0 24px}
-.senlock{background:var(--tile-soft);padding:12px 16px;border-radius:14px;margin:-12px 0 22px;font-size:.92rem}
 .viewbar .lbl{font-size:.9rem;color:var(--muted)}
 .seg{display:inline-flex;background:var(--surface);border:1px solid var(--field);border-radius:999px;padding:3px;gap:2px}
 .seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-weight:600;padding:8px 18px;border-radius:999px;cursor:pointer;min-height:40px}
@@ -267,7 +266,6 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
       <button type="button" id="v-sen" aria-pressed="true">Senhorio</button>
     </div>
   </div>
-  <p class="senlock" id="senLock" hidden>A vista do senhorio requer identificação. <a href="/?identificar=1">Identificar-me</a></p>
   <!-- senhorio:inicio -->
   <div class="inq-intro only-sen">
     <h1>Quanto pode pedir para o contrato ficar no RSAA?</h1>
@@ -568,8 +566,6 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
 
 <script>
 // ===== Código comum: vista do inquilino e base da vista do senhorio =====
-// Os blocos marcados como exclusivos do senhorio (ver scripts/publicar-conteudo.mjs) só são publicados para quem se identificou;
-// o resto serve também o acesso de convidado (só vista do inquilino).
 // Limites RSAA: anexo da Portaria n.º 454/2026/1 (308 concelhos).
 // Formato: concelho: [distrito ou região, [T0, T1, T2, T3, T4, T5], euros por quarto acima de T5].
 // O distrito vem do código do município do INE (não consta da Portaria).
@@ -703,9 +699,8 @@ selD.addEventListener("change",()=>{encherConcelhos(selD.value);sel.dispatchEven
 
 let modo="q",calculated=false;
 let ten={a:0,total:0,wc:false,p:1,prop:0};
-// Preenchido pelo bloco do senhorio; no acesso de convidado fica null.
+// Preenchido pelo bloco do senhorio.
 let Senhorio=null;
-const convidado=()=>!Senhorio;
 
 function baseLimit(){
   // Acima de T5: T5 + n × valor por quarto do concelho (nota do anexo da Portaria).
@@ -899,7 +894,6 @@ ${CSS_RELATORIO}
   const w=window.open(url,"_blank");
   if(!w)location.href=url; // bloqueador de janelas: abre na mesma página
   setTimeout(()=>URL.revokeObjectURL(url),60000);
-  if(window.gtag&&window.google_tag_manager)gtag("event","abrir_analise",{tipo,modo});
 }
 // Comum aos relatórios do inquilino e do senhorio: mostra só o relatório e abre a impressão (Guardar como PDF).
 function imprimirRelatorio(html,tipo){
@@ -908,7 +902,6 @@ function imprimirRelatorio(html,tipo){
   document.documentElement.classList.add("a-imprimir");
   const fim=()=>{document.documentElement.classList.remove("a-imprimir");removeEventListener("afterprint",fim)};
   addEventListener("afterprint",fim);
-  if(window.gtag&&window.google_tag_manager)gtag("event","exportar_relatorio",{tipo,modo});
   print();
 }
 // Peças do relatório (versão 2: cartão de estado a meia largura, dados por baixo, painel à direita).
@@ -1041,7 +1034,8 @@ function registarSimulacao(){
   if(typeof window.guardarSimulacao!=="function")return;
   const {Lm}=limites(),inq=document.body.dataset.view==="inq"||!Senhorio,q=modo!=="apt";
   const d={vista:inq?"inquilino":"senhorio",modo:q?"quarto":"apartamento",distrito:selD.value,concelho:sel.value,
-    tipologia:$("tip").value,estacionamento:$("park").checked,certificadoA:$("energy").checked,valorMaxCasa:Math.floor(Lm)};
+    tipologia:$("tip").value,estacionamento:$("park").checked,certificadoA:$("energy").checked,valorMaxCasa:Math.floor(Lm),
+    ecra:ecraPequeno.matches?"movel":"computador"};
   if(inq){
     d.inquilino={renda:ten.prop||0,valorMax:tenMax??0};
     if(q)Object.assign(d.inquilino,{areaQuarto:ten.a,areaQuartos:ten.total,wcPrivativa:ten.wc,pessoas:ten.p});
@@ -1057,8 +1051,6 @@ function fillMax(){
   if(Senhorio&&document.body.dataset.view!=="inq")Senhorio.preencher();
   recalc();
   registarSimulacao();
-  // Google Analytics (carregado pela moldura só com consentimento): sem dados pessoais.
-  if(window.gtag&&window.google_tag_manager)gtag("event","calcular",{vista:document.body.dataset.view,modo});
   if(document.body.classList.contains("assistente")){document.body.classList.add("com-resultado");scrollTo({top:0})}
   else{
     // Leva o veredicto para o ecrã sempre que calcula (se ainda não estiver visível no topo).
@@ -1097,8 +1089,6 @@ $("alterar").addEventListener("click",()=>{document.body.classList.remove("com-r
 ecraPequeno.addEventListener("change",atualizarAssistente);
 
 function setView(v){
-  if(v==="sen"&&convidado()){$("senLock").hidden=false;return}
-  $("senLock").hidden=true;
   document.body.dataset.view=v;
   $("v-sen").setAttribute("aria-pressed",v==="sen");
   $("v-inq").setAttribute("aria-pressed",v==="inq");
@@ -1489,12 +1479,11 @@ return {antes,limpar,render,applyAuto,preencher,dados,mudouModo:mktRef};
 $("tip").addEventListener("change",recalc);
 calc();
 (function(){
-  if(convidado())$("v-sen").textContent="Senhorio 🔒";
   let v="sen";
   const q=new URLSearchParams(location.search).get("vista");
   if(q==="inquilino")v="inq";else if(q==="senhorio")v="sen";
   else{try{v=localStorage.getItem("vista")||"sen"}catch(e){}}
-  setView(convidado()?"inq":v);
+  setView(v);
   let m="q";try{m=localStorage.getItem("modo")==="apt"?"apt":"q"}catch(e){}
   setModo(m);
 })();

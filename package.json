@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "dev": "firebase emulators:exec --only auth,firestore --ui \"METADATA_SERVER_DETECTION=none node scripts/dev.mjs\"",
+    "dev": "firebase emulators:exec --only firestore --ui \"METADATA_SERVER_DETECTION=none node scripts/dev.mjs\"",
     "publicar-conteudo": "node scripts/publicar-conteudo.mjs",
     "deploy": "METADATA_SERVER_DETECTION=none node scripts/deploy.mjs"
   },

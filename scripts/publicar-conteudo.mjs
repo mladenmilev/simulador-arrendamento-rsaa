@@ -1,6 +1,5 @@
-// Envia src/simulador.html para o Firestore, em duas versões geradas a partir do mesmo ficheiro:
-//   conteudo/simulador – completa (senhorio + inquilino), só para quem se identificou;
-//   conteudo/inquilino – sem os blocos marcados "senhorio:inicio … senhorio:fim", para convidados.
+// Envia src/simulador.html para o Firestore (conteudo/simulador), aberto a todos.
+// Os marcadores "senhorio:inicio … senhorio:fim" são retirados (vêm do tempo em que havia uma versão só do inquilino).
 // Com FIRESTORE_EMULATOR_HOST definido (npm run dev) escreve no emulador; caso contrário, na produção,
 // usando a chave service-account.json (que nunca vai para o git).
 import { readFileSync } from "node:fs";
@@ -59,15 +58,14 @@ export function extrair(inquilino = false) {
 }
 
 export async function publicar() {
-  const completo = extrair(), inquilino = extrair(true);
-  const agora = FieldValue.serverTimestamp();
+  const completo = extrair();
   const lote = ligar().batch();
-  lote.set(db.doc("conteudo/simulador"), { ...completo, atualizadoEm: agora });
-  lote.set(db.doc("conteudo/inquilino"), { ...inquilino, atualizadoEm: agora });
+  lote.set(db.doc("conteudo/simulador"), { ...completo, atualizadoEm: FieldValue.serverTimestamp() });
+  lote.delete(db.doc("conteudo/inquilino")); // versão antiga só do inquilino, já não usada
   await lote.commit();
   const destino = process.env.FIRESTORE_EMULATOR_HOST ? "emulador local" : "PRODUÇÃO";
   const kb = c => Math.round(JSON.stringify(c).length / 1024);
-  console.log(`Simulador publicado (${destino}): completo ${kb(completo)} KB, inquilino ${kb(inquilino)} KB`);
+  console.log(`Simulador publicado (${destino}): ${kb(completo)} KB`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

@@ -1,18 +1,26 @@
 # Simulador de Arrendamento Acessível (RSAA)
 
-Simulador da renda máxima no Regime Simplificado de Arrendamento Acessível (RSAA), para o apartamento inteiro ou por quartos. A vista do senhorio exige identificação (Google ou nome + e-mail); a vista do inquilino também está disponível sem identificação (convidado).
+Simulador da renda máxima no Regime Simplificado de Arrendamento Acessível (RSAA), para o apartamento inteiro ou por quartos, com vista do inquilino e do senhorio. Aberto a todos, sem registo nem login, e sem Google Analytics: o site não trata dados pessoais. Cada simulação fica registada de forma anónima, para estatísticas.
 
 ## Como funciona
 
-- `public/index.html` – página de entrada: apresenta o simulador e pede a identificação.
-- `public/simulador.html` – moldura do simulador. Não contém o simulador: lê-o do Firestore. Quem tem registo recebe `conteudo/simulador` (versão completa); o convidado recebe `conteudo/inquilino` (só a vista do inquilino).
-- `src/simulador.html` – **o simulador em si** (é aqui que se fazem as alterações). Um só ficheiro para as duas versões: o que é exclusivo do senhorio fica entre marcadores, que o script de publicação retira na versão do inquilino:
-  - HTML: `<!-- senhorio:inicio -->` … `<!-- senhorio:fim -->`
-  - JavaScript: `// senhorio:inicio` … `// senhorio:fim` (todo o código do senhorio está no objeto `Senhorio`; o código comum só o chama se existir)
-- `firestore.rules` – regras de segurança (registos e acesso ao conteúdo).
-- `scripts/publicar-conteudo.mjs` – gera as duas versões a partir de `src/simulador.html` e envia-as para o Firestore.
+- `public/index.html` – página de entrada, com entradas diretas para as duas vistas.
+- `public/simulador.html` – moldura do simulador. Não contém o simulador: lê-o do Firestore (`conteudo/simulador`) e grava cada simulação calculada em `simulacoes`.
+- `src/simulador.html` – **o simulador em si** (é aqui que se fazem as alterações). Os marcadores `senhorio:inicio` … `senhorio:fim` vêm do tempo em que havia uma versão só do inquilino; o script de publicação retira-os.
+- `firestore.rules` – regras de segurança: conteúdo de leitura pública; `simulacoes` só aceita criar registos com o esquema previsto (ninguém lê pela app).
+- `scripts/publicar-conteudo.mjs` – envia `src/simulador.html` para o Firestore.
 
-Os registos ficam na coleção `registos` do Firestore (nome, e-mail, método, consentimento, data).
+## Simulações (estatísticas)
+
+Cada clique em «Verificar a minha renda» ou «Calcular valores máximos» grava um documento em `simulacoes`, sem nome, e-mail nem identificador: data, versão, telemóvel/computador, vista, apartamento ou quarto, distrito, concelho, tipologia, majorações, valor máximo, resultado e os valores do inquilino (renda, áreas) ou do senhorio (contrato, mercado, IRS, cada quarto com área, renda e valor máximo).
+
+```sh
+node scripts/exportar-simulacoes.mjs [--desde AAAA-MM-DD]
+```
+
+Cria `exportacoes/simulacoes.csv` (uma linha por simulação) e `exportacoes/quartos.csv` (uma linha por quarto, com renda por m²), prontos para Excel ou Google Sheets. A pasta `exportacoes/` fica fora do git.
+
+`scripts/apagar-registos.mjs` apaga os dados do tempo em que havia login (coleção `registos` e utilizadores do Authentication); só apaga com `--confirmar`.
 
 ## Desenvolvimento local (nada vai para a produção)
 
@@ -24,9 +32,9 @@ npm run dev
 ```
 
 - http://localhost:3000 – a app, com recarregamento automático (também ao gravar `src/simulador.html`)
-- http://localhost:4000 – painel dos emuladores (registos de teste em Firestore, utilizadores em Authentication)
+- http://localhost:4000 – painel do emulador do Firestore (simulações de teste)
 
-O login e a base de dados são emulados: o "Entrar com Google" mostra uma conta fictícia e os dados de teste desaparecem ao parar.
+A base de dados é emulada: os dados de teste desaparecem ao parar.
 
 ## Publicar
 
@@ -38,12 +46,8 @@ npm run deploy
 
 O `deploy`:
 1. exige o git sem alterações por guardar (cada versão corresponde a um commit);
-2. sobe a versão **minor** ([semver](https://semver.org/lang/pt-BR/)) em `package.json` e `public/js/versao.js`;
+2. sobe a versão **minor** (ou a **major**, com `npm run deploy -- --major`) ([semver](https://semver.org/lang/pt-BR/)) em `package.json` e `public/js/versao.js`;
 3. publica o simulador no Firestore, as regras e o site;
 4. faz commit `Publicar vX.Y.Z` e cria a tag `vX.Y.Z` (se falhar, repõe a versão anterior).
 
 A versão aparece discretamente no fundo das páginas.
-
-## Consultar registos
-
-Consola do Firebase → Firestore Database → `registos`.

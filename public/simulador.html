@@ -10,72 +10,40 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/tema.css">
-<style>
-.userbar{max-width:1120px;margin:0 auto;padding:12px 20px 0;display:flex;justify-content:flex-end;align-items:center;gap:10px;font-size:.85rem;color:var(--muted)}
-.userbar a,.userbar button{border:0;background:none;color:var(--tile);font:inherit;font-weight:600;cursor:pointer;padding:2px 4px;text-decoration:underline}
-</style>
 </head>
 <body class="com-rua">
-<div class="userbar" id="userbar" hidden><span id="quem"></span><a id="identificar" href="/?identificar=1" hidden>Identificar-me</a><button type="button" id="sair" hidden>Sair</button></div>
 <div id="app"><p class="estado" id="estado">A carregar o simulador…</p></div>
 <p class="versao" id="versao"></p>
 
 <script type="module">
-// O simulador não vem nesta página: é lido do Firestore. Quem se identificou recebe a versão completa
-// (as regras só a entregam com registo); o convidado recebe a versão só com a vista do inquilino.
-import { auth, db, local } from "/js/firebase.js";
+// O simulador não vem nesta página: é lido do Firestore (conteudo/simulador), aberto a todos, sem identificação.
+import { db, local } from "/js/firebase.js";
 import { VERSAO } from "/js/versao.js";
-import "/js/analytics.js";
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { doc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 const $ = id => document.getElementById(id);
 $("versao").textContent = `v${VERSAO}${local ? " · local" : ""}`;
-const voltar = () => location.replace("/");
-const convidado = () => { try { return localStorage.getItem("convidado") === "1"; } catch (e) { return false; } };
-let carregado = false;
 
-$("sair").addEventListener("click", async () => {
-  try { localStorage.removeItem("convidado"); } catch (e) {}
-  await signOut(auth); voltar();
-});
-
-onAuthStateChanged(auth, async user => {
-  if (carregado) return;
-  let reg = null;
-  if (user) {
-    try { const r = await getDoc(doc(db, "registos", user.uid)); if (r.exists()) reg = r.data(); } catch (e) {}
-  }
-  if (!reg && !convidado()) return voltar();
-  carregado = true;
-  try {
-    const cont = await getDoc(doc(db, "conteudo", reg ? "simulador" : "inquilino"));
-    if (!cont.exists()) { $("estado").textContent = "O simulador ainda não foi publicado."; return; }
-    const c = cont.data();
-    $("quem").textContent = reg ? reg.nome : "Convidado ·";
-    $("sair").hidden = !reg;
-    $("identificar").hidden = !!reg;
-    $("userbar").hidden = false;
-
-    const style = document.createElement("style");
-    style.textContent = c.css;
-    document.head.appendChild(style);
-    if (c.titulo) document.title = c.titulo;
-    // Cada simulação calculada fica registada de forma anónima (sem uid, nome nem e-mail), para análise agregada.
-    // Não bloqueia o simulador: se a escrita falhar, o cálculo segue igual.
-    window.guardarSimulacao = d => addDoc(collection(db, "simulacoes"),
-      { ...d, versao: VERSAO, identificado: !!reg, criadoEm: serverTimestamp() })
-      .catch(e => console.warn("Simulação não registada:", e.code || e));
-    $("app").innerHTML = c.html;
-    const script = document.createElement("script");
-    script.textContent = c.js;
-    document.body.appendChild(script);
-  } catch (e) {
-    console.error(e);
-    if (e.code === "permission-denied") return voltar();
-    $("estado").textContent = "Não foi possível carregar o simulador. Recarregue a página.";
-  }
-});
+try {
+  const cont = await getDoc(doc(db, "conteudo", "simulador"));
+  if (!cont.exists()) throw new Error("O simulador ainda não foi publicado.");
+  const c = cont.data();
+  // Cada simulação calculada fica registada de forma anónima (sem nome, e-mail nem identificador), para estatísticas.
+  // Não bloqueia o simulador: se a escrita falhar, o cálculo segue igual.
+  window.guardarSimulacao = d => addDoc(collection(db, "simulacoes"), { ...d, versao: VERSAO, criadoEm: serverTimestamp() })
+    .catch(e => console.warn("Simulação não registada:", e.code || e));
+  const style = document.createElement("style");
+  style.textContent = c.css;
+  document.head.appendChild(style);
+  if (c.titulo) document.title = c.titulo;
+  $("app").innerHTML = c.html;
+  const script = document.createElement("script");
+  script.textContent = c.js;
+  document.body.appendChild(script);
+} catch (e) {
+  console.error(e);
+  $("estado").textContent = "Não foi possível carregar o simulador. Recarregue a página.";
+}
 </script>
 </body>
 </html>

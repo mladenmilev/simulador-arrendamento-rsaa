@@ -21,6 +21,9 @@ firestore-debug.log
 ui-debug.log
 auth-debug.log
 
+# Exportações das simulações (scripts/exportar-simulacoes.mjs)
+exportacoes/
+
 # Prospeção comercial (contactos de terceiros, não publicar)
 business_model/
 

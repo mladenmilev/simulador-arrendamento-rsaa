@@ -61,7 +61,7 @@ function cabeca({ titulo, descricao, url, jsonld, migalhas = '<a href="/renda-ac
 <div class="wrap">
   <header class="cab">
     <a class="marca" href="/"><span class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span></span><span>Simulador <b>RSAA</b></span></a>
-    <nav aria-label="Principal"><a href="/renda-acessivel/">Valores por concelho</a><a href="/perguntas-frequentes">Perguntas</a><a href="/contacto">Contacto</a><a class="entrar" href="/#acesso">Entrar</a></nav>
+    <nav aria-label="Principal"><a href="/renda-acessivel/">Valores por concelho</a><a href="/perguntas-frequentes">Perguntas</a><a href="/contacto">Contacto</a><a class="entrar" href="/simulador">Abrir simulador</a></nav>
   </header>
   <nav class="migalhas" aria-label="Navegação"><a href="/">Simulador RSAA</a> › ${migalhas}</nav>`;
 }
@@ -69,12 +69,12 @@ function cabeca({ titulo, descricao, url, jsonld, migalhas = '<a href="/renda-ac
 const rodape = `
   <section class="cta">
     <h2>A sua renda pode ficar no RSAA?</h2>
-    <p>Inquilinos verificam a renda sem se identificar. Senhorios calculam o valor máximo de cada quarto, comparam com o mercado e veem se a isenção de IRS compensa.</p>
+    <p>Sem registo. Inquilinos verificam a renda; senhorios calculam o valor máximo de cada quarto, comparam com o mercado e veem se a isenção de IRS compensa.</p>
     <div class="cta-acoes">
-      <a class="btn primary" href="/simulador?vista=inquilino" data-convidado>Verificar a minha renda</a>
-      <a class="btn claro" href="/?identificar=1">Calcular valores máximos</a>
+      <a class="btn primary" href="/simulador?vista=inquilino">Verificar a minha renda</a>
+      <a class="btn claro" href="/simulador?vista=senhorio">Calcular valores máximos</a>
     </div>
-    <p class="cta-nota">Inquilino: sem identificação · Senhorio: com identificação gratuita</p>
+    <p class="cta-nota">Grátis e sem registo</p>
   </section>
   <p class="nota"><a href="/perguntas-frequentes">Perguntas frequentes sobre o RSAA</a> · <a href="/renda-acessivel/">Renda acessível por concelho</a> · <a href="/contacto">Contacto</a></p>
   <p class="nota">Valores da <a href="${PORTARIA}" target="_blank" rel="noopener">Portaria n.º 454/2026/1</a>, de 13 de outubro (anexo), que regulamenta o RSAA (Decreto-Lei n.º 97/2026, Anexo III). Atualizados automaticamente a 1 de janeiro de cada ano pelo coeficiente do NRAU. Página informativa; não substitui um contabilista ou advogado. Não afiliado ao IHRU.</p>
@@ -82,13 +82,7 @@ const rodape = `
 <p class="versao" id="versao"></p>
 <script type="module">
 import { VERSAO } from "/js/versao.js";
-import { evento } from "/js/analytics.js";
 document.getElementById("versao").textContent = "v" + VERSAO;
-// "Verificar a minha renda": entra como convidado (só a vista do inquilino), como na página inicial.
-document.querySelectorAll("[data-convidado]").forEach(a => a.addEventListener("click", () => {
-  try { localStorage.setItem("convidado", "1"); } catch (e) {}
-  evento("entrar_convidado");
-}));
 </script>
 </body>
 </html>
@@ -275,7 +269,6 @@ function paginaContacto() {
 <p class="versao" id="versao"></p>
 <script type="module">
 import { VERSAO } from "/js/versao.js";
-import "/js/analytics.js";
 document.getElementById("versao").textContent = "v" + VERSAO;
 </script>
 </body>

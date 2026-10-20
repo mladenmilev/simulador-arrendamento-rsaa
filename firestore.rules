@@ -2,44 +2,19 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function registado() {
-      return request.auth != null
-        && exists(/databases/$(database)/documents/registos/$(request.auth.uid));
-    }
+    // Registos antigos (nome e e-mail, do tempo em que havia login): sem acesso pela app,
+    // fechados pela regra por omissão. Apagam-se com scripts/apagar-registos.mjs.
 
-    // Um registo por utilizador (uid). Só o próprio o cria e lê; ninguém o altera nem apaga.
-    match /registos/{uid} {
-      allow read: if request.auth != null && request.auth.uid == uid;
-      allow create: if request.auth != null
-        && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['nome', 'email', 'metodo', 'consentimento', 'criadoEm'])
-        && request.resource.data.nome is string
-        && request.resource.data.nome.size() > 0 && request.resource.data.nome.size() <= 100
-        && request.resource.data.email is string
-        && request.resource.data.email.size() <= 200
-        && request.resource.data.email.matches('[^@ ]+@[^@ ]+[.][^@ ]+')
-        && request.resource.data.consentimento == true
-        && request.resource.data.criadoEm == request.time
-        && (
-          (request.resource.data.metodo == 'google'
-            && request.auth.token.firebase.sign_in_provider == 'google.com'
-            && request.resource.data.email == request.auth.token.email)
-          ||
-          (request.resource.data.metodo == 'formulario'
-            && request.auth.token.firebase.sign_in_provider == 'anonymous')
-        );
-    }
-
-    // Registo anónimo de cada simulação, para análise agregada (identificado ou convidado).
-    // Sem uid, nome nem e-mail. Qualquer visitante pode criar; ninguém lê, altera nem apaga pela app
+    // Registo anónimo de cada simulação, para estatísticas agregadas.
+    // Sem nome, e-mail nem identificador. Qualquer visitante pode criar; ninguém lê, altera nem apaga pela app
     // (a análise faz-se com o Admin SDK ou na consola).
     match /simulacoes/{id} {
       allow create: if request.resource.data.keys().hasOnly([
-            'criadoEm', 'versao', 'identificado', 'vista', 'modo', 'distrito', 'concelho', 'tipologia',
+            'criadoEm', 'versao', 'ecra', 'vista', 'modo', 'distrito', 'concelho', 'tipologia',
             'estacionamento', 'certificadoA', 'valorMaxCasa', 'resultado', 'inquilino', 'senhorio'])
         && request.resource.data.criadoEm == request.time
         && request.resource.data.versao is string && request.resource.data.versao.size() <= 20
-        && request.resource.data.identificado is bool
+        && request.resource.data.ecra in ['movel', 'computador']
         && request.resource.data.vista in ['inquilino', 'senhorio']
         && request.resource.data.modo in ['apartamento', 'quarto']
         && request.resource.data.distrito is string && request.resource.data.distrito.size() <= 60
@@ -57,13 +32,9 @@ service cloud.firestore {
                 && request.resource.data.senhorio.get('quartos', []).size() <= 12));
     }
 
-    // Conteúdo do simulador, escrito apenas pelo script de publicação (Admin SDK).
-    // Versão do inquilino: pública (acesso de convidado). Versão completa: só para quem se identificou.
-    match /conteudo/inquilino {
-      allow read: if true;
-    }
+    // Conteúdo do simulador, escrito apenas pelo script de publicação (Admin SDK). Aberto a todos.
     match /conteudo/simulador {
-      allow read: if registado();
+      allow read: if true;
     }
   }
 }
