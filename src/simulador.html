@@ -602,7 +602,7 @@ function requisitosInquilino(){
     "Tem de ter residência fiscal noutro concelho (ex.: estudante ou trabalhador deslocado).",
     "Prazo mínimo de 3 meses, renovável.",
     "O quarto tem de ter janela para o exterior e acesso à entrada, a uma casa de banho completa e à cozinha.",
-  ]).concat("O valor máximo do RSAA é o mesmo para contratos temporários e permanentes. Se as condições não se cumprirem, o contrato não fica no RSAA (a renda continua a ser legal).").map(i).join("");
+  ]).concat("O senhorio comunica o contrato às Finanças e submete-o no IHRU até 15 de janeiro do ano seguinte (o inquilino não tem de o fazer).","O valor máximo do RSAA é o mesmo para contratos temporários e permanentes. Se as condições não se cumprirem, o contrato não fica no RSAA (a renda continua a ser legal).").map(i).join("");
 }
 // Teto calculado para o inquilino (null enquanto faltarem dados): base do relatório exportável.
 let tenMax=null;
@@ -652,28 +652,77 @@ function renderTenantApt(max){
   $("tPP").textContent="";
   estadoRenda(max);
 }
-// Relatório do inquilino: montado no navegador com os valores do ecrã e impresso (ou guardado em PDF).
+// Relatórios (inquilino e senhorio): montados no navegador com os valores do ecrã e impressos (ou guardados em PDF).
 // Nada é enviado nem processado no servidor.
 const TAXA_IRS_EXEMPLO=0.25; // taxa autónoma normal sobre rendas, só para o exemplo do senhorio
 // Estilos do relatório: fonte única para a impressão (PDF) e para a página "Análise da situação".
-const CSS_RELATORIO=`#relatorio{color:#111;background:#fff;font:8.8pt/1.38 "IBM Plex Sans",system-ui,sans-serif}\n#relatorio h1{font:800 14pt/1.15 Manrope,system-ui,sans-serif;margin:0 0 1mm;color:#0E1726}\n#relatorio h2{font:800 10pt/1.25 Manrope,system-ui,sans-serif;margin:3.2mm 0 1.2mm;color:#0B6E61;break-after:avoid}\n#relatorio p{margin:0 0 1.2mm}\n#relatorio .sub{color:#555;margin:0 0 1mm;font-size:8pt}\n#relatorio .duas{display:grid;grid-template-columns:1fr 1fr;gap:0 7mm}\n#relatorio table{width:100%;border-collapse:collapse;font-size:inherit}\n#relatorio th,#relatorio td{font-size:inherit;line-height:inherit}\n#relatorio th,#relatorio td{border-bottom:.25mm solid #ddd;padding:.7mm 1.2mm;text-align:left;vertical-align:top}\n#relatorio th{width:50%;font-weight:500;color:#444}\n#relatorio td.n{text-align:right;font-variant-numeric:tabular-nums}\n#relatorio .destaque{border:.35mm solid #0B6E61;border-radius:2.5mm;padding:2mm 3mm;margin:2.5mm 0 0;break-inside:avoid}\n#relatorio .destaque.acima{border-color:#A3282F}\n#relatorio .destaque p{margin:0 0 1mm}\n#relatorio .renda{font:800 16pt/1.1 Manrope,system-ui,sans-serif;color:#0E1726;margin:0 0 1mm}\n#relatorio .renda span{font:500 9pt "IBM Plex Sans",system-ui,sans-serif;color:#555}\n#relatorio .comparacao{margin-top:1.5mm}\n#relatorio .comparacao th{width:62%}\n#relatorio .comparacao tr.total th,#relatorio .comparacao tr.total td{font-weight:700;color:#0E1726}\n#relatorio ul{margin:0;padding-left:4mm}\n#relatorio ul.colunas{columns:2;column-gap:7mm}\n#relatorio ul.colunas li{break-inside:avoid}\n#relatorio ul.req{list-style:none;padding-left:0}\n#relatorio ul.req b{display:inline-block;width:4mm}\n#relatorio li{margin-bottom:.6mm}\n#relatorio .nota{font-size:7.6pt;color:#555}\n#relatorio .rodape{margin-top:3mm;padding-top:1.5mm;border-top:.25mm solid #ddd;font-size:7.4pt;color:#555}`;
+// Medidas em px pensadas para uma folha A4 (794 px de largura); as cores fortes imprimem-se (print-color-adjust).
+const CSS_RELATORIO=`#relatorio{color:#0E1726;background:#fff;font:11.5px/1.45 "IBM Plex Sans",system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;display:flex;flex-direction:column;gap:14px}
+#relatorio *{box-sizing:border-box}
+#relatorio .cab{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:10px;border-bottom:1px solid #E2E8F0}
+#relatorio .marca{display:flex;align-items:center;gap:8px;font:800 12px Manrope,system-ui,sans-serif}
+#relatorio .marca em{font-style:normal;color:#0B6E61}
+#relatorio .tiles{width:22px;height:22px;border-radius:6px;background:#0B6E61;display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:4px}
+#relatorio .tiles i{background:#9FE3D6;border-radius:1px}#relatorio .tiles i:nth-child(3n+1){background:#fff;border-radius:50%}
+#relatorio .cab small{color:#64748B;font-size:10.5px;text-align:right}
+#relatorio h1{font:800 22px/1.15 Manrope,system-ui,sans-serif;letter-spacing:-.01em;margin:0}
+#relatorio h2{font:800 13px/1.25 Manrope,system-ui,sans-serif;margin:0 0 6px;color:#0B6E61;break-after:avoid}
+#relatorio p{margin:0}
+#relatorio ul{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:4px}
+#relatorio .duas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:stretch}
+#relatorio .col{display:flex;flex-direction:column;gap:10px}
+#relatorio section,#relatorio .cartao,#relatorio .caixa,#relatorio .painel,#relatorio .info{break-inside:avoid}
+#relatorio .cartao{--c:#0B6E61;--m:#335F57;--fundo:#EAF6F2;--pista:#CDE9E1;background:var(--fundo);border:1.5px solid var(--c);border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:5px}
+#relatorio .cartao.fora{--c:#B45309;--m:#7A4A12;--fundo:#FDF4E6;--pista:#F6DFBC}
+#relatorio .cartao.neutro{--c:#475569;--m:#475569;--fundo:#F4F6F8;--pista:#E2E8F0}
+#relatorio .selo{display:flex;align-items:center;gap:6px}
+#relatorio .selo span{background:var(--c);color:#fff;font-weight:600;font-size:9.5px;padding:2px 8px;border-radius:999px}
+#relatorio .valor{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+#relatorio .valor b{font:800 24px/1.05 Manrope,system-ui,sans-serif}
+#relatorio .valor b small{font:500 10.5px "IBM Plex Sans",system-ui,sans-serif;color:var(--m)}
+#relatorio .valor span{font-size:10.5px;color:var(--m)}#relatorio .valor span strong:last-child{color:var(--c)}
+#relatorio .barra{position:relative;height:26px}
+#relatorio .barra i{position:absolute;left:0;top:4px;height:6px;border-radius:999px;background:var(--c)}
+#relatorio .barra i:first-child{right:0;background:var(--pista)}
+#relatorio .barra u{position:absolute;top:0;width:2px;height:14px;margin-left:-1px;background:#0E1726}
+#relatorio .barra s{position:absolute;top:14px;transform:translateX(-50%);font-size:9.5px;font-weight:700;text-decoration:none;white-space:nowrap}
+#relatorio .cartao p{font-size:11px}
+#relatorio .caixa{border:1px solid #E2E8F0;border-radius:12px;padding:10px 14px}
+#relatorio .info{background:#F4F6F8;border-radius:12px;padding:10px 14px}
+#relatorio .col .info{flex:1}
+#relatorio .painel{border:1px solid #E2E8F0;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+#relatorio .painel h2{margin:0}#relatorio .painel h2+*{margin-top:-2px}
+#relatorio .painel ul{padding-left:15px}
+#relatorio .kv{display:grid;grid-template-columns:148px minmax(0,1fr);row-gap:4px;margin:0}
+#relatorio .kv dt{color:#64748B}#relatorio .kv dd{margin:0}
+#relatorio .kv .forte{font-weight:600;color:#0B6E61}
+#relatorio .req{display:grid;grid-template-columns:18px minmax(0,1fr);gap:6px 8px;align-items:start}
+#relatorio .legenda{margin-top:auto!important;color:#64748B;font-size:10px}
+#relatorio .comp{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;font-size:10.5px;border-top:1px solid #E2E8F0;padding-top:6px}
+#relatorio .comp span{color:#64748B}#relatorio .comp .n{text-align:right}
+#relatorio .nota{color:#64748B;font-size:9.5px}
+#relatorio .aviso{border:1.5px solid #B45309;background:#FDF4E6;border-radius:12px;padding:8px 12px}
+#relatorio table{width:100%;border-collapse:collapse;font-size:inherit}
+#relatorio th,#relatorio td{font-size:inherit;line-height:inherit;border-bottom:1px solid #E2E8F0;padding:3px 6px;text-align:left;vertical-align:top}
+#relatorio th{font-weight:500;color:#64748B}
+#relatorio .rodape{padding-top:8px;border-top:1px solid #E2E8F0;color:#64748B;font-size:9.5px}`;
 document.head.appendChild(Object.assign(document.createElement("style"),{textContent:
-  `#relatorio{display:none}@media print{@page{size:A4;margin:10mm 12mm}html.a-imprimir body>*:not(#relatorio){display:none!important}html.a-imprimir #relatorio{display:block!important}${CSS_RELATORIO}}`}));
+  `#relatorio{display:none}@media print{@page{size:A4;margin:10mm 12mm}html.a-imprimir body>*:not(#relatorio){display:none!important}html.a-imprimir #relatorio{display:flex!important}${CSS_RELATORIO}}`}));
 // Abre o relatório numa página nova (gerada no navegador, sem servidor), com botão para imprimir ou guardar PDF.
 function abrirRelatorio(html,tipo){
   const pagina=`<!DOCTYPE html><html lang="pt-PT"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Análise da situação – Arrendamento acessível (RSAA)</title>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@800&family=IBM+Plex+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 body{margin:0;background:#F4F6F8}
-.barra{max-width:210mm;margin:16px auto 0;padding:0 12px;display:flex;justify-content:flex-end}
-.barra button{font:600 15px "IBM Plex Sans",system-ui,sans-serif;background:#0B6E61;color:#fff;border:0;border-radius:999px;padding:12px 22px;min-height:44px;cursor:pointer}
-.folha{max-width:210mm;margin:12px auto 24px;background:#fff;padding:12mm;box-shadow:0 2px 12px rgba(14,23,38,.08);border-radius:6px}
-@media (max-width:640px){.folha{padding:16px;margin:8px}#relatorio .duas{grid-template-columns:1fr!important}#relatorio ul.colunas{columns:1!important}}
-@media print{@page{size:A4;margin:10mm 12mm}body{background:#fff}.barra{display:none}.folha{margin:0;padding:0;box-shadow:none;max-width:none;border-radius:0}}
+.barra-acoes{max-width:210mm;margin:16px auto 0;padding:0 12px;display:flex;justify-content:flex-end;box-sizing:border-box}
+.barra-acoes button{font:600 15px "IBM Plex Sans",system-ui,sans-serif;background:#0B6E61;color:#fff;border:0;border-radius:999px;padding:12px 22px;min-height:44px;cursor:pointer}
+.folha{max-width:210mm;margin:12px auto 24px;background:#fff;padding:36px 42px;box-shadow:0 2px 12px rgba(14,23,38,.08);border-radius:6px;box-sizing:border-box}
+@media (max-width:640px){.folha{padding:16px;margin:8px}#relatorio .duas{grid-template-columns:1fr!important}#relatorio .cab{flex-wrap:wrap}}
+@media print{@page{size:A4;margin:10mm 12mm}body{background:#fff}.barra-acoes{display:none}.folha{margin:0;padding:0;box-shadow:none;max-width:none;border-radius:0}}
 ${CSS_RELATORIO}
 </style></head><body>
-<div class="barra"><button type="button" onclick="print()">Imprimir ou guardar PDF</button></div>
+<div class="barra-acoes"><button type="button" onclick="print()">Imprimir ou guardar PDF</button></div>
 <div class="folha"><div id="relatorio">${html}</div></div>
 </body></html>`;
   const url=URL.createObjectURL(new Blob([pagina],{type:"text/html"}));
@@ -692,79 +741,115 @@ function imprimirRelatorio(html,tipo){
   if(window.gtag&&window.google_tag_manager)gtag("event","exportar_relatorio",{tipo,modo});
   print();
 }
-const cabecalhoRelatorio=(titulo)=>`<h1>${titulo}</h1>
-    <p class="sub">${new Date().toLocaleDateString("pt-PT",{day:"numeric",month:"long",year:"numeric"})} · Simulador de Arrendamento Acessível · ${location.origin}</p>`;
-const RODAPE_RELATORIO=`<p class="rodape">Fontes: Portaria n.º 454/2026/1, de 13 de outubro (valores máximos de renda por concelho e tipologia); Decreto-Lei n.º 97/2026, Anexo III (regime do RSAA). Documento informativo gerado pelo Simulador de Arrendamento Acessível; não substitui um contabilista ou advogado e não é um documento oficial.</p>`;
+// Peças do relatório (versão 2: cartão de estado a meia largura, dados por baixo, painel à direita).
+const escRel=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const ICONE_REL={
+  ok:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0B6E61" stroke-width="2.4"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  mal:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  info:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.2"/></svg>',
+};
+const SELO_REL={
+  ok:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0B6E61" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>',
+  fora:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2.4"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5M12 17.3v.2"/></svg>',
+  neutro:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.2"/></svg>',
+};
+const cabecalhoRelatorio=(titulo)=>`<header class="cab"><span class="marca"><span class="tiles" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Simulador <em>RSAA</em></span></span>
+    <small>${new Date().toLocaleDateString("pt-PT",{day:"numeric",month:"long",year:"numeric"})} · ${escRel(location.host)}</small></header>
+    <h1>${titulo}</h1>`;
+const RODAPE_RELATORIO=`<footer class="rodape">Fontes: Portaria n.º 454/2026/1, de 13 de outubro (valores máximos de renda por concelho e tipologia); Decreto-Lei n.º 97/2026, Anexo III (regime do RSAA). Documento informativo gerado pelo Simulador de Arrendamento Acessível; não substitui um contabilista ou advogado e não é um documento oficial.</footer>`;
+// Cartão de estado. renda=0: sem renda indicada (mostra o valor máximo). A barra mostra a renda e um traço no valor máximo.
+function cartaoEstado(renda,max,{selo,texto}){
+  const estado=!renda?"neutro":renda<=max?"ok":"fora";
+  let corpo;
+  if(!renda)corpo=`<div class="valor"><b>${eur(max)}<small> /mês</small></b><span>valor máximo do RSAA</span></div>`;
+  else{
+    const escala=Math.max(renda*1.05,max*1.18),pos=v=>(v/escala*100).toFixed(1)+"%",d=renda-max;
+    corpo=`<div class="valor"><b>${eur(renda)}<small> /mês</small></b><span>máximo RSAA <strong>${eur(max)}</strong> · <strong>${d>0?"+":d<0?"−":""}${eur(Math.abs(d))}</strong></span></div>
+      <div class="barra" aria-hidden="true"><i></i><i style="width:${pos(renda)}"></i><u style="left:${pos(max)}"></u><s style="left:${pos(max)}">${eur(max)}</s></div>`;
+  }
+  return `<div class="cartao ${estado}"><div class="selo">${SELO_REL[estado]}<span>${selo}</span></div>${corpo}<p>${texto}</p></div>`;
+}
+const caixaDados=(titulo,linhas,simples)=>`<div class="${simples?"":"caixa"}"><h2>${titulo}</h2><dl class="kv">${linhas.map(([k,v,c])=>`<dt>${escRel(k)}</dt><dd${c?` class="${c}"`:""}>${escRel(v)}</dd>`).join("")}</dl></div>`;
+// Lista de verificação: [estado, html] com estado "ok", "mal" ou "info".
+const listaReq=(itens)=>`<div class="req">${itens.map(([s,h])=>`${ICONE_REL[s]}<span>${h}</span>`).join("")}</div>`;
+const textoValorMaximo=(quarto,curto)=>curto
+  ?`É a renda mensal até à qual o contrato pode entrar no RSAA, com isenção de IRS para o senhorio. Acima desse valor, a renda continua a ser permitida, mas o contrato segue a tributação normal.`
+  :`É a renda mensal até à qual o contrato pode entrar no RSAA. Até esse valor, o senhorio pode optar pelo regime e ficar isento de IRS sobre as rendas. Acima dele, a renda continua a ser permitida, mas o contrato segue a tributação normal. ${quarto?"Num quarto, o valor máximo da casa é repartido em proporção da área de cada quarto (Portaria n.º 454/2026/1, art. 2.º, n.º 2).":"Para um apartamento inteiro, o valor depende do concelho, da tipologia e das majorações aplicáveis."}`;
+const NOTA_IRS=pct=>`Líquido estimado à taxa autónoma de ${pct} %, sem descontar encargos (IMI, condomínio, seguros, obras) nem reduções de taxa para contratos longos.`;
 function exportarRelatorio(acao){
   if(tenMax==null)return;
   const {Lm,maj}=limites(),max=tenMax,quarto=modo!=="apt",tip=$("tip").value;
-  const e=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
-  const linha=(k,v)=>`<tr><th>${e(k)}</th><td>${e(v)}</td></tr>`;
   const majs=[$("park").checked?"estacionamento privativo (+10 %)":"",$("energy").checked?"certificado energético A ou superior (+10 %)":""].filter(Boolean);
   const dados=[
-    linha("Concelho",`${nomeConcelho(sel.value)} (${CONCELHOS[sel.value][0]})`),
-    linha("Tipologia",tip),
-    linha("Arrendamento",quarto?"Um quarto":"Apartamento inteiro"),
-    linha("Majorações",majs.length?majs.join("; "):"nenhuma"),
+    ["Concelho",`${nomeConcelho(sel.value)} (${CONCELHOS[sel.value][0]})`],
+    ["Tipologia",`${tip} · ${quarto?"um quarto":"apartamento inteiro"}`],
+    ["Majorações",majs.length?majs.join("; "):"nenhuma"],
   ];
   if(quarto)dados.push(
-    linha("Área do quarto",`${ten.a} m²${ten.wc?" (com casa de banho privativa: conta 25 % mais)":""}`),
-    linha("Área total dos quartos",`${ten.total} m²`),
-    linha("Pessoas no quarto",String(ten.p)));
-  dados.push(linha("Renda atual ou proposta",ten.prop?eur(ten.prop)+" por mês":"não indicada"));
+    ["Área do quarto",`${ten.a} m²${ten.wc?" (casa de banho privativa: +25 %)":""}`],
+    ["Área dos quartos",`${ten.total} m² (todos)`],
+    ["Pessoas no quarto",String(ten.p)],
+    ["Máximo da casa",`${eur(Math.floor(Lm))} · quarto: ${Math.round(max/Math.floor(Lm)*100)} %`]);
+  if(quarto&&ten.p===2)dados.push(["Por pessoa",`${eur(Math.floor(max/2))} (valor máximo)`]);
+  dados.push(["Renda",ten.prop?eur(ten.prop)+" por mês":"não indicada"]);
   // O valor do RSAA não é um limite à renda: é o máximo para o senhorio beneficiar da isenção de IRS.
-  // Com renda indicada, a análise centra-se nessa renda; sem renda, no valor máximo.
-  const pct=Math.round(TAXA_IRS_EXEMPLO*100),acima=ten.prop>max,temRenda=ten.prop>0;
-  const ref=[linha(quarto?"Valor máximo do quarto para o RSAA":"Valor máximo para o RSAA",eur(max)+" por mês")];
-  if(quarto){ref.push(linha("Valor máximo da casa toda",eur(Math.floor(Lm))+" por mês"),linha("Parte do quarto",`${Math.round(max/Math.floor(Lm)*100)} % do valor da casa`));if(ten.p===2)ref.push(linha("Por pessoa",eur(Math.floor(max/2))))}
-  let renda,classe="";
-  if(!temRenda)renda=`<p><strong>Não indicou a renda.</strong> Para que o senhorio possa beneficiar do RSAA, a renda tem de ser igual ou inferior a <strong>${eur(max)} por mês</strong>. Uma renda mais alta é legal, mas fica fora do regime.</p>`;
-  else if(!acima)renda=`<p class="renda">${eur(ten.prop)} <span>por mês</span></p><p>A renda está <strong>${eur(max-ten.prop)} abaixo</strong> do valor máximo do RSAA (${eur(max)}). Com esta renda, o senhorio pode optar pelo RSAA e ficar <strong>isento de IRS</strong> sobre ela, se cumprir as restantes condições.</p>`;
-  else{renda=`<p class="renda">${eur(ten.prop)} <span>por mês</span></p><p>A renda está <strong>${eur(ten.prop-max)} acima</strong> do valor máximo do RSAA (${eur(max)}). É uma renda <strong>legal</strong>, mas com ela o contrato não pode beneficiar do RSAA e o senhorio paga IRS pela tributação normal.</p>`;classe=" acima"}
+  const pct=Math.round(TAXA_IRS_EXEMPLO*100),temRenda=ten.prop>0,acima=temRenda&&ten.prop>max;
+  const livre=Math.round(ten.prop*12*(1-TAXA_IRS_EXEMPLO)),rsaa=max*12,dif=rsaa-livre,equil=Math.ceil(max/(1-TAXA_IRS_EXEMPLO));
   const base=temRenda&&!acima?ten.prop:max,irs=Math.round(base*12*TAXA_IRS_EXEMPLO);
-  // Renda acima do valor máximo: o que o senhorio recebe líquido por ano com esta renda (regime normal) e com o valor do RSAA.
-  let comparacao="";
-  if(acima){
-    const livre=Math.round(ten.prop*12*(1-TAXA_IRS_EXEMPLO)),rsaa=max*12,dif=rsaa-livre,equil=Math.ceil(max/(1-TAXA_IRS_EXEMPLO));
-    comparacao=`<h2>O que o senhorio recebe com esta renda</h2>
-    <table class="comparacao">
-      <tr><th>Com esta renda (regime normal): ${eur(ten.prop)} × 12 − IRS de ${pct} %</th><td class="n">${eur(livre)} por ano</td></tr>
-      <tr><th>Com ${eur(max)} no RSAA: ${eur(max)} × 12, sem IRS</th><td class="n">${eur(rsaa)} por ano</td></tr>
-      <tr class="total"><th>${dif>=0?"Diferença a favor do RSAA":"Diferença a favor desta renda"}</th><td class="n">${eur(Math.abs(dif))} por ano</td></tr>
-    </table>
-    <p>${dif>=0?`Mesmo pedindo menos, o senhorio receberia mais no RSAA, porque não paga IRS: um bom argumento para negociar a renda para ${eur(max)}.`:`Com esta renda, o senhorio recebe mais no regime normal do que no RSAA.`} Para o senhorio, uma renda fora do RSAA só compensa acima de ${eur(equil)} por mês (${eur(max)} ÷ ${(1-TAXA_IRS_EXEMPLO).toLocaleString("pt-PT")}).</p>
-    <p class="nota">Valores líquidos estimados com a taxa autónoma típica de ${pct} %, sem descontar encargos (IMI, condomínio, seguros, obras) nem reduções de taxa para contratos longos; a situação de cada senhorio pode ser diferente.</p>`;
+  const reqs=[...document.querySelectorAll("#tReq li")].map(li=>escRel(li.textContent.trim().replace(/^!\s*/,""))).filter(t=>!/^O valor máximo do RSAA é o mesmo/.test(t));
+  const clareza=`<li><strong>Clareza contratual:</strong> ${acima?"no RSAA, ":""}o senhorio comunica o contrato às Finanças e submete-o no IHRU; o inquilino recebe recibos eletrónicos e as despesas ficam definidas à parte. Estes registos não cabem ao inquilino.</li>`;
+  const prazo=`<li><strong>Prazo conforme a finalidade:</strong> ${quarto?"num quarto, só residência temporária, com 3 meses renováveis (flexibilidade para estudantes e deslocados).":"3 anos em residência permanente (estabilidade) ou 3 meses renováveis em residência temporária (flexibilidade)."}</li>`;
+  let corpo;
+  if(!acima){
+    // Dentro do valor máximo (ou sem renda): condições à direita; inquilino e senhorio por baixo.
+    const cartao=temRenda
+      ?cartaoEstado(ten.prop,max,{selo:"Dentro do valor máximo · RSAA possível",texto:"Com esta renda, o senhorio pode optar pelo RSAA e ficar <strong>isento de IRS</strong> sobre ela."})
+      :cartaoEstado(0,max,{selo:"Valor máximo do RSAA",texto:`Não indicou a renda. Para o contrato poder ficar no RSAA, a renda tem de ser igual ou inferior a <strong>${eur(max)} por mês</strong>.`});
+    corpo=`<section class="duas">
+      <div class="col">${cartao}${caixaDados("Os seus dados",dados)}</div>
+      <div class="painel"><h2>Para ficar no RSAA</h2>
+        ${listaReq([temRenda?["ok",`<strong>Renda dentro do valor máximo</strong> (${eur(ten.prop)} ≤ ${eur(max)})`]:["info",`<strong>Renda até ${eur(max)}</strong> por mês`],...reqs.map(t=>["info",t])])}
+        <p class="legenda">${temRenda?"✓ cumprido · ":""}ⓘ a confirmar no contrato</p></div>
+    </section>
+    <section class="duas">
+      <div><h2>Para o inquilino</h2><ul>
+        ${temRenda?`<li><strong>Proponha o RSAA:</strong> com esta renda, o senhorio fica isento de IRS sem a baixar. É vantajoso para ele e dá-lhe a si um contrato com regras claras.</li>`:""}
+        ${clareza}${prazo}</ul></div>
+      <div>${caixaDados("Para o senhorio",[["Rendas por ano",`${eur(base*12)} (isentas)`],["IRS que deixa de pagar",`cerca de ${eur(irs)} /ano`,"forte"]],true)}
+        <p class="nota" style="margin-top:6px">Estimativa ${temRenda?"com esta renda":`com ${eur(max)} por mês`}, à taxa autónoma de ${pct} %, sem encargos. A isenção de IRS (ou IRC) mantém-se enquanto o contrato cumprir as regras (DL n.º 97/2026, Anexo III, art. 6.º).</p></div>
+    </section>
+    <section class="info"><h2>O que é o valor máximo do RSAA</h2><p>${textoValorMaximo(quarto)}</p></section>`;
+  }else{
+    // Acima do valor máximo: o painel explica o que isso significa para o senhorio, sem pressão sobre a renda.
+    const compensa=dif>=0;
+    const painel=compensa
+      ?`<h2>O RSAA compensaria ao senhorio</h2>
+        <ul><li>Com ${eur(max)} no RSAA, o senhorio receberia <strong>mais ${eur(dif)} por ano</strong> do que com esta renda no regime normal, porque não paga IRS.</li>
+        <li>E o inquilino pagaria menos ${eur((ten.prop-max)*12)} por ano.</li>
+        <li>É um argumento para negociar: ambos ficam a ganhar. <strong>O RSAA é opcional.</strong></li></ul>`
+      :`<h2>Porque esta renda fica fora do RSAA</h2>
+        <ul><li>O senhorio só adere ao RSAA se lhe compensar.</li>
+        <li>Com esta renda, recebe <strong>mais ${eur(-dif)} por ano</strong> fora do regime, mesmo pagando IRS. Por isso, não tem motivação fiscal para aderir.</li>
+        <li>Uma renda acima do valor máximo pode refletir as características da casa, a localização ou a procura na zona. <strong>O RSAA é opcional.</strong></li></ul>`;
+    corpo=`<section class="duas">
+      <div class="col">${cartaoEstado(ten.prop,max,{selo:"Acima do valor máximo · fora do RSAA",texto:"Renda <strong>legal</strong>, mas fora do RSAA: o senhorio paga IRS pela tributação normal."})}
+        ${caixaDados("Os seus dados",dados)}
+        <div class="info"><h2>O que é o valor máximo do RSAA</h2><p>${textoValorMaximo(quarto,true)}</p></div></div>
+      <div class="painel">${painel}
+        <div class="comp"><span>Senhorio, com esta renda (regime normal)</span><strong class="n">${eur(livre)} /ano</strong><span>Senhorio, com ${eur(max)} no RSAA</span><span class="n" style="color:inherit">${eur(rsaa)} /ano</span></div>
+        <p class="nota">${NOTA_IRS(pct)} ${compensa?`O regime normal só compensaria ao senhorio com uma renda acima de ${eur(equil)} por mês.`:`O RSAA só compensaria ao senhorio se a renda de mercado da casa fosse inferior a ${eur(equil)} por mês.`}</p>
+        <h2 style="margin-top:4px">O que pode fazer</h2>
+        <ul>${compensa?`<li>Propor ao senhorio o RSAA com uma renda de ${eur(max)} por mês.</li>`:`<li>Comparar com rendas de casas ou quartos semelhantes na mesma zona.</li>`}
+        <li>Confirmar no contrato o prazo, as despesas e as condições, que valem também fora do RSAA.</li></ul></div>
+    </section>
+    <section class="duas">
+      <div><h2>Para o inquilino</h2><ul>${clareza}${prazo}</ul></div>
+      <div><h2>Condições para ficar no RSAA</h2><ul><li>Renda igual ou inferior a ${eur(max)} por mês.</li>${reqs.map(t=>`<li>${t}</li>`).join("")}</ul></div>
+    </section>`;
   }
-  // Argumento para o inquilino, só quando a análise o confirma.
-  let argumento="";
-  if(temRenda&&!acima)argumento=`<strong>Proponha o RSAA:</strong> com esta renda, o senhorio pode ficar isento de IRS sem a baixar (cerca de ${eur(irs)} por ano à taxa de ${pct} %). É vantajoso para ele e dá-lhe a si um contrato com regras claras.`;
-  else if(acima&&max*12>=Math.round(ten.prop*12*(1-TAXA_IRS_EXEMPLO)))argumento=`<strong>Argumento para negociar:</strong> com ${eur(max)} no RSAA, o senhorio receberia mais ${eur(max*12-Math.round(ten.prop*12*(1-TAXA_IRS_EXEMPLO)))} líquidos por ano do que com ${eur(ten.prop)} no regime normal, e o inquilino pagaria menos ${eur((ten.prop-max)*12)} por ano.`;
-  const condicoes=[...document.querySelectorAll("#tReq li")].map(li=>`<li>${e(li.textContent.trim().replace(/^!\s*/,""))}</li>`).join("");
   (acao==="abrir"?abrirRelatorio:imprimirRelatorio)(`
-    ${cabecalhoRelatorio("Arrendamento acessível (RSAA): análise da renda")}
-    <div class="duas">
-      <div><h2>Os seus dados</h2><table>${dados.join("")}</table></div>
-      <div><h2>${temRenda?"A renda em análise":"Valor máximo para o RSAA"}</h2><div class="destaque${classe}">${renda}</div><table style="margin-top:2mm">${ref.join("")}</table></div>
-    </div>
-    ${comparacao}
-    <h2>O que é o valor máximo do RSAA</h2>
-    <p>É a renda mais alta com que o senhorio pode beneficiar do Regime Simplificado de Arrendamento Acessível, que lhe dá isenção de IRS. <strong>Não é um limite à renda:</strong> o senhorio pode pedir mais, e é legal; nesse caso, o contrato fica fora do regime e é tributado normalmente. Também não é um preço de referência: a renda pode ser mais baixa. ${quarto?"Num quarto, o valor da casa é repartido em proporção da área de cada quarto (Portaria n.º 454/2026/1, art. 2.º, n.º 2).":"No apartamento inteiro, depende só do concelho, da tipologia e das majorações."}</p>
-    <div class="duas">
-      <div><h2>Para o inquilino</h2>
-      <ul>
-        ${argumento?`<li>${argumento}</li>`:""}
-        <li><strong>Clareza contratual:</strong> no RSAA, o contrato segue regras definidas, é comunicado às Finanças e registado no IHRU, com recibos eletrónicos (que permitem deduzir parte das rendas no IRS, nas condições da lei) e despesas como água, luz ou internet definidas à parte.</li>
-        <li><strong>Prazo mínimo conforme a finalidade:</strong> ${quarto?"num quarto, só residência temporária, com 3 meses renováveis: flexibilidade para estudantes e deslocados.":"3 anos em residência permanente (estabilidade) ou 3 meses renováveis em residência temporária (flexibilidade para estudantes e deslocados)."}</li>
-      </ul></div>
-      <div><h2>Para o senhorio</h2>
-      <ul>
-        <li><strong>Isenção total de IRS (ou IRC)</strong> sobre as rendas, enquanto cumprir as regras, incluindo renovações (DL n.º 97/2026, Anexo III, art. 6.º).</li>
-        ${acima?"":`<li><strong>Exemplo:</strong> com ${temRenda?"esta renda":eur(base)+" por mês"}, à taxa autónoma de ${pct} %, deixa de pagar cerca de <strong>${eur(irs)} de IRS por ano</strong> (estimativa; sem encargos).</li>`}
-        <li>Adesão na plataforma do IHRU, até 15 de janeiro do ano seguinte ao contrato.</li>
-      </ul></div>
-    </div>
-    <h2>Condições para o contrato ficar no RSAA</h2>
-    <ul>${condicoes}</ul>
+    ${cabecalhoRelatorio("Análise da renda · arrendamento acessível (RSAA)")}
+    ${corpo}
     ${RODAPE_RELATORIO}`,"inquilino");
 }
 $("exportar").addEventListener("click",()=>exportarRelatorio("imprimir"));
@@ -995,7 +1080,7 @@ function render(L,maj,Lm){
   requisitos(add,fin,prazo,true);
   add(!tooSmall, tooSmall?"Há quartos com menos de 6 m²: não cumprem o requisito mínimo.":"Todos os quartos têm pelo menos 6 m².");
   add($("desp").checked?true:null, $("desp").checked?"Despesas à parte: o valor máximo do RSAA não as inclui. Escreva no contrato como são divididas.":"Se a renda incluir despesas, é o total cobrado que conta para o valor máximo. Prefira despesas à parte.");
-  add(null,"Comunicar cada contrato às Finanças e submeter no IHRU até 15 de janeiro do ano seguinte.");
+  add(null,"Cabe ao senhorio comunicar cada contrato às Finanças e submeter a cópia e o comprovativo no IHRU até 15 de janeiro do ano seguinte.");
   $("checklist").innerHTML=items.join("");
   comparar(sumRSAA, sumMkt, anyRent);
 }
@@ -1009,7 +1094,7 @@ function requisitos(add,fin,prazo,quartos){
   }
   if(!quartos){
     add($("desp").checked?true:null, $("desp").checked?"Despesas à parte: o valor máximo do RSAA não as inclui. Escreva no contrato quem as paga.":"Se a renda incluir despesas, é o total cobrado que conta para o valor máximo. Prefira despesas à parte.");
-    add(null,"Comunicar o contrato às Finanças e submeter no IHRU até 15 de janeiro do ano seguinte.");
+    add(null,"Cabe ao senhorio comunicar o contrato às Finanças e submeter a cópia do contrato e o comprovativo no IHRU até 15 de janeiro do ano seguinte.");
   }
 }
 function comparar(rendaRSAA,rendaMkt,anyRent){
@@ -1050,12 +1135,11 @@ $("tip").addEventListener("change",()=>{
   const auto=rooms.some(r=>r.auto);syncRooms();if(auto)rooms.forEach(r=>{if(r.rent)r.auto=true});
 });
 syncRooms();mktRef();
-// Relatório do senhorio: primeiro as mais-valias para o senhorio, depois o que muda para o inquilino.
+// Relatório do senhorio (versão 2): estado e dados à esquerda, requisitos à direita;
+// depois as mais-valias para o senhorio e, por fim, o que muda para o inquilino.
 function relatorio(acao){
-  const {L,maj,Lm}=limites(),tip=$("tip").value,quartos=modo!=="apt";
-  const t=(parseFloat($("tax").value)||0)/100,pctT=Math.round(t*1000)/10,mkt=parseFloat($("mkt").value)||0;
-  const e=x=>String(x).replace(/&/g,"&amp;").replace(/</g,"&lt;");
-  const linha=(k,v)=>`<tr><th>${e(k)}</th><td>${e(v)}</td></tr>`;
+  const {Lm}=limites(),tip=$("tip").value,quartos=modo!=="apt";
+  const t=(parseFloat($("tax").value)||0)/100,pctT=(Math.round(t*1000)/10).toLocaleString("pt-PT"),mkt=parseFloat($("mkt").value)||0;
   const fin=$("fin").value,prazo=parseFloat($("prazo").value)||0;
   const majs=[$("park").checked?"estacionamento (+10 %)":"",$("energy").checked?"certificado A+ (+10 %)":""].filter(Boolean);
   // Contratos: um por quarto arrendado, ou o apartamento inteiro
@@ -1065,61 +1149,68 @@ function relatorio(acao){
     contratos=rooms.map((r,i)=>({nome:`Quarto ${i+1}`,area:r.wc?r.a*1.25:r.a,wc:r.wc,p:r.p,rent:r.rent,prop:r.prop,max:total>0?Math.floor(Lm*(r.wc?r.a*1.25:r.a)/total):0}));
   }else contratos=[{nome:"Apartamento",rent:true,prop:apt.prop,max:Math.floor(Lm)}];
   const ativos=contratos.filter(c=>c.rent),n=ativos.length;
-  const renda=c=>c.prop&&c.prop<=c.max?c.prop:c.max;           // renda no RSAA (proposta, ou o teto se faltar ou passar)
+  const renda=c=>c.prop&&c.prop<=c.max?c.prop:c.max;           // renda no RSAA (proposta, ou o valor máximo se faltar ou passar)
   const anualRSAA=ativos.reduce((s,c)=>s+renda(c),0)*12,irsEvitado=Math.round(anualRSAA*t);
   const anualMkt=Math.round(mkt*n*12*(1-t)),difMkt=anualRSAA-anualMkt;
   const equilMkt=n?Math.ceil(anualRSAA/12/n/(1-t||1)):0;
   const acima=ativos.filter(c=>c.prop>c.max);
+  const somaProp=ativos.every(c=>c.prop)?ativos.reduce((s,c)=>s+c.prop,0):0,somaMax=ativos.reduce((s,c)=>s+c.max,0);
   const estado=c=>!c.rent?"não arrendado":!c.prop?"sem proposta":c.prop<=c.max?"dentro do valor":`${eur(c.prop-c.max)} acima`;
   const dados=[
-    linha("Concelho",`${nomeConcelho(sel.value)} (${CONCELHOS[sel.value][0]})`),
-    linha("Tipologia",`${tip}${majs.length?" · "+majs.join(", "):""}`),
-    linha("Contrato",`${fin==="temp"?"residência temporária":"residência permanente"}, ${prazo} meses`),
-    linha("Despesas",$("desp").checked?"pagas à parte":"incluídas na renda"),
+    ["Concelho",`${nomeConcelho(sel.value)} (${CONCELHOS[sel.value][0]})`],
+    ["Tipologia",`${tip} · ${quartos?`${n} de ${contratos.length} quartos arrendados`:"apartamento inteiro"}`],
+    ["Majorações",majs.length?majs.join(", "):"nenhuma"],
+    ["Contrato",`${fin==="temp"?"residência temporária":"residência permanente"}, ${prazo} meses`],
+    ["Despesas",$("desp").checked?"pagas à parte":"incluídas na renda"],
   ];
-  const resumo=[
-    linha("Valor máximo RSAA da casa",eur(Math.floor(Lm))+" por mês"),
-    linha(quartos?`Valor máximo dos quartos arrendados (${n})`:"Valor máximo do apartamento",eur(ativos.reduce((s,c)=>s+c.max,0))+" por mês"),
-    linha("Rendas no RSAA (até ao valor máximo)",eur(anualRSAA/12)+" por mês"),
-  ];
-  const tabela=quartos?`<h2>Quartos</h2><table><tr><th style="width:auto">Quarto</th><th style="width:auto">Área p/ cálculo</th><th style="width:auto">Máx. RSAA</th><th style="width:auto">Proposta</th><th style="width:auto">Estado</th></tr>${
-    contratos.map(c=>`<tr><td>${c.nome}${c.p===2?" (2 pessoas)":""}</td><td>${Math.round(c.area)} m²${c.wc?" (c/ WC)":""}</td><td>${eur(c.max)}</td><td>${c.prop?eur(c.prop):"–"}</td><td>${estado(c)}</td></tr>`).join("")}</table>`
-    :`<div class="destaque${acima.length?" acima":""}">Valor máximo RSAA do apartamento: ${eur(contratos[0].max)} por mês · renda proposta: ${apt.prop?eur(apt.prop):"não indicada"} (${estado(contratos[0])}).</div>`;
+  if(quartos)dados.push(["Máximo da casa",`${eur(Math.floor(Lm))} por mês`]);
+  dados.push([quartos?"Rendas propostas":"Renda proposta",somaProp?`${eur(somaProp)} por mês`:"não indicada"]);
+  const quem=quartos?(n===1?"do quarto arrendado":`dos ${n} quartos arrendados`):"";
+  let cartao;
+  if(!somaProp)cartao=cartaoEstado(0,somaMax,{selo:"Valor máximo do RSAA",texto:`Valor máximo ${quartos?quem:"do apartamento"}. Indique ${quartos?"as rendas":"a renda"} no simulador para comparar.`});
+  else if(!acima.length)cartao=cartaoEstado(somaProp,somaMax,{selo:"Dentro do valor máximo · RSAA possível",texto:`Com ${quartos?"estas rendas":"esta renda"}, pode optar pelo RSAA e ficar <strong>isento de IRS</strong> sobre ${quartos?"elas":"ela"}.`});
+  else cartao=cartaoEstado(somaProp,somaMax,{selo:quartos?`${acima.length} ${acima.length===1?"quarto acima":"quartos acima"} do valor máximo`:"Acima do valor máximo · fora do RSAA",texto:`${quartos?(acima.length===1?"Esse contrato fica":"Esses contratos ficam"):"O contrato fica"} fora do RSAA: é legal, mas sem isenção de IRS.`});
+  const cls={ok:"ok",bad:"mal",warn:"info"};
+  const req=[...document.querySelectorAll("#checklist li")].map(li=>{const ic=li.querySelector(".ic"),k=ic?[...ic.classList].find(c=>cls[c]):"warn";return [cls[k]||"info",escRel(li.textContent.replace(ic?ic.textContent:"","").trim())]});
+  // Com muitos quartos (T6 ou mais), a tabela divide-se em duas colunas para o relatório caber numa folha A4.
+  const tabelaQuartos=lista=>`<table><tr><th>Quarto</th><th>Área p/ cálculo</th><th>Máx. RSAA</th><th>Proposta</th><th>Estado</th></tr>${
+    lista.map(c=>`<tr><td>${c.nome}${c.p===2?" (2 p.)":""}</td><td>${Math.round(c.area)} m²${c.wc?" (c/ WC)":""}</td><td>${eur(c.max)}</td><td>${c.prop?eur(c.prop):"–"}</td><td>${estado(c)}</td></tr>`).join("")}</table>`;
+  const meio=Math.ceil(contratos.length/2);
+  const tabela=!quartos?"":contratos.length>5
+    ?`<section><h2>Quartos</h2><div class="duas" style="font-size:10.5px">${tabelaQuartos(contratos.slice(0,meio))}${tabelaQuartos(contratos.slice(meio))}</div></section>`
+    :`<section><h2>Quartos</h2>${tabelaQuartos(contratos)}</section>`;
   let avisoAcima="";
   if(acima.length){
     const propA=acima.reduce((s,c)=>s+c.prop,0),maxA=acima.reduce((s,c)=>s+c.max,0);
     const livre=Math.round(propA*12*(1-t)),rsaa=maxA*12,d=rsaa-livre;
-    avisoAcima=`<div class="destaque acima"><strong>${quartos?(acima.length===1?acima[0].nome+" tem renda":acima.length+" quartos têm rendas"):"A renda proposta está"} acima do valor máximo:</strong> ${acima.length===1?"esse contrato fica":"esses contratos ficam"} fora do RSAA (é legal, mas sem isenção de IRS). Com as rendas propostas (${eur(propA)}/mês) recebe ${eur(livre)} líquidos por ano no regime normal; com o valor máximo (${eur(maxA)}/mês), ${eur(rsaa)} isentos. ${d>=0?`O RSAA rende mais ${eur(d)} por ano.`:`O regime normal rende mais ${eur(-d)} por ano.`}</div>`;
+    avisoAcima=`<p class="aviso"><strong>${quartos?(acima.length===1?acima[0].nome+" tem renda":acima.length+" quartos têm rendas"):"A renda proposta está"} acima do valor máximo.</strong> Com ${acima.length===1&&!quartos?"a renda proposta":"as rendas propostas"} (${eur(propA)}/mês) recebe ${eur(livre)} líquidos por ano no regime normal; com o valor máximo (${eur(maxA)}/mês), ${eur(rsaa)} isentos. ${d>=0?`O RSAA rende mais ${eur(d)} por ano.`:`O regime normal rende mais ${eur(-d)} por ano.`}</p>`;
   }
-  const req=[...document.querySelectorAll("#checklist li")].map(li=>{const ic=li.querySelector(".ic");return `<li><b>${e(ic?ic.textContent:"")}</b>${e(li.textContent.replace(ic?ic.textContent:"","").trim())}</li>`}).join("");
   (acao==="abrir"?abrirRelatorio:imprimirRelatorio)(`
-    ${cabecalhoRelatorio("Arrendamento acessível (RSAA): análise para o senhorio")}
-    <div class="duas">
-      <div><h2>Contrato e casa</h2><table>${dados.join("")}</table></div>
-      <div><h2>Resultado</h2><table>${resumo.join("")}</table></div>
-    </div>
+    ${cabecalhoRelatorio("Análise para o senhorio · arrendamento acessível (RSAA)")}
+    <section class="duas">
+      <div class="col">${cartao}${caixaDados("Contrato e casa",dados)}</div>
+      <div class="painel"><h2>Requisitos do contrato</h2>${listaReq(req)}
+        <p class="legenda">✓ cumprido · ✕ não cumprido · ⓘ a confirmar</p></div>
+    </section>
     ${tabela}
-    <p class="nota">O valor máximo do RSAA não é um limite à renda: pode pedir mais, e é legal, mas esse contrato fica fora do regime e é tributado normalmente. Também não é um preço de referência.</p>
-    <h2>Mais-valias para o senhorio</h2>
-    <div class="duas">
-      <div><table>
-        <tr><th>Rendimento anual no RSAA (até ao valor máximo)</th><td class="n">${eur(anualRSAA)}</td></tr>
-        <tr><th>IRS que deixa de pagar (taxa de ${pctT.toLocaleString("pt-PT")} %)</th><td class="n">${eur(irsEvitado)}</td></tr>
-      </table>
-      <p>As rendas do contrato ficam <strong>isentas de IRS (ou IRC)</strong> enquanto cumprir as regras, incluindo renovações (DL n.º 97/2026, Anexo III, art. 6.º).</p></div>
-      <div>${mkt?`<table class="comparacao">
-        <tr><th>RSAA, líquido por ano</th><td class="n">${eur(anualRSAA)}</td></tr>
-        <tr><th>Mercado: ${eur(mkt)} × ${n} × 12 − IRS</th><td class="n">${eur(anualMkt)}</td></tr>
-        <tr class="total"><th>${difMkt>=0?"O RSAA rende mais":"O mercado rende mais"}</th><td class="n">${eur(Math.abs(difMkt))}</td></tr>
-      </table>
-      <p>O mercado só compensa acima de ${eur(equilMkt)} por ${quartos?"quarto":"mês"}${quartos?" e por mês":""}.</p>`:`<p>Indique a renda de mercado no simulador para comparar.</p>`}</div>
-    </div>
     ${avisoAcima}
-    <p class="nota">Valores líquidos estimados com a taxa de IRS indicada (${pctT.toLocaleString("pt-PT")} %), sem descontar encargos (IMI, condomínio, seguros, obras) nem reduções de taxa para contratos longos. Renda de mercado: valor indicado no simulador.</p>
-    <h2>Requisitos do contrato</h2>
-    <ul class="req colunas">${req}</ul>
-    <h2>E para o inquilino?</h2>
-    <p>Para o inquilino, o RSAA não altera impostos. O que ganha é <strong>clareza contratual</strong>: contrato com regras definidas, comunicado às Finanças e registado no IHRU, com recibos eletrónicos e despesas definidas à parte, e um <strong>prazo mínimo conforme a finalidade</strong>: 3 anos em residência permanente (estabilidade) ou 3 meses renováveis em residência temporária (flexibilidade). Uma renda dentro do valor máximo pode ainda ser um argumento a seu favor na procura de inquilinos.</p>
+    <section class="duas">
+      <div><h2>Mais-valias para si</h2>
+        <dl class="kv"><dt>Rendas por ano no RSAA</dt><dd>${eur(anualRSAA)} (isentas)</dd><dt>IRS que deixa de pagar</dt><dd class="forte">cerca de ${eur(irsEvitado)} /ano</dd></dl>
+        <p class="nota" style="margin-top:6px">Taxa de ${pctT} %. As rendas ficam isentas de IRS (ou IRC) enquanto o contrato cumprir as regras, incluindo renovações (DL n.º 97/2026, Anexo III, art. 6.º).</p></div>
+      <div><h2>Comparação com o mercado</h2>
+        ${mkt?`<div class="comp" style="border:0;padding:0;font-size:inherit"><span>RSAA, líquido por ano</span><strong class="n">${eur(anualRSAA)}</strong><span>Mercado: ${eur(mkt)} × ${n} × 12 − IRS</span><span class="n" style="color:inherit">${eur(anualMkt)}</span></div>
+        <p style="margin-top:4px"><strong>${difMkt>=0?`O RSAA rende mais ${eur(difMkt)} por ano.`:`O mercado rende mais ${eur(-difMkt)} por ano.`}</strong> O mercado só compensa acima de ${eur(equilMkt)} por ${quartos?"quarto e por mês":"mês"}.</p>
+        <p class="nota" style="margin-top:4px">${NOTA_IRS(pctT)} Renda de mercado: valor indicado no simulador.</p>`:`<p>Indique a renda de mercado no simulador para comparar.</p>`}</div>
+    </section>
+    <section class="duas">
+      <div><h2>E para o inquilino?</h2><ul>
+        <li>O RSAA não altera os impostos do inquilino.</li>
+        <li><strong>Clareza contratual:</strong> cabe a si comunicar o contrato às Finanças e submetê-lo no IHRU, até 15 de janeiro do ano seguinte; o inquilino recebe recibos eletrónicos e as despesas ficam definidas à parte.</li>
+        <li><strong>Prazo conforme a finalidade:</strong> ${quartos?"num quarto, só residência temporária, com 3 meses renováveis (flexibilidade para estudantes e deslocados).":"3 anos em residência permanente (estabilidade) ou 3 meses renováveis em residência temporária (flexibilidade)."}</li>
+        <li>Uma renda dentro do valor máximo pode ser um argumento a seu favor na procura de inquilinos.</li></ul></div>
+      <div class="info"><h2>O que é o valor máximo do RSAA</h2><p>${textoValorMaximo(quartos)}</p></div>
+    </section>
     ${RODAPE_RELATORIO}`,"senhorio");
 }
 $("exportarSen").addEventListener("click",()=>relatorio("imprimir"));

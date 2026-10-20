@@ -145,7 +145,7 @@ function paginaConcelho(c, dados, todos, rankT2) {
       <li>Residência permanente: prazo mínimo de 3 anos. Residência temporária: prazo mínimo de 3 meses, renovável.</li>
       <li>O valor máximo não inclui despesas (água, luz, internet), que podem ser cobradas à parte.</li>
       <li>Não é um limite à renda: o senhorio pode pedir mais, e é legal, mas o contrato fica fora do RSAA e sem isenção de IRS.</li>
-      <li>O senhorio submete o contrato na plataforma do IHRU até 15 de janeiro do ano seguinte.</li>
+      <li>O senhorio comunica o contrato às Finanças e submete-o na plataforma do IHRU até 15 de janeiro do ano seguinte (o inquilino não tem de o fazer).</li>
     </ul>
   </section>
 ${vizinhos.length ? `
@@ -186,7 +186,7 @@ export const FAQ = [
   ["O RSAA compensa sempre ao senhorio?",
    `Não necessariamente. No RSAA não paga IRS sobre as rendas, mas a renda não pode passar o valor máximo; fora do regime pode pedir mais, mas paga IRS. O que compensa depende da renda de mercado da casa e da taxa de IRS de cada senhorio. O <a href="/">simulador</a> compara os dois cenários com os valores do seu caso.`],
   ["Que vantagens tem o RSAA para o inquilino?",
-   `O RSAA não altera os impostos do inquilino. O que ganha é <strong>clareza contratual</strong> (contrato com regras definidas, comunicado às Finanças e registado no IHRU, com recibos eletrónicos e despesas definidas à parte) e um prazo mínimo conforme a finalidade: 3 anos em residência permanente, que dá estabilidade, ou 3 meses renováveis em residência temporária, que dá flexibilidade. Quando a análise o confirma, pode também ser um argumento para negociar a renda.`],
+   `O RSAA não altera os impostos do inquilino. O que ganha é <strong>clareza contratual</strong> (contrato com regras definidas, que o senhorio comunica às Finanças e submete no IHRU, com recibos eletrónicos e despesas definidas à parte) e um prazo mínimo conforme a finalidade: 3 anos em residência permanente, que dá estabilidade, ou 3 meses renováveis em residência temporária, que dá flexibilidade. Quando a análise o confirma, pode também ser um argumento para negociar a renda.`],
   ["Como são definidos os valores máximos?",
    `Têm por base 80 % da mediana das rendas divulgada pelo INE para o concelho do imóvel (${DL}, art. 4.º) e são fixados em euros para cada tipologia. A área do imóvel não entra no cálculo: um T2 de 60 m² e um T2 de 110 m² no mesmo concelho têm o mesmo valor máximo.`],
   ["Há majorações ao valor máximo?",
