@@ -418,7 +418,7 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
       <div class="fillrow" style="margin-top:18px">
         <button type="button" class="btn primary" id="fillMax"><span class="only-sen">Calcular valores máximos</span><span class="only-inq">Verificar a minha renda</span></button>
       </div>
-      <p class="hint nota-local" style="text-align:center;margin:6px 0 0">O cálculo é feito no seu dispositivo; nada é enviado.</p>
+      <p class="hint nota-local" style="text-align:center;margin:6px 0 0">O cálculo é feito no seu dispositivo. Os valores ficam registados de forma anónima, só para estatísticas.</p>
     </section>
 
     <section class="panel res" aria-labelledby="h-res" aria-live="polite">
@@ -431,7 +431,7 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
             <h3 id="tNextH">Próximo passo</h3>
             <p id="tNext"></p>
             <div class="acoes-rel"><button type="button" class="btn primary" id="analise">Análise da situação</button><button type="button" class="btn" id="exportar">Exportar PDF</button></div>
-            <p class="hint">Relatório de uma página para mostrar ao senhorio. É gerado no seu dispositivo; nada é enviado.</p>
+            <p class="hint">Relatório de uma página para mostrar ao senhorio, gerado no seu dispositivo.</p>
           </div>
           <div class="cartao-inq">
             <h3>Para o contrato ficar no RSAA</h3>
@@ -472,7 +472,7 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
             <h3>Próximo passo</h3>
             <p>Guarde a análise ou partilhe-a com o seu contabilista: um relatório de uma página com as mais-valias, a comparação com o mercado e os requisitos.</p>
             <div class="acoes-rel"><button type="button" class="btn primary" id="analiseSen">Análise da situação</button><button type="button" class="btn" id="exportarSen">Exportar PDF</button></div>
-            <p class="hint">«Análise da situação» abre o relatório numa página nova; «Exportar PDF» guarda-o em PDF. É gerado no seu dispositivo; nada é enviado.</p>
+            <p class="hint">«Análise da situação» abre o relatório numa página nova; «Exportar PDF» guarda-o em PDF. É gerado no seu dispositivo.</p>
           </div>
         </div>
         <p class="info-inq"><strong>O que é o valor máximo do RSAA?</strong> É a renda mensal até à qual o contrato pode entrar no RSAA, com isenção de IRS. Não é um limite à renda nem um preço de referência: acima desse valor, a renda continua a ser permitida, mas o contrato segue a tributação normal. Não inclui despesas (água, luz, internet).</p>
@@ -823,7 +823,7 @@ function renderTenantApt(max){
   estadoRenda(max,`Apartamento ${$("tip").value} em ${nomeConcelho(sel.value)}${maj?` · com majoração de ${Math.round(maj*100)} %`:""}`);
 }
 // Relatórios (inquilino e senhorio): montados no navegador com os valores do ecrã e impressos (ou guardados em PDF).
-// Nada é enviado nem processado no servidor.
+// O relatório não é enviado nem processado no servidor.
 const TAXA_IRS_EXEMPLO=0.25; // taxa autónoma normal sobre rendas, só para o exemplo do senhorio
 // Estilos do relatório: fonte única para a impressão (PDF) e para a página "Análise da situação".
 // Medidas em px pensadas para uma folha A4 (794 px de largura); as cores fortes imprimem-se (print-color-adjust).
@@ -1033,10 +1033,30 @@ document.querySelectorAll('[role=tab]').forEach(b=>b.addEventListener("click",()
   document.querySelectorAll('[role=tab]').forEach(x=>{x.setAttribute("aria-selected",x===b);$(x.getAttribute("aria-controls")).hidden=x!==b});
 }));
 
+// Registo anónimo de cada simulação calculada, para análise agregada: só os valores do simulador,
+// sem nome, e-mail nem identificador do utilizador. Quem grava no Firestore é a moldura (guardarSimulacao).
+// Um clique repetido sem mudanças não gera novo registo.
+let ultimoRegisto="";
+function registarSimulacao(){
+  if(typeof window.guardarSimulacao!=="function")return;
+  const {Lm}=limites(),inq=document.body.dataset.view==="inq"||!Senhorio,q=modo!=="apt";
+  const d={vista:inq?"inquilino":"senhorio",modo:q?"quarto":"apartamento",distrito:selD.value,concelho:sel.value,
+    tipologia:$("tip").value,estacionamento:$("park").checked,certificadoA:$("energy").checked,valorMaxCasa:Math.floor(Lm)};
+  if(inq){
+    d.inquilino={renda:ten.prop||0,valorMax:tenMax??0};
+    if(q)Object.assign(d.inquilino,{areaQuarto:ten.a,areaQuartos:ten.total,wcPrivativa:ten.wc,pessoas:ten.p});
+    d.resultado=tenMax==null?"incompleto":!ten.prop?"sem_renda":ten.prop<=tenMax?"dentro":"acima";
+  }else Object.assign(d,Senhorio.dados());
+  const chave=JSON.stringify(d);
+  if(chave===ultimoRegisto)return;
+  ultimoRegisto=chave;
+  try{window.guardarSimulacao(d)}catch(e){}
+}
 function fillMax(){
   calculated=true;
   if(Senhorio&&document.body.dataset.view!=="inq")Senhorio.preencher();
   recalc();
+  registarSimulacao();
   // Google Analytics (carregado pela moldura só com consentimento): sem dados pessoais.
   if(window.gtag&&window.google_tag_manager)gtag("event","calcular",{vista:document.body.dataset.view,modo});
   if(document.body.classList.contains("assistente")){document.body.classList.add("com-resultado");scrollTo({top:0})}
@@ -1170,6 +1190,7 @@ const APT_M2={
 const APT_A_TIPICA={T0:35,T1:55,T2:80,T3:100,T4:125,T5:150,T6:175,T7:200,T8:225};
 
 let apt={a:0,prop:0,auto:false};
+let ultimo=null; // último resultado de render(), para o registo anónimo da simulação
 let rooms=[{a:12,rent:true,wc:false,p:1,prop:0},{a:10,rent:true,wc:false,p:1,prop:0},{a:9,rent:true,wc:false,p:1,prop:0}];
 const aptArea=()=>apt.a||APT_A_TIPICA[$("tip").value];
 
@@ -1245,6 +1266,7 @@ function render(L,maj,Lm){
     $("checklist").innerHTML=items.join("");
     comparar(apt.prop&&apt.prop<=max?apt.prop:max, parseFloat($("mkt").value)||0, true, 1);
     veredicto(maj,Lm,[{prop:apt.prop,max}],falhas-(ok?0:1));
+    ultimo={maxes:[max],acima:!ok,falhas:falhas-(ok?0:1),comRenda:!!apt.prop};
     return;
   }
   const total=rooms.reduce((s,r)=>s+r.a,0);
@@ -1282,6 +1304,7 @@ function render(L,maj,Lm){
   comparar(sumRSAA, sumMkt, anyRent, nR);
   // No modo quartos, o veredicto soma os quartos arrendados (a parte dos não arrendados não é redistribuída).
   veredicto(maj,Lm,rooms.map((r,i)=>({prop:r.prop,max:maxes[i],rent:r.rent})).filter(c=>c.rent),falhas-falhaRendas);
+  ultimo={maxes,acima:anyRent&&!allOk,falhas:falhas-falhaRendas,comRenda:rooms.some(r=>r.rent&&r.prop),semQuartos:!anyRent};
 }
 // Veredicto do senhorio: as rendas propostas face ao valor máximo, e os requisitos do contrato.
 // O valor máximo não é um limite à renda: acima dele, o contrato é legal, mas fica na tributação normal.
@@ -1447,7 +1470,19 @@ function relatorio(acao){
 $("exportarSen").addEventListener("click",()=>relatorio("imprimir"));
 $("analiseSen").addEventListener("click",()=>relatorio("abrir"));
 
-return {antes,limpar,render,applyAuto,preencher,mudouModo:mktRef};
+// Valores do senhorio para o registo anónimo da simulação. «auto»: renda preenchida pelo simulador com o máximo.
+function dados(){
+  const u=ultimo||{maxes:[],falhas:0},num=id=>parseFloat($(id).value)||0;
+  const d={finalidade:$("fin").value==="temp"?"temporaria":"permanente",prazoMeses:num("prazo"),
+    residenciaFiscalFora:$("fin").value==="temp"&&$("fiscal").checked,despesasAParte:$("desp").checked,
+    rendaMercado:num("mkt"),rendaMercadoEstimada:!$("mktEst").hidden,taxaIRS:num("tax"),arredondar:+$("round").value};
+  if(modo==="apt")d.apartamento={area:apt.a,renda:apt.prop,auto:!!apt.auto,valorMax:u.maxes[0]??0};
+  else d.quartos=rooms.slice(0,12).map((r,i)=>({area:r.a,arrendado:r.rent,wcPrivativa:r.wc,pessoas:r.p,renda:r.prop,auto:!!r.auto,valorMax:u.maxes[i]??0}));
+  const resultado=u.semQuartos?"incompleto":u.acima?"acima":u.falhas?"requisitos":u.comRenda?"dentro":"sem_renda";
+  return {senhorio:d,resultado};
+}
+
+return {antes,limpar,render,applyAuto,preencher,dados,mudouModo:mktRef};
 })();
 // senhorio:fim
 

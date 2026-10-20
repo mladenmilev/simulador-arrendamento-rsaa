@@ -27,7 +27,7 @@ import { auth, db, local } from "/js/firebase.js";
 import { VERSAO } from "/js/versao.js";
 import "/js/analytics.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { doc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 const $ = id => document.getElementById(id);
 $("versao").textContent = `v${VERSAO}${local ? " · local" : ""}`;
@@ -61,6 +61,11 @@ onAuthStateChanged(auth, async user => {
     style.textContent = c.css;
     document.head.appendChild(style);
     if (c.titulo) document.title = c.titulo;
+    // Cada simulação calculada fica registada de forma anónima (sem uid, nome nem e-mail), para análise agregada.
+    // Não bloqueia o simulador: se a escrita falhar, o cálculo segue igual.
+    window.guardarSimulacao = d => addDoc(collection(db, "simulacoes"),
+      { ...d, versao: VERSAO, identificado: !!reg, criadoEm: serverTimestamp() })
+      .catch(e => console.warn("Simulação não registada:", e.code || e));
     $("app").innerHTML = c.html;
     const script = document.createElement("script");
     script.textContent = c.js;

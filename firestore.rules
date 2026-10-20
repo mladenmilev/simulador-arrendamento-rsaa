@@ -30,6 +30,33 @@ service cloud.firestore {
         );
     }
 
+    // Registo anónimo de cada simulação, para análise agregada (identificado ou convidado).
+    // Sem uid, nome nem e-mail. Qualquer visitante pode criar; ninguém lê, altera nem apaga pela app
+    // (a análise faz-se com o Admin SDK ou na consola).
+    match /simulacoes/{id} {
+      allow create: if request.resource.data.keys().hasOnly([
+            'criadoEm', 'versao', 'identificado', 'vista', 'modo', 'distrito', 'concelho', 'tipologia',
+            'estacionamento', 'certificadoA', 'valorMaxCasa', 'resultado', 'inquilino', 'senhorio'])
+        && request.resource.data.criadoEm == request.time
+        && request.resource.data.versao is string && request.resource.data.versao.size() <= 20
+        && request.resource.data.identificado is bool
+        && request.resource.data.vista in ['inquilino', 'senhorio']
+        && request.resource.data.modo in ['apartamento', 'quarto']
+        && request.resource.data.distrito is string && request.resource.data.distrito.size() <= 60
+        && request.resource.data.concelho is string && request.resource.data.concelho.size() <= 60
+        && request.resource.data.tipologia is string && request.resource.data.tipologia.size() <= 4
+        && request.resource.data.estacionamento is bool
+        && request.resource.data.certificadoA is bool
+        && request.resource.data.valorMaxCasa is number
+        && request.resource.data.resultado in ['dentro', 'acima', 'requisitos', 'sem_renda', 'incompleto']
+        && (!('inquilino' in request.resource.data)
+            || (request.resource.data.inquilino is map && request.resource.data.inquilino.size() <= 8))
+        && (!('senhorio' in request.resource.data)
+            || (request.resource.data.senhorio is map && request.resource.data.senhorio.size() <= 12
+                && request.resource.data.senhorio.get('quartos', []) is list
+                && request.resource.data.senhorio.get('quartos', []).size() <= 12));
+    }
+
     // Conteúdo do simulador, escrito apenas pelo script de publicação (Admin SDK).
     // Versão do inquilino: pública (acesso de convidado). Versão completa: só para quem se identificou.
     match /conteudo/inquilino {
