@@ -61,7 +61,7 @@ function cabeca({ titulo, descricao, url, jsonld, migalhas = '<a href="/renda-ac
 <div class="wrap">
   <header class="cab">
     <a class="marca" href="/"><span class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span></span><span>Simulador <b>RSAA</b></span></a>
-    <nav aria-label="Principal"><a href="/renda-acessivel/">Concelhos</a><a href="/perguntas-frequentes">Perguntas</a><a href="/contacto">Contacto</a><a class="entrar" href="/#acesso">Entrar</a></nav>
+    <nav aria-label="Principal"><a href="/renda-acessivel/">Valores por concelho</a><a href="/perguntas-frequentes">Perguntas</a><a href="/contacto">Contacto</a><a class="entrar" href="/#acesso">Entrar</a></nav>
   </header>
   <nav class="migalhas" aria-label="Navegação"><a href="/">Simulador RSAA</a> › ${migalhas}</nav>`;
 }

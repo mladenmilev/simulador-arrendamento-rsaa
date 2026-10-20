@@ -69,4 +69,10 @@ body.com-rua::before{content:"";position:absolute;left:0;right:0;top:0;height:19
 @media (max-width:640px){
   body.com-rua::before{height:150px;background-size:auto 320px}
   .cab nav{gap:2px 14px;font-size:14px}
+  /* Telemóvel: «Entrar» na primeira linha, ao lado do logótipo; as ligações na linha de baixo. */
+  .cab:has(.entrar){gap:6px 0;justify-content:flex-start}
+  .cab:has(.entrar) nav{display:contents}
+  .cab:has(.entrar)::after{content:"";order:2;flex-basis:100%}
+  .cab:has(.entrar) nav a{order:3;font-size:14px;font-weight:600;margin-right:14px}
+  .cab:has(.entrar) nav a.entrar{order:1;margin:0 0 0 auto}
 }
