@@ -13,6 +13,8 @@
   --tile:#0B6E61; --tile-soft:#DDF3EE; --on-tile:#FFFFFF; --line:#E2E8F0; --field:#CBD5E1;
   --navy:#0E1726; --on-navy:#FFFFFF; --navy-muted:#94A3B8;
   --ok:#256B45; --ok-soft:#E1F1E7; --warn:#8A5300; --warn-soft:#FBEFD9; --bad:#A3282F; --bad-soft:#F8E1E2;
+  --v-ok:#0B6E61; --v-ok-soft:#EAF6F2; --v-ok-pista:#CDE9E1; --v-ok-m:#335F57;
+  --v-fora:#B45309; --v-fora-soft:#FDF4E6; --v-fora-pista:#F6DFBC; --v-fora-m:#7A4A12; --v-info:#E9EDF2;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
@@ -21,6 +23,8 @@
     --tile:#5EEAD4; --tile-soft:#10302C; --on-tile:#04221E; --line:#263449; --field:#3A4A62;
     --navy:#1B2A44; --on-navy:#FFFFFF; --navy-muted:#A3B1C2;
     --ok:#7ED3A0; --ok-soft:#173326; --warn:#F2C26B; --warn-soft:#3A2C12; --bad:#F2959A; --bad-soft:#3D1D20;
+    --v-ok:#5EEAD4; --v-ok-soft:#10302C; --v-ok-pista:#1D4A43; --v-ok-m:#A7E9DD;
+    --v-fora:#F2B36B; --v-fora-soft:#3A2C12; --v-fora-pista:#5A4220; --v-fora-m:#F4D3A6; --v-info:#1A2538;
     color-scheme:dark;
   }
 }
@@ -29,6 +33,8 @@
   --tile:#5EEAD4; --tile-soft:#10302C; --on-tile:#04221E; --line:#263449; --field:#3A4A62;
   --navy:#1B2A44; --on-navy:#FFFFFF; --navy-muted:#A3B1C2;
   --ok:#7ED3A0; --ok-soft:#173326; --warn:#F2C26B; --warn-soft:#3A2C12; --bad:#F2959A; --bad-soft:#3D1D20;
+  --v-ok:#5EEAD4; --v-ok-soft:#10302C; --v-ok-pista:#1D4A43; --v-ok-m:#A7E9DD;
+  --v-fora:#F2B36B; --v-fora-soft:#3A2C12; --v-fora-pista:#5A4220; --v-fora-m:#F4D3A6; --v-info:#1A2538;
   color-scheme:dark;
 }
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -50,11 +56,6 @@ h1{font-size:clamp(1.7rem,3.4vw,2.5rem);letter-spacing:-.02em}
 .tres{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;margin:16px 0;align-items:baseline}
 .tres dt{color:var(--muted);font-size:.92rem}
 .tres dd{margin:0;font-weight:600}
-.tbig{font-family:Manrope,system-ui,sans-serif;font-weight:800;font-size:2rem;color:var(--tile)}
-.tstat{padding:12px 16px;border-radius:14px;margin-top:14px;font-weight:500}
-.tstat.ok{background:var(--ok-soft);color:var(--ok)}
-.tstat.bad{background:var(--bad-soft);color:var(--bad)}
-.tstat.warn{background:var(--warn-soft);color:var(--warn)}
 @media (max-width:860px){.grid{grid-template-columns:1fr}header.top{grid-template-columns:1fr}.tiles{--s:48px}}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px}
 .panel h2{font-size:1.25rem;margin-bottom:14px}
@@ -137,6 +138,72 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 
 
 .sources{font-size:.85rem;columns:2;column-gap:24px;padding-left:18px}
+/* ===== Vista do inquilino: verificar a renda (a renda primeiro, o veredicto em destaque) ===== */
+.inq-intro{margin:-6px 0 22px}
+.inq-intro h2{font-size:clamp(1.5rem,3vw,2.1rem);letter-spacing:-.02em}
+.inq-intro p{margin:8px 0 0;color:var(--muted);max-width:760px}
+body[data-view="inq"] .grid{grid-template-columns:minmax(0,420px) minmax(0,1fr)}
+body[data-view="inq"] .panel.res{background:none;border:0;padding:0}
+body[data-view="inq"] #h-res{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.passo-h{display:flex;align-items:center;gap:8px;font-size:1rem!important;margin:0 0 8px!important}
+.passo-h label{margin:0;font-size:inherit;font-weight:inherit}
+.passo-num{display:inline-grid;place-items:center;width:24px;height:24px;flex:none;border-radius:50%;background:var(--tile);color:var(--on-tile);font:700 .78rem "IBM Plex Sans",system-ui,sans-serif}
+body[data-view="inq"] #h-dados{display:flex;align-items:center;gap:8px;font-size:1rem;margin-bottom:10px}
+.renda-campo{display:flex;align-items:baseline;gap:8px;border:2px solid var(--tile);border-radius:14px;padding:6px 14px;background:var(--surface)}
+.renda-campo input{border:0;min-height:0;padding:4px 0;font:800 2rem/1.1 Manrope,system-ui,sans-serif;background:none;width:100%;min-width:0}
+.renda-campo input:focus-visible{outline:none}
+.renda-campo:focus-within{box-shadow:0 0 0 3px var(--tile-soft)}
+.renda-campo span{color:var(--muted);white-space:nowrap}
+.escolha{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.escolha button{border:1px solid var(--field);background:var(--surface);color:var(--ink);border-radius:14px;padding:11px 12px;font:inherit;font-weight:600;cursor:pointer;min-height:48px;text-align:center}
+.escolha button small{display:block;font-weight:400;font-size:.8rem;color:var(--muted)}
+.escolha button[aria-pressed="true"]{border:2px solid var(--tile);background:var(--tile-soft);padding:10px 11px}
+.lbl-inq{font-weight:600;font-size:.92rem;margin:4px 0 6px}.lbl-inq span{font-weight:400;color:var(--muted)}
+body[data-view="inq"] #fillMax{width:100%;padding:14px 20px;font-size:1.02rem}
+body[data-view="inq"] .fillrow{margin-bottom:4px}
+.veredicto{--c:var(--muted);--m:var(--muted);--fundo:var(--surface);--pista:var(--line);background:var(--fundo);border:2px solid var(--c);border-radius:20px;padding:22px 24px;display:flex;flex-direction:column;gap:10px}
+.veredicto.ok{--c:var(--v-ok);--m:var(--v-ok-m);--fundo:var(--v-ok-soft);--pista:var(--v-ok-pista)}
+.veredicto.fora{--c:var(--v-fora);--m:var(--v-fora-m);--fundo:var(--v-fora-soft);--pista:var(--v-fora-pista)}
+.veredicto.neutro{border-width:1px;border-color:var(--line)}
+.veredicto p{margin:0}
+.veredicto .tit{display:flex;align-items:flex-start;gap:10px;font:800 1.3rem/1.25 Manrope,system-ui,sans-serif;color:var(--c)}
+.veredicto.neutro .tit{color:var(--ink)}
+.veredicto .tit svg{flex:none;margin-top:1px}
+.veredicto .valor{display:flex;align-items:baseline;justify-content:space-between;gap:6px 12px;flex-wrap:wrap}
+.veredicto .valor b{font:800 clamp(2.2rem,5vw,3rem)/1 Manrope,system-ui,sans-serif;letter-spacing:-.02em}
+.veredicto .valor b small{font:500 1rem "IBM Plex Sans",system-ui,sans-serif;color:var(--m)}
+.veredicto .valor span{color:var(--m)}.veredicto .valor span strong:last-child{color:var(--c)}
+.veredicto .barra{position:relative;height:34px}
+.veredicto .barra i{position:absolute;left:0;top:6px;height:10px;border-radius:999px;background:var(--c)}
+.veredicto .barra i:first-child{right:0;background:var(--pista)}
+.veredicto .barra u{position:absolute;top:0;width:2px;height:22px;margin-left:-1px;background:var(--ink)}
+.veredicto .barra s{position:absolute;top:21px;transform:translateX(-50%);font-size:.75rem;font-weight:700;text-decoration:none;white-space:nowrap}
+.veredicto .txt{font-size:1.02rem}
+.veredicto .det{font-size:.85rem;color:var(--m)}
+.inq-cartoes{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;align-items:start}
+.cartao-inq{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px}
+.cartao-inq h3{font-size:1.05rem;color:var(--tile);margin:0 0 8px}
+.cartao-inq p{margin:0 0 10px}
+.cartao-inq .checklist{margin-top:4px}
+.cartao-inq .hint{margin:8px 0 0}
+.info-inq{background:var(--v-info);border-radius:14px;padding:14px 18px;font-size:.92rem;margin:16px 0 0}
+.ic.info{background:var(--line);color:var(--muted);font-family:Georgia,serif;font-style:italic}
+.so-assist,.progresso{display:none}
+@media (max-width:1000px){.inq-cartoes{grid-template-columns:1fr}}
+@media (max-width:860px){body[data-view="inq"] .grid{grid-template-columns:1fr}}
+/* Telemóvel: um passo de cada vez e, no fim, só o resultado. */
+body.assistente .so-assist{display:flex}
+body.assistente .progresso{display:block;margin-bottom:16px}
+.progresso div{height:6px;background:var(--line);border-radius:999px;overflow:hidden}
+.progresso i{display:block;height:100%;background:var(--tile);border-radius:999px;transition:width .2s}
+.progresso span{font-size:.8rem;color:var(--muted)}
+body.assistente .passo:not(.atual){display:none!important}
+body.assistente:not(.ultimo-passo) .fillrow,body.assistente:not(.ultimo-passo) .nota-local{display:none}
+body.assistente.ultimo-passo #seguinte{display:none}
+body.assistente.primeiro-passo #anterior{display:none}
+.nav-passos{gap:10px;margin-top:8px}.nav-passos .btn{flex:1}
+body.assistente:not(.com-resultado) .panel.res{display:none}
+body.assistente.com-resultado .panel.form,body.assistente.com-resultado .inq-intro{display:none}
 @media (max-width:860px){input,select,textarea{font-size:16px!important}.sources a{display:inline-block;padding:6px 0}}
 @media (max-width:640px){.sources{columns:1}.room .r3{grid-template-columns:1fr 1fr}}
 </style>
@@ -150,7 +217,6 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
       <!-- senhorio:inicio -->
       <p class="lede only-sen">Calcula o valor máximo da renda de cada quarto, ou do apartamento inteiro, para o contrato beneficiar do Regime Simplificado de Arrendamento Acessível (RSAA), que dá isenção total de IRS ao senhorio. Não é um limite à renda: pode cobrar menos ou mais; acima desse valor o contrato é legal, mas fica na tributação normal. Valores da Portaria n.º 454/2026/1, de 13 de outubro de 2026.</p>
       <!-- senhorio:fim -->
-      <p class="lede only-inq">Indique as características do apartamento<span class="only-q"> e do seu quarto</span> e veja a renda máxima para o contrato beneficiar do arrendamento acessível (RSAA). Acima desse valor o contrato continua válido, mas fica fora do RSAA.</p>
     </div>
   </header>
   <div class="viewbar">
@@ -161,9 +227,24 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
     </div>
   </div>
   <p class="senlock" id="senLock" hidden>A vista do senhorio requer identificação. <a href="/?identificar=1">Identificar-me</a></p>
+  <div class="inq-intro only-inq">
+    <h2>A sua renda pode ficar no arrendamento acessível?</h2>
+    <p>Indique a renda e a casa. Vê de imediato se está dentro do valor máximo do RSAA e o que isso significa para si e para o senhorio.</p>
+  </div>
 
   <div class="grid">
-    <section class="panel" aria-label="Dados da simulação">
+    <section class="panel form" aria-label="Dados da simulação">
+      <div class="progresso only-inq" aria-hidden="true"><div><i id="passoBarra"></i></div><span id="passoN"></span></div>
+      <div class="passo only-inq" data-passo="1">
+        <h2 class="passo-h"><span class="passo-num">1</span><label for="tr">A sua renda</label></h2>
+        <div class="renda-campo"><input type="number" id="tr" min="0" step="1" inputmode="numeric" placeholder="0" aria-describedby="trHint"><span>€ / mês</span></div>
+        <p class="hint" id="trHint" style="margin-bottom:20px">Renda atual ou proposta pelo senhorio, sem despesas (água, luz, internet).</p>
+        <h2 class="passo-h"><span class="passo-num">2</span><span id="tiLbl">O que arrenda</span></h2>
+        <div class="escolha" role="group" aria-labelledby="tiLbl">
+          <button type="button" id="ti-apt" aria-pressed="false">Apartamento inteiro</button>
+          <button type="button" id="ti-q" aria-pressed="true">Um quarto<small>numa casa partilhada</small></button>
+        </div>
+      </div>
       <!-- senhorio:inicio -->
       <div class="only-sen">
       <h2>Contrato</h2>
@@ -189,8 +270,9 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
       </div>
       <!-- senhorio:fim -->
 
-      <h2 id="h-dados" style="margin-top:20px">A casa</h2>
-      <div class="field">
+      <div class="passo" data-passo="2">
+      <h2 id="h-dados" style="margin-top:20px"><span class="passo-num only-inq">3</span>A casa</h2>
+      <div class="field only-sen">
         <span class="lbl" id="mlbl" style="display:block;font-weight:600;font-size:.92rem;margin-bottom:6px">O que vai arrendar?</span>
         <div class="seg" role="group" aria-labelledby="mlbl">
           <button type="button" id="m-q" aria-pressed="true">Quartos</button>
@@ -215,9 +297,11 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
           </select>
         </div>
       </div>
+      <p class="lbl-inq only-inq">Extras da casa <span>(opcional)</span></p>
       <div class="field checks">
         <label><input type="checkbox" id="park"> Inclui estacionamento privativo (+10 %)</label>
         <label><input type="checkbox" id="energy"> Certificado energético A ou superior (+10 %)</label>
+      </div>
       </div>
 
       <!-- senhorio:inicio -->
@@ -240,8 +324,8 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
       <div class="rooms only-q only-sen" id="rooms"></div>
       <!-- senhorio:fim -->
 
-      <div class="only-q only-inq">
-        <h2 style="margin-top:6px">O seu quarto</h2>
+      <div class="only-q only-inq passo" data-passo="3">
+        <h2 class="passo-h" style="margin-top:6px"><span class="passo-num">4</span>O seu quarto</h2>
         <div class="row2 alinhar">
           <div class="field">
             <label for="qA">Área do quarto (m²)</label>
@@ -254,9 +338,15 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
         </div>
         <p class="hint" id="qHint" style="margin:-6px 0 10px"></p>
         <div class="field checks">
-          <label><input type="checkbox" id="qW"> Casa de banho privativa</label>
+          <label><input type="checkbox" id="qW"> Casa de banho privativa (conta 25 % mais)</label>
+        </div>
+        <div class="field">
+          <label for="tp">Pessoas no quarto</label>
+          <select id="tp" style="width:auto;min-width:96px"><option value="1">1</option><option value="2">2</option></select>
         </div>
       </div>
+
+      <div class="so-assist nav-passos only-inq"><button type="button" class="btn" id="anterior">← Voltar</button><button type="button" class="btn primary" id="seguinte">Continuar</button></div>
 
       <div class="fillrow" style="margin-top:18px">
         <!-- senhorio:inicio -->
@@ -269,36 +359,32 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
           </select>
         </div>
         <!-- senhorio:fim -->
-        <button type="button" class="btn primary" id="fillMax">Calcular</button>
+        <button type="button" class="btn primary" id="fillMax"><span class="only-sen">Calcular</span><span class="only-inq">Verificar a minha renda</span></button>
       </div>
       <!-- senhorio:inicio -->
       <p class="hint only-sen" style="margin:-4px 0 8px">Calcula o valor máximo do RSAA <span class="only-q">de cada quarto</span><span class="only-apt">do apartamento</span>. Se já indicou uma renda proposta, verifica se está dentro desse valor. Se estiver vazia, é preenchida com o máximo (arredondado para baixo) e acompanha automaticamente as alterações seguintes, até a editar à mão.</p>
       <!-- senhorio:fim -->
+      <p class="hint only-inq nota-local" style="text-align:center;margin:6px 0 0">O cálculo é feito no seu dispositivo; nada é enviado.</p>
     </section>
 
-    <section class="panel" aria-labelledby="h-res" aria-live="polite">
-      <h2 id="h-res"><span class="only-sen">Resultado</span><span class="only-inq"><span class="only-q">O seu quarto</span><span class="only-apt">O apartamento</span></span></h2>
+    <section class="panel res" aria-labelledby="h-res" aria-live="polite">
+      <h2 id="h-res"><span class="only-sen">Resultado</span><span class="only-inq">O resultado</span></h2>
       <div class="only-inq">
-        <dl class="tres">
-          <dt>Localização</dt><dd id="tLoc">–</dd>
-          <dt class="only-apt">Tipologia</dt><dd class="only-apt" id="tTip">–</dd>
-          <dt class="only-q">Área do quarto</dt><dd class="only-q" id="tA">–</dd>
-          <dt class="only-q"><label for="tp" style="font-weight:400;margin:0">Pessoas no quarto</label></dt><dd class="only-q"><select id="tp" style="width:auto"><option value="1">1</option><option value="2">2</option></select></dd>
-          <dt class="only-q">Valor máximo da casa toda (RSAA)</dt><dd class="only-q"><span id="tCasa">–</span> <span class="hint" id="tCasaT"></span></dd>
-          <dt>Valor máximo para o RSAA</dt><dd><span class="tbig" id="tM">–</span> <span class="hint" id="tPP"></span></dd>
-        </dl>
-        <div class="field">
-          <label for="tr">Renda atual ou proposta pelo senhorio (€/mês)</label>
-          <input type="number" id="tr" min="0" step="1" inputmode="numeric">
+        <p class="so-assist" style="margin:0 0 12px"><button type="button" class="btn" id="alterar">← Alterar dados</button></p>
+        <div class="veredicto neutro" id="tVer"></div>
+        <div class="inq-cartoes">
+          <div class="cartao-inq" id="exportarZona" hidden>
+            <h3 id="tNextH">Próximo passo</h3>
+            <p id="tNext"></p>
+            <div class="acoes-rel"><button type="button" class="btn primary" id="analise">Análise da situação</button><button type="button" class="btn" id="exportar">Exportar PDF</button></div>
+            <p class="hint">Relatório de uma página para mostrar ao senhorio. É gerado no seu dispositivo; nada é enviado.</p>
+          </div>
+          <div class="cartao-inq">
+            <h3>Para o contrato ficar no RSAA</h3>
+            <ul class="checklist" id="tReq"></ul>
+          </div>
         </div>
-        <p class="tstat warn" id="tSt">Indique a renda atual ou proposta pelo senhorio para verificar.</p>
-        <h3 style="font-size:1rem;margin:16px 0 0">Para o contrato ficar no RSAA</h3>
-        <ul class="checklist" id="tReq" style="margin-top:8px"></ul>
-        <div class="exportar" id="exportarZona" hidden>
-          <div class="acoes-rel"><button type="button" class="btn primary" id="analise">Análise da situação</button><button type="button" class="btn" id="exportar">Exportar PDF</button></div>
-          <p class="hint">«Análise da situação» abre o relatório numa página nova; «Exportar PDF» abre a janela de impressão para o guardar («Guardar como PDF»). Tudo é gerado no seu dispositivo; nada é enviado.</p>
-        </div>
-        <p class="hint">É o valor máximo para o contrato beneficiar do RSAA (isenção de IRS para o senhorio). Não é um limite à renda nem um preço de referência: a renda pode ser mais baixa, consoante a localização e o estado do imóvel. Acima deste valor o contrato é legal, mas fica fora do RSAA. Não inclui despesas (água, luz, internet), que são pagas à parte.</p>
+        <p class="info-inq"><strong>O que é o valor máximo do RSAA?</strong> É a renda mensal até à qual o contrato pode entrar no RSAA, com isenção de IRS para o senhorio. Acima desse valor, a renda continua a ser permitida, mas o contrato segue a tributação normal. Não inclui despesas (água, luz, internet), que são pagas à parte.</p>
       </div>
       <!-- senhorio:inicio -->
       <div class="only-sen">
@@ -336,7 +422,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
         </div>
         <p class="hint" id="cmpNote"></p>
       </div>
-      <div class="exportar" id="exportarSenZona" hidden>
+      <div class="exportar only-sen" id="exportarSenZona" hidden>
         <div class="acoes-rel"><button type="button" class="btn primary" id="analiseSen">Análise da situação</button><button type="button" class="btn" id="exportarSen">Exportar PDF</button></div>
         <p class="hint">«Análise da situação» abre o relatório numa página nova; «Exportar PDF» abre a janela de impressão para o guardar («Guardar como PDF»). Tudo é gerado no seu dispositivo; nada é enviado.</p>
       </div>
@@ -592,9 +678,13 @@ function calc(){
 function recalc(){if(Senhorio)Senhorio.applyAuto();calc()}
 
 // Condições de elegibilidade (DL 97/2026, Anexo III, arts. 3.º e 5.º). Não alteram a renda máxima.
+// A primeira linha (data-renda) mostra o estado da renda; as outras confirmam-se no contrato.
 function requisitosInquilino(){
-  const i=t=>`<li><span class="ic warn">!</span><span>${t}</span></li>`;
-  $("tReq").innerHTML=(modo==="apt"?[
+  const i=(c,s,t,extra="")=>`<li${extra}><span class="ic ${c}">${s}</span><span>${t}</span></li>`;
+  const renda=tenMax==null||!ten.prop?i("info","i","Renda igual ou inferior ao valor máximo do RSAA."," data-renda")
+    :ten.prop<=tenMax?i("ok","✓",`Renda dentro do valor máximo (${eur(ten.prop)} ≤ ${eur(tenMax)}).`," data-renda")
+    :i("warn","✕",`Renda acima do valor máximo (${eur(ten.prop)} > ${eur(tenMax)}): o contrato fica fora do RSAA.`," data-renda");
+  $("tReq").innerHTML=renda+(modo==="apt"?[
     "Residência permanente: prazo mínimo de 3 anos.",
     "Residência temporária: prazo mínimo de 3 meses (renovável) e só se tiver residência fiscal noutro concelho (ex.: estudante ou trabalhador deslocado).",
   ]:[
@@ -602,55 +692,84 @@ function requisitosInquilino(){
     "Tem de ter residência fiscal noutro concelho (ex.: estudante ou trabalhador deslocado).",
     "Prazo mínimo de 3 meses, renovável.",
     "O quarto tem de ter janela para o exterior e acesso à entrada, a uma casa de banho completa e à cozinha.",
-  ]).concat("O senhorio comunica o contrato às Finanças e submete-o no IHRU até 15 de janeiro do ano seguinte (o inquilino não tem de o fazer).","O valor máximo do RSAA é o mesmo para contratos temporários e permanentes. Se as condições não se cumprirem, o contrato não fica no RSAA (a renda continua a ser legal).").map(i).join("");
+  ]).concat("O senhorio comunica o contrato às Finanças e submete-o no IHRU até 15 de janeiro do ano seguinte (o inquilino não tem de o fazer).","O valor máximo do RSAA é o mesmo para contratos temporários e permanentes. Se as condições não se cumprirem, o contrato não fica no RSAA (a renda continua a ser legal).").map(t=>i("info","i",t)).join("");
 }
-// Teto calculado para o inquilino (null enquanto faltarem dados): base do relatório exportável.
+// Valor máximo calculado para o inquilino (null enquanto faltarem dados): base do veredicto e do relatório.
 let tenMax=null;
-function semTeto(){tenMax=null;$("exportarZona").hidden=true}
+function semTeto(){tenMax=null;$("exportarZona").hidden=true;requisitosInquilino()}
+// Contas comuns ao veredicto e ao relatório. Líquido do senhorio estimado à taxa autónoma (TAXA_IRS_EXEMPLO).
+function analiseInquilino(max){
+  const temRenda=ten.prop>0,acima=temRenda&&ten.prop>max;
+  const livre=Math.round(ten.prop*12*(1-TAXA_IRS_EXEMPLO)),rsaa=max*12;
+  const base=temRenda&&!acima?ten.prop:max;
+  return {temRenda,acima,livre,rsaa,dif:rsaa-livre,equil:Math.ceil(max/(1-TAXA_IRS_EXEMPLO)),base,irs:Math.round(base*12*TAXA_IRS_EXEMPLO),pct:Math.round(TAXA_IRS_EXEMPLO*100)};
+}
+const ICONE_VER={
+  ok:'<svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>',
+  fora:'<svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5M12 17.3v.2"/></svg>',
+  neutro:'<svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.2"/></svg>',
+};
+function mostrarVeredicto(estado,titulo,corpo,texto){
+  const v=$("tVer");v.className="veredicto "+estado;
+  v.innerHTML=`<p class="tit">${ICONE_VER[estado]}<span>${titulo}</span></p>${corpo}${texto?`<p class="txt">${texto}</p>`:""}`;
+}
 function limparInquilino(){
   semTeto();
-  ["tLoc","tTip","tA","tM","tCasa"].forEach(id=>$(id).textContent="–");
-  $("tPP").textContent=$("tCasaT").textContent="";
-  $("tSt").className="tstat warn";$("tSt").textContent=modo==="apt"?"Clique em Calcular para ver a renda máxima.":"Indique a área do seu quarto e a soma das áreas de todos os quartos, e clique em Calcular.";
+  mostrarVeredicto("neutro","Verifique a sua renda","",modo==="apt"
+    ?"Indique a renda e a casa e clique em «Verificar a minha renda»."
+    :"Indique a renda, a casa e as áreas do quarto, e clique em «Verificar a minha renda».");
 }
-function estadoRenda(max){
+// Veredicto da renda face ao valor máximo, e o próximo passo para o inquilino.
+// O valor máximo não é um limite à renda: acima dele, a renda é legal, mas o contrato fica fora do RSAA.
+function estadoRenda(max,detalhe){
   tenMax=max;$("exportarZona").hidden=false;
-  const st=$("tSt");
   if(document.activeElement!==$("tr"))$("tr").value=ten.prop||"";
-  if(!ten.prop){st.className="tstat warn";st.textContent="Indique a renda atual ou proposta pelo senhorio para verificar."}
-  else if(ten.prop<=max){st.className="tstat ok";st.textContent=`A renda de ${eur(ten.prop)} está dentro do valor máximo do RSAA: o senhorio pode beneficiar da isenção de IRS.`}
-  else{st.className="tstat bad";st.textContent=`A renda de ${eur(ten.prop)} está ${eur(ten.prop-max)} acima do valor máximo do RSAA. É uma renda legal, mas com ela o contrato não beneficia do RSAA (o senhorio fica na tributação normal).`}
+  const a=analiseInquilino(max),det=`<p class="det">${detalhe}</p>`;
+  if(!a.temRenda){
+    mostrarVeredicto("neutro",`Valor máximo do RSAA: ${eur(max)} por mês`,det,`Indique a sua renda para verificar. Para o contrato poder ficar no RSAA, a renda tem de ser igual ou inferior a <strong>${eur(max)}</strong> por mês.`);
+    $("tNextH").textContent="Próximo passo";
+    $("tNext").innerHTML="Indique a renda atual ou proposta pelo senhorio para ver o que significa para si e para o senhorio.";
+  }else{
+    const escala=Math.max(ten.prop*1.05,max*1.18),pos=v=>(v/escala*100).toFixed(1)+"%";
+    const corpo=`<div class="valor"><b>${eur(ten.prop)}<small> /mês</small></b><span>valor máximo <strong>${eur(max)}</strong> · ${a.acima?"mais":"margem"} <strong>${eur(Math.abs(ten.prop-max))}</strong></span></div>
+      <div class="barra" aria-hidden="true"><i></i><i style="width:${pos(ten.prop)}"></i><u style="left:${pos(max)}"></u><s style="left:${pos(max)}">${eur(max)}</s></div>${det}`;
+    if(!a.acima){
+      mostrarVeredicto("ok","Sim, a sua renda está dentro do valor máximo do RSAA",corpo,"Com esta renda, o senhorio pode optar pelo RSAA e ficar <strong>isento de IRS</strong> sobre ela, sem a baixar.");
+      $("tNextH").textContent="Próximo passo";
+      $("tNext").innerHTML=`<strong>Proponha o RSAA ao senhorio.</strong> Com esta renda, deixa de pagar cerca de <strong>${eur(a.irs)} de IRS por ano</strong> (taxa de ${a.pct} %). É vantajoso para ele e dá-lhe a si um contrato com regras claras.`;
+    }else{
+      mostrarVeredicto("fora","A sua renda está acima do valor máximo do RSAA",corpo,"É uma renda <strong>legal</strong>, mas com ela o contrato fica fora do RSAA e o senhorio paga IRS pela tributação normal.");
+      if(a.dif>=0){
+        $("tNextH").textContent="O RSAA compensaria ao senhorio";
+        $("tNext").innerHTML=`Com ${eur(max)} no RSAA, o senhorio receberia <strong>mais ${eur(a.dif)} por ano</strong> do que com esta renda no regime normal, porque não paga IRS. E o inquilino pagaria menos ${eur((ten.prop-max)*12)} por ano. É um argumento para negociar. <strong>O RSAA é opcional.</strong>`;
+      }else{
+        $("tNextH").textContent="O que isto significa";
+        $("tNext").innerHTML=`Com esta renda, o senhorio recebe <strong>mais ${eur(-a.dif)} por ano</strong> fora do RSAA, mesmo pagando IRS: não tem motivação fiscal para aderir. <strong>O RSAA é opcional.</strong> Pode comparar com rendas semelhantes na zona e confirmar no contrato o prazo e as despesas.`;
+      }
+    }
+  }
+  requisitosInquilino();
 }
 // Inquilino, modo quartos: só o seu quarto. Portaria 454/2026/1, art. 2.º, n.º 2:
-// limite do quarto = limite da casa × área do quarto (+25 % com casa de banho privativa) ÷ soma das áreas dos quartos.
+// valor do quarto = valor da casa × área do quarto (+25 % com casa de banho privativa) ÷ soma das áreas dos quartos.
 // Sem as duas áreas não há valor fiável, por isso não se mostra nenhum.
 function renderTenant(Lm){
   semTeto();
-  const st=$("tSt"),{maj}=limites();
-  $("tLoc").textContent=nomeConcelho(sel.value);
-  $("tCasa").textContent=Lm?eur(Math.floor(Lm)):"–";
-  $("tCasaT").textContent=Lm?`(${$("tip").value}${maj?`, com majoração de ${Math.round(maj*100)} %`:""}; o valor é repartido pelos quartos de acordo com a área)`:"";
-  $("tA").textContent=ten.a?ten.a+" m²"+(ten.wc?", com casa de banho privativa":""):"–";
+  const {maj}=limites();
   $("tp").value=ten.p;
-  if(ten.total&&ten.total<ten.a){$("tM").textContent="–";$("tPP").textContent="";st.className="tstat warn";st.textContent="A área de todos os quartos não pode ser menor do que a área do seu quarto.";return}
+  if(ten.total&&ten.total<ten.a){mostrarVeredicto("neutro","Verifique as áreas","","A área de todos os quartos não pode ser menor do que a área do seu quarto.");return}
   if(!ten.a||!ten.total){
-    $("qHint").textContent="A renda máxima de um quarto depende da sua área face à área total dos quartos: a soma das áreas de todos os quartos, incluindo o seu (peça-as ao senhorio). Não conte sala, cozinha nem casas de banho.";
-    $("tM").textContent="–";$("tPP").textContent="";
-    st.className="tstat warn";st.textContent=`Indique ${!ten.a&&!ten.total?"a área do seu quarto e a soma das áreas de todos os quartos":!ten.a?"a área do seu quarto":"a soma das áreas de todos os quartos"} para calcular a renda máxima.`;
+    $("qHint").textContent="A soma das áreas de todos os quartos, incluindo o seu (peça-as ao senhorio). Não conte sala, cozinha nem casas de banho.";
+    mostrarVeredicto("neutro","Faltam as áreas do quarto","",`Indique ${!ten.a&&!ten.total?"a área do seu quarto e a soma das áreas de todos os quartos":!ten.a?"a área do seu quarto":"a soma das áreas de todos os quartos"} para calcular o valor máximo do seu quarto.`);
     return;
   }
   const max=Math.floor(Lm*(ten.wc?ten.a*1.25:ten.a)/ten.total);
   $("qHint").textContent=`O seu quarto tem ${Math.round(ten.a/ten.total*100)} % da área dos quartos${ten.wc?`; conta como ${Math.round(ten.a*1.25/ten.total*100)} % por ter casa de banho privativa`:""}. Não conte sala, cozinha nem casas de banho.`;
-  $("tM").textContent=eur(max);
-  $("tPP").textContent=`(${ten.p===2?`${eur(Math.floor(max/2))} por pessoa · `:""}${Math.round(max/Math.floor(Lm)*100)} % do valor da casa)`;
-  estadoRenda(max);
+  estadoRenda(max,`Quarto em ${nomeConcelho(sel.value)} · valor máximo da casa (${$("tip").value}${maj?`, +${Math.round(maj*100)} %`:""}): ${eur(Math.floor(Lm))} · o seu quarto: ${Math.round(max/Math.floor(Lm)*100)} %${ten.p===2?` · ${eur(Math.floor(max/2))} por pessoa`:""}`);
 }
 function renderTenantApt(max){
-  $("tLoc").textContent=nomeConcelho(sel.value);
-  $("tTip").textContent=$("tip").value;
-  $("tM").textContent=eur(max);
-  $("tPP").textContent="";
-  estadoRenda(max);
+  const {maj}=limites();
+  estadoRenda(max,`Apartamento ${$("tip").value} em ${nomeConcelho(sel.value)}${maj?` · com majoração de ${Math.round(maj*100)} %`:""}`);
 }
 // Relatórios (inquilino e senhorio): montados no navegador com os valores do ecrã e impressos (ou guardados em PDF).
 // Nada é enviado nem processado no servidor.
@@ -793,10 +912,8 @@ function exportarRelatorio(acao){
   if(quarto&&ten.p===2)dados.push(["Por pessoa",`${eur(Math.floor(max/2))} (valor máximo)`]);
   dados.push(["Renda",ten.prop?eur(ten.prop)+" por mês":"não indicada"]);
   // O valor do RSAA não é um limite à renda: é o máximo para o senhorio beneficiar da isenção de IRS.
-  const pct=Math.round(TAXA_IRS_EXEMPLO*100),temRenda=ten.prop>0,acima=temRenda&&ten.prop>max;
-  const livre=Math.round(ten.prop*12*(1-TAXA_IRS_EXEMPLO)),rsaa=max*12,dif=rsaa-livre,equil=Math.ceil(max/(1-TAXA_IRS_EXEMPLO));
-  const base=temRenda&&!acima?ten.prop:max,irs=Math.round(base*12*TAXA_IRS_EXEMPLO);
-  const reqs=[...document.querySelectorAll("#tReq li")].map(li=>escRel(li.textContent.trim().replace(/^!\s*/,""))).filter(t=>!/^O valor máximo do RSAA é o mesmo/.test(t));
+  const {pct,temRenda,acima,livre,rsaa,dif,equil,base,irs}=analiseInquilino(max);
+  const reqs=[...document.querySelectorAll("#tReq li:not([data-renda]) span:last-child")].map(sp=>escRel(sp.textContent.trim())).filter(t=>!/^O valor máximo do RSAA é o mesmo/.test(t));
   const clareza=`<li><strong>Clareza contratual:</strong> ${acima?"no RSAA, ":""}o senhorio comunica o contrato às Finanças e submete-o no IHRU; o inquilino recebe recibos eletrónicos e as despesas ficam definidas à parte. Estes registos não cabem ao inquilino.</li>`;
   const prazo=`<li><strong>Prazo conforme a finalidade:</strong> ${quarto?"num quarto, só residência temporária, com 3 meses renováveis (flexibilidade para estudantes e deslocados).":"3 anos em residência permanente (estabilidade) ou 3 meses renováveis em residência temporária (flexibilidade)."}</li>`;
   let corpo;
@@ -871,9 +988,36 @@ function fillMax(){
   recalc();
   // Google Analytics (carregado pela moldura só com consentimento): sem dados pessoais.
   if(window.gtag&&window.google_tag_manager)gtag("event","calcular",{vista:document.body.dataset.view,modo});
-  if(first&&matchMedia("(max-width:860px)").matches)$("h-res").scrollIntoView({behavior:"smooth"});
+  if(document.body.classList.contains("assistente")){document.body.classList.add("com-resultado");scrollTo({top:0})}
+  else if(first&&matchMedia("(max-width:860px)").matches)$("h-res").scrollIntoView({behavior:"smooth"});
 }
 $("fillMax").addEventListener("click",fillMax);
+
+// Inquilino no telemóvel: um passo de cada vez (a renda, a casa, o quarto) e depois só o resultado.
+const ecraPequeno=matchMedia("(max-width:860px)");
+let passo=1;
+function atualizarAssistente(){
+  const on=ecraPequeno.matches&&document.body.dataset.view==="inq";
+  document.body.classList.toggle("assistente",on);
+  if(!on)document.body.classList.remove("com-resultado");
+  const ps=modo==="apt"?[1,2]:[1,2,3];
+  if(!ps.includes(passo))passo=ps[ps.length-1];
+  const i=ps.indexOf(passo);
+  document.querySelectorAll(".passo").forEach(p=>p.classList.toggle("atual",+p.dataset.passo===passo));
+  document.body.classList.toggle("primeiro-passo",i===0);
+  document.body.classList.toggle("ultimo-passo",i===ps.length-1);
+  $("passoN").textContent=`Passo ${i+1} de ${ps.length}`;
+  $("passoBarra").style.width=((i+1)/ps.length*100)+"%";
+}
+function irPasso(d){
+  const ps=modo==="apt"?[1,2]:[1,2,3];
+  passo=ps[Math.min(ps.length-1,Math.max(0,ps.indexOf(passo)+d))];
+  atualizarAssistente();scrollTo({top:0});
+}
+$("seguinte").addEventListener("click",()=>irPasso(1));
+$("anterior").addEventListener("click",()=>irPasso(-1));
+$("alterar").addEventListener("click",()=>{document.body.classList.remove("com-resultado");passo=1;atualizarAssistente();scrollTo({top:0})});
+ecraPequeno.addEventListener("change",atualizarAssistente);
 
 function setView(v){
   if(v==="sen"&&convidado()){$("senLock").hidden=false;return}
@@ -882,6 +1026,7 @@ function setView(v){
   $("v-sen").setAttribute("aria-pressed",v==="sen");
   $("v-inq").setAttribute("aria-pressed",v==="inq");
   $(v==="inq"?"b-inq":"b-sen").click();
+  atualizarAssistente();
   try{localStorage.setItem("vista",v)}catch(e){}
 }
 function setModo(m){
@@ -891,13 +1036,18 @@ function setModo(m){
   if(m==="q"&&$("tip").value==="T0"){$("tip").value="T1";$("tip").dispatchEvent(new Event("change"))}
   $("m-q").setAttribute("aria-pressed",m==="q");
   $("m-apt").setAttribute("aria-pressed",m==="apt");
+  $("ti-q").setAttribute("aria-pressed",m==="q");
+  $("ti-apt").setAttribute("aria-pressed",m==="apt");
   try{localStorage.setItem("modo",m)}catch(e){}
+  atualizarAssistente();
   if(Senhorio)Senhorio.mudouModo();
   requisitosInquilino();
   recalc();
 }
 $("m-q").addEventListener("click",()=>setModo("q"));
 $("m-apt").addEventListener("click",()=>setModo("apt"));
+$("ti-q").addEventListener("click",()=>setModo("q"));
+$("ti-apt").addEventListener("click",()=>setModo("apt"));
 $("v-sen").addEventListener("click",()=>setView("sen"));
 $("v-inq").addEventListener("click",()=>setView("inq"));
 
