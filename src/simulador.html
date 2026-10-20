@@ -180,7 +180,7 @@ body[data-view="inq"] .fillrow{margin-bottom:4px}
 .veredicto .barra s{position:absolute;top:21px;transform:translateX(-50%);font-size:.75rem;font-weight:700;text-decoration:none;white-space:nowrap}
 .veredicto .txt{font-size:1.02rem}
 .veredicto .det{font-size:.85rem;color:var(--m)}
-.inq-cartoes{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;align-items:start}
+.inq-cartoes{display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px}
 .cartao-inq{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px}
 .cartao-inq h3{font-size:1.05rem;color:var(--tile);margin:0 0 8px}
 .cartao-inq p{margin:0 0 10px}
@@ -189,7 +189,6 @@ body[data-view="inq"] .fillrow{margin-bottom:4px}
 .info-inq{background:var(--v-info);border-radius:14px;padding:14px 18px;font-size:.92rem;margin:16px 0 0}
 .ic.info{background:var(--line);color:var(--muted);font-family:Georgia,serif;font-style:italic}
 .so-assist,.progresso{display:none}
-@media (max-width:1000px){.inq-cartoes{grid-template-columns:1fr}}
 @media (max-width:860px){body[data-view="inq"] .grid{grid-template-columns:1fr}}
 /* Telemóvel: um passo de cada vez e, no fim, só o resultado. */
 body.assistente .so-assist{display:flex}
@@ -989,6 +988,11 @@ function fillMax(){
   // Google Analytics (carregado pela moldura só com consentimento): sem dados pessoais.
   if(window.gtag&&window.google_tag_manager)gtag("event","calcular",{vista:document.body.dataset.view,modo});
   if(document.body.classList.contains("assistente")){document.body.classList.add("com-resultado");scrollTo({top:0})}
+  else if(document.body.dataset.view==="inq"){
+    // Inquilino: leva o veredicto para o ecrã sempre que verifica a renda (se ainda não estiver visível no topo).
+    const t=$("tVer").getBoundingClientRect().top;
+    if(t<0||t>innerHeight*.25)scrollTo({top:scrollY+t-16,behavior:"smooth"});
+  }
   else if(first&&matchMedia("(max-width:860px)").matches)$("h-res").scrollIntoView({behavior:"smooth"});
 }
 $("fillMax").addEventListener("click",fillMax);
