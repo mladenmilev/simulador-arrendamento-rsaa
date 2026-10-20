@@ -42,7 +42,7 @@ h1{font-size:clamp(2.3rem,5.4vw,3.8rem);line-height:1.02;letter-spacing:-.02em}
 .botao.escuro{background:var(--navy);border-color:var(--navy);color:var(--on-navy)}
 .botao:disabled{opacity:.5;cursor:wait}
 .botao.largo{width:100%}
-.nota-teto{margin:0;font-size:.88rem;color:var(--muted)}
+.nota-valor{margin:0;font-size:.88rem;color:var(--muted)}
 .exemplo{background:var(--navy);color:var(--on-navy);border-radius:24px;padding:30px;display:flex;flex-direction:column;gap:18px}
 .exemplo .meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:14px;color:var(--navy-muted)}
 .exemplo .rot{font-size:14px;color:var(--navy-muted)}
@@ -94,27 +94,27 @@ input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(-
     <div class="txt">
       <span class="selo">Novo regime · desde 1 de setembro de 2026</span>
       <h1>Renda acessível, sem contas de cabeça.</h1>
-      <p class="lede">Saiba em segundos o teto do Regime Simplificado de Arrendamento Acessível (RSAA) para a sua casa ou para cada quarto, verifique a renda e veja se a isenção de IRS compensa.</p>
+      <p class="lede">Saiba em segundos o valor máximo da renda para beneficiar do Regime Simplificado de Arrendamento Acessível (RSAA), para a casa ou para cada quarto, analise a renda e veja se a isenção de IRS compensa.</p>
       <div class="acoes">
         <a class="botao primario" href="#acesso">Simular como senhorio</a>
         <button type="button" class="botao" id="convidado2">Sou inquilino</button>
       </div>
-      <p class="nota-teto">O teto é o máximo para beneficiar do RSAA: a renda pode ser mais baixa; acima dele o contrato é legal, mas fica na tributação normal.</p>
+      <p class="nota-valor">Não é um limite à renda: é o máximo para o senhorio ter isenção de IRS. A renda pode ser mais baixa ou mais alta; acima desse valor o contrato é legal, mas fica na tributação normal.</p>
     </div>
     <div class="exemplo" aria-label="Exemplo de cálculo">
       <div class="meta"><span id="exLocal">Exemplo · Odivelas · T3 · por quartos</span><span>Portaria n.º 454/2026/1</span></div>
-      <div><div class="rot">Teto RSAA da casa</div><div class="valor" id="exValor">1193 €</div></div>
+      <div><div class="rot">Valor máximo RSAA da casa</div><div class="valor" id="exValor">1193 €</div></div>
       <div class="barra">
         <div style="flex:12 1 0;background:#14B8A6" id="exQ1">Q1 · 461 €</div>
         <div style="flex:10 1 0;background:#5EEAD4" id="exQ2">Q2 · 384 €</div>
         <div style="flex:9 1 0;background:#99F6E4" id="exQ3">Q3 · 346 €</div>
       </div>
-      <p>Quartos de 12, 10 e 9 m². O teto é repartido pela área de cada quarto. <a id="exLink" href="/renda-acessivel/odivelas" style="color:#9FE3D6">Ver todos os tetos de Odivelas</a></p>
+      <p>Quartos de 12, 10 e 9 m². O valor é repartido pela área de cada quarto. <a id="exLink" href="/renda-acessivel/odivelas" style="color:#9FE3D6">Ver todos os valores de Odivelas</a></p>
     </div>
   </section>
 
   <section class="numeros" aria-label="O que o simulador faz">
-    <div><strong>308</strong><span>concelhos</span><p>Todos os tetos da Portaria, de T0 a T8, com majorações. <a href="/renda-acessivel/">Ver a tabela</a></p></div>
+    <div><strong>308</strong><span>concelhos</span><p>Todos os valores máximos da Portaria, de T0 a T8, com majorações. <a href="/renda-acessivel/">Ver a tabela</a></p></div>
     <div><strong>2 vistas</strong><span>senhorio e inquilino</span><p>O inquilino verifica a renda sem se identificar.</p></div>
     <div><strong>✓ / ✕</strong><span>requisitos do contrato</span><p>Prazos, residência fiscal, área mínima e despesas verificados.</p></div>
   </section>
@@ -149,7 +149,7 @@ input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(-
       </div>
       <div class="cartao inquilino" id="convidadoBox">
         <h2>É inquilino?</h2>
-        <p class="msg">Verifique se a renda do seu quarto ou apartamento está dentro do teto do RSAA, sem se identificar.</p>
+        <p class="msg">Analise a renda do seu quarto ou apartamento face ao valor máximo do RSAA, sem se identificar.</p>
         <p class="hint">Só a vista do inquilino. A vista do senhorio requer identificação.</p>
         <button type="button" class="botao primario largo" id="convidado">Continuar como inquilino</button>
       </div>
@@ -197,7 +197,7 @@ const abrir = () => {
     $("exLocal").textContent = `O seu concelho · ${dados.nome} · T3 · por quartos`;
     $("exValor").textContent = t3 + " €";
     $("exQ1").textContent = "Q1 · " + q(12); $("exQ2").textContent = "Q2 · " + q(10); $("exQ3").textContent = "Q3 · " + q(9);
-    $("exLink").textContent = `Ver todos os tetos de ${dados.nome}`;
+    $("exLink").textContent = `Ver todos os valores de ${dados.nome}`;
     $("exLink").href = "/renda-acessivel/" + dados.s;
   } catch (e) {}
 })();

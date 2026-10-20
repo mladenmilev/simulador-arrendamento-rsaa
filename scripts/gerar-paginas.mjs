@@ -3,7 +3,7 @@
 //   public/renda-acessivel/<concelho>.html – uma página por concelho (308)
 //   public/perguntas-frequentes.html       – perguntas frequentes (com dados estruturados FAQPage)
 //   public/contacto.html                    – contacto do autor (e-mail protegido contra robôs)
-//   public/dados/concelhos.json             – tetos por concelho para a página de entrada (concelho lembrado)
+//   public/dados/concelhos.json             – valores máximos por concelho para a página de entrada (concelho lembrado)
 //   public/sitemap.xml
 // Os ficheiros gerados não vão para o git; são criados por `npm run dev` e `npm run deploy`.
 import { readFileSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
@@ -98,7 +98,7 @@ function paginaConcelho(c, dados, todos, rankT2) {
   const vizinhos = Object.keys(todos).filter(x => todos[x][0] === distrito && x !== c).sort(porNome);
   const pos = rankT2.indexOf(c) + 1;
   const media = Math.round(rankT2.reduce((s, x) => s + todos[x][1][2], 0) / rankT2.length);
-  const titulo = `Renda acessível em ${onde} (RSAA): limites de T0 a T5`;
+  const titulo = `Renda acessível em ${onde} (RSAA): valores máximos de T0 a T5`;
   const descricao = `Renda máxima para o arrendamento acessível (RSAA) em ${onde}: T1 ${eur(v[1])}, T2 ${eur(v[2])}, T3 ${eur(v[3])}. Valores da Portaria n.º 454/2026/1, com majorações e cálculo por quarto.`;
   const jsonld = {
     "@context": "https://schema.org",
@@ -125,12 +125,12 @@ function paginaConcelho(c, dados, todos, rankT2) {
       </table>
     </div>
     <p class="hint">Majorações cumulativas: +10 % com estacionamento privativo e +10 % com certificado energético A ou superior. Acima de T5 soma-se ${eur(extra)} por cada quarto adicional.</p>
-    <p>Um T2 em ${esc(n)} tem um teto de ${eur(v[2])}, o ${pos}.º mais alto dos ${rankT2.length} concelhos do país (média nacional: ${eur(media)}).</p>
+    <p>Um T2 em ${esc(n)} tem um valor máximo de ${eur(v[2])}, o ${pos}.º mais alto dos ${rankT2.length} concelhos do país (média nacional: ${eur(media)}).</p>
   </section>
 
   <section>
     <h2>Arrendar por quartos</h2>
-    <p>No RSAA, o teto da casa é repartido pelos quartos em proporção da área de cada um (Portaria, art. 2.º, n.º 2). A área de um quarto com casa de banho privativa conta mais 25 %. Exemplo de um T3 em ${esc(n)} com quartos de 12, 10 e 9 m²:</p>
+    <p>No RSAA, o valor máximo da casa é repartido pelos quartos em proporção da área de cada um (Portaria, art. 2.º, n.º 2). A área de um quarto com casa de banho privativa conta mais 25 %. Exemplo de um T3 em ${esc(n)} com quartos de 12, 10 e 9 m²:</p>
     <ul class="quartos">
       <li>Quarto de 12 m²: <strong>${eur(quartos[0])}</strong> (${eur(comWc)} com casa de banho privativa)</li>
       <li>Quarto de 10 m²: <strong>${eur(quartos[1])}</strong></li>
@@ -143,7 +143,8 @@ function paginaConcelho(c, dados, todos, rankT2) {
     <h2>Regras principais</h2>
     <ul>
       <li>Residência permanente: prazo mínimo de 3 anos. Residência temporária: prazo mínimo de 3 meses, renovável.</li>
-      <li>O teto não inclui despesas (água, luz, internet), que podem ser cobradas à parte.</li>
+      <li>O valor máximo não inclui despesas (água, luz, internet), que podem ser cobradas à parte.</li>
+      <li>Não é um limite à renda: o senhorio pode pedir mais, e é legal, mas o contrato fica fora do RSAA e sem isenção de IRS.</li>
       <li>O senhorio submete o contrato na plataforma do IHRU até 15 de janeiro do ano seguinte.</li>
     </ul>
   </section>
@@ -157,7 +158,7 @@ ${vizinhos.length ? `
 function paginaIndice(todos) {
   const url = `${SITE}/renda-acessivel/`;
   const distritos = [...new Set(Object.values(todos).map(x => x[0]))].sort(ordemDistritos);
-  const titulo = "Renda acessível por concelho (RSAA): limites de 2026 em todos os concelhos";
+  const titulo = "Renda acessível por concelho (RSAA): valores máximos de 2026 em todos os concelhos";
   const descricao = "Tabela da renda máxima do arrendamento acessível (RSAA) nos 308 concelhos de Portugal, de T0 a T5, segundo a Portaria n.º 454/2026/1.";
   const jsonld = { "@context": "https://schema.org", "@type": "CollectionPage", name: titulo, url, description: descricao };
   return cabeca({ titulo, descricao, url, jsonld }) + `
@@ -177,33 +178,37 @@ const PT = "Portaria n.º 454/2026/1";
 // Respostas em HTML simples; o texto para os dados estruturados é obtido retirando as etiquetas.
 export const FAQ = [
   ["O que é o Regime Simplificado de Arrendamento Acessível (RSAA)?",
-   `É um regime fiscal criado pelo ${DL}, em vigor desde 1 de setembro de 2026. Os contratos de arrendamento com renda igual ou inferior a um teto definido por concelho e tipologia ficam com <strong>isenção total de IRS ou IRC</strong> sobre as rendas, enquanto o contrato cumprir as regras (art. 6.º). Se o senhorio optar pelo englobamento dos rendimentos prediais, as rendas isentas contam apenas para determinar a taxa aplicável aos restantes rendimentos.`],
-  ["Qual é a renda máxima no RSAA no meu concelho?",
-   `Os tetos estão no anexo da ${PT}, de 13 de outubro, para os 308 concelhos e para as tipologias T0 a T5, variando entre 224 € (T0) e 2066 € (T5 em Lisboa). Pode consultá-los na <a href="/renda-acessivel/">tabela por concelho</a> ou calcular o seu caso no <a href="/">simulador</a>.`],
-  ["A renda máxima do RSAA é o valor que devo cobrar ou pagar?",
-   `Não. É o <strong>teto para o contrato beneficiar do RSAA</strong>, não um preço de referência. A renda pode ser mais baixa, consoante a localização e o estado do imóvel. Uma renda acima do teto é legal, mas o contrato fica fora do RSAA e o senhorio paga imposto sobre as rendas pela tributação normal.`],
-  ["Como são definidos os tetos de renda?",
-   `Têm por base 80 % da mediana das rendas divulgada pelo INE para o concelho do imóvel (${DL}, art. 4.º) e são fixados em euros para cada tipologia. A área do imóvel não entra no cálculo: um T2 de 60 m² e um T2 de 110 m² no mesmo concelho têm o mesmo teto.`],
-  ["Há majorações ao teto de renda?",
-   `Sim, cumulativas (${PT}, art. 2.º, n.º 4): <strong>+10 %</strong> se o arrendamento incluir estacionamento privativo e <strong>+10 %</strong> se o imóvel tiver certificado energético A ou superior, válido à data do contrato. Com as duas, o teto sobe 20 %.`],
-  ["Qual é o teto para tipologias acima de T5?",
-   `É o valor de T5 mais um montante por cada quarto adicional, que conforme o concelho é de 50 €, 75 € ou 100 € (nota ao anexo da ${PT}). Por exemplo, um T6 tem o teto do T5 mais um desses montantes.`],
+   `É um regime fiscal criado pelo ${DL}, em vigor desde 1 de setembro de 2026. Os contratos com renda igual ou inferior a um valor máximo definido por concelho e tipologia ficam com <strong>isenção total de IRS ou IRC</strong> sobre as rendas, enquanto cumprirem as regras (art. 6.º). Se o senhorio optar pelo englobamento dos rendimentos prediais, as rendas isentas contam apenas para determinar a taxa aplicável aos restantes rendimentos.`],
+  ["Qual é o valor máximo do RSAA no meu concelho?",
+   `Os valores estão no anexo da ${PT}, de 13 de outubro, para os 308 concelhos e para as tipologias T0 a T5, entre 224 € (T0) e 2066 € (T5 em Lisboa). Pode consultá-los na <a href="/renda-acessivel/">tabela por concelho</a> ou calcular o seu caso no <a href="/">simulador</a>.`],
+  ["O valor máximo do RSAA é um limite à renda?",
+   `Não. É a renda mais alta com que o contrato pode <strong>beneficiar do RSAA</strong>. O senhorio pode pedir mais, e é <strong>legal</strong>: nesse caso o contrato fica fora do regime e as rendas são tributadas normalmente. Também não é um preço de referência: a renda pode ser mais baixa, consoante a localização e o estado do imóvel.`],
+  ["O RSAA compensa sempre ao senhorio?",
+   `Não necessariamente. No RSAA não paga IRS sobre as rendas, mas a renda não pode passar o valor máximo; fora do regime pode pedir mais, mas paga IRS. O que compensa depende da renda de mercado da casa e da taxa de IRS de cada senhorio. O <a href="/">simulador</a> compara os dois cenários com os valores do seu caso.`],
+  ["Que vantagens tem o RSAA para o inquilino?",
+   `O RSAA não altera os impostos do inquilino. O que ganha é <strong>clareza contratual</strong> (contrato com regras definidas, comunicado às Finanças e registado no IHRU, com recibos eletrónicos e despesas definidas à parte) e um prazo mínimo conforme a finalidade: 3 anos em residência permanente, que dá estabilidade, ou 3 meses renováveis em residência temporária, que dá flexibilidade. Quando a análise o confirma, pode também ser um argumento para negociar a renda.`],
+  ["Como são definidos os valores máximos?",
+   `Têm por base 80 % da mediana das rendas divulgada pelo INE para o concelho do imóvel (${DL}, art. 4.º) e são fixados em euros para cada tipologia. A área do imóvel não entra no cálculo: um T2 de 60 m² e um T2 de 110 m² no mesmo concelho têm o mesmo valor máximo.`],
+  ["Há majorações ao valor máximo?",
+   `Sim, cumulativas (${PT}, art. 2.º, n.º 4): <strong>+10 %</strong> se o arrendamento incluir estacionamento privativo e <strong>+10 %</strong> se o imóvel tiver certificado energético A ou superior, válido à data do contrato. Com as duas, o valor sobe 20 %.`],
+  ["Qual é o valor máximo para tipologias acima de T5?",
+   `É o valor de T5 mais um montante por cada quarto adicional, que conforme o concelho é de 50 €, 75 € ou 100 € (nota ao anexo da ${PT}). Por exemplo, um T6 tem o valor do T5 mais um desses montantes.`],
   ["Posso arrendar um quarto no RSAA?",
    `Sim, mas só em contratos de <strong>residência temporária</strong>, com um inquilino que tenha residência fiscal noutro concelho, por exemplo um estudante ou trabalhador deslocado (${DL}, art. 3.º). O quarto tem de ter janela para o exterior (ou varanda ou marquise em contacto direto com o exterior), e o inquilino acesso autónomo à entrada da habitação, a uma casa de banho completa e à cozinha. Em residência permanente só é possível arrendar a habitação inteira.`],
-  ["Como se calcula a renda máxima de um quarto?",
-   `O teto da casa é repartido em proporção da área: <strong>teto do quarto = teto da casa × área do quarto ÷ soma das áreas de todos os quartos</strong> (${PT}, art. 2.º, n.º 2). A área de um quarto com casa de banho privativa conta mais 25 %; a soma das áreas não é majorada. Sala, cozinha e casas de banho não contam. Exemplo: num T3 com teto de 1193 € e quartos de 12, 10 e 9 m², o quarto de 12 m² tem um teto de 461 €.`],
+  ["Como se calcula o valor máximo de um quarto?",
+   `O valor da casa é repartido em proporção da área: <strong>valor do quarto = valor máximo da casa × área do quarto ÷ soma das áreas de todos os quartos</strong> (${PT}, art. 2.º, n.º 2). A área de um quarto com casa de banho privativa conta mais 25 %; a soma das áreas não é majorada. Sala, cozinha e casas de banho não contam. Exemplo: num T3 com valor máximo de 1193 € e quartos de 12, 10 e 9 m², o quarto de 12 m² tem um valor máximo de 461 €.`],
   ["Quais são os prazos mínimos dos contratos?",
    `<strong>3 anos</strong> para residência permanente e <strong>3 meses</strong> para residência temporária, que pode ser renovada enquanto a finalidade temporária se mantiver (${DL}, art. 5.º).`],
-  ["As despesas de água, luz ou internet contam para o teto?",
-   `Não. Os tetos não incluem as despesas e encargos previstos no artigo 1078.º do Código Civil (${DL}, art. 4.º, n.º 3). Convém escrever no contrato quais despesas são pagas à parte e como são divididas. Se a renda incluir despesas, é o valor total cobrado que deve respeitar o teto.`],
+  ["As despesas de água, luz ou internet contam para o valor máximo?",
+   `Não. Os valores máximos não incluem as despesas e encargos previstos no artigo 1078.º do Código Civil (${DL}, art. 4.º, n.º 3). Convém escrever no contrato quais despesas são pagas à parte e como são divididas. Se a renda incluir despesas, é o valor total cobrado que deve respeitar o valor máximo.`],
   ["Como é que o senhorio adere ao RSAA?",
    `Depois de comunicar o contrato no Portal das Finanças, o senhorio submete na plataforma eletrónica do IHRU, até 15 de janeiro do ano seguinte ao da celebração, a cópia do contrato e o comprovativo dessa comunicação. O IHRU comunica o contrato à Autoridade Tributária até ao fim de fevereiro, e a isenção produz efeitos desde a data do contrato (${DL}, art. 6.º).`],
   ["O que acontece se as regras deixarem de ser cumpridas?",
    `Perdem-se os benefícios fiscais desde o momento do incumprimento. O senhorio tem de o declarar e pagar a diferença de imposto, acrescida de juros compensatórios. A verificação cabe ao IHRU, com audiência prévia dos interessados (${DL}, art. 7.º).`],
-  ["Os tetos de renda mudam?",
+  ["Os valores máximos mudam?",
    `Sim. São atualizados automaticamente a 1 de janeiro de cada ano pelo coeficiente de atualização das rendas (NRAU, art. 24.º), e podem ser revistos por alteração da portaria (${PT}, art. 3.º). Este simulador é atualizado quando os valores mudam.`],
-  ["Sou inquilino: como verifico se a minha renda está dentro do teto?",
-   `Use a vista do inquilino do <a href="/">simulador</a>, que não exige identificação. Para um quarto precisa da área do seu quarto e da soma das áreas de todos os quartos da casa (peça-as ao senhorio); para a casa inteira basta o concelho e a tipologia. Se a renda estiver acima do teto, o contrato é válido, mas não fica no RSAA.`],
+  ["Sou inquilino: como sei se a minha renda permite ao senhorio beneficiar do RSAA?",
+   `Use a vista do inquilino do <a href="/">simulador</a>, que não exige identificação. Para um quarto precisa da área do seu quarto e da soma das áreas de todos os quartos da casa (peça-as ao senhorio); para a casa inteira basta o concelho e a tipologia. Se a renda estiver acima do valor máximo, é legal, mas o contrato não fica no RSAA. A «Análise da situação» explica o resultado e pode ser guardada em PDF.`],
   ["Este simulador é oficial?",
    `Não. É uma ferramenta informativa independente, não afiliada ao IHRU, que usa os valores da ${PT}. A Portaria prevê que o IHRU disponibilize uma ferramenta de cálculo na sua plataforma eletrónica (art. 4.º). O simulador não substitui um contabilista ou advogado.`],
 ];
@@ -211,7 +216,7 @@ export const FAQ = [
 function paginaFAQ() {
   const url = `${SITE}/perguntas-frequentes`;
   const titulo = "Perguntas frequentes sobre o arrendamento acessível (RSAA)";
-  const descricao = "Respostas sobre o RSAA: tetos de renda por concelho, majorações, arrendamento de quartos, prazos mínimos, despesas, adesão no IHRU e isenção de IRS.";
+  const descricao = "Respostas sobre o RSAA: valores máximos por concelho, majorações, arrendamento de quartos, prazos mínimos, despesas, adesão no IHRU e isenção de IRS.";
   const texto = h => h.replace(/<[^>]+>/g, "");
   const jsonld = {
     "@context": "https://schema.org",
