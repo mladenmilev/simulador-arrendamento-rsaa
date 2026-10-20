@@ -203,6 +203,35 @@ body.assistente.primeiro-passo #anterior{display:none}
 .nav-passos{gap:10px;margin-top:8px}.nav-passos .btn{flex:1}
 body.assistente:not(.com-resultado) .panel.res{display:none}
 body.assistente.com-resultado .panel.form,body.assistente.com-resultado .inq-intro{display:none}
+/* No assistente, a pergunta de introdução só aparece no primeiro passo. */
+body.assistente:not(.primeiro-passo) .inq-intro{display:none}
+/* Telemóvel: letras e espaços mais contidos para caber no ecrã. */
+@media (max-width:640px){
+  .wrap{padding:18px 16px 48px}
+  header.top{grid-template-columns:auto 1fr;gap:12px;margin-bottom:18px}
+  .tiles{--s:40px}
+  h1{font-size:1.25rem;letter-spacing:-.01em}
+  .viewbar{margin:-4px 0 18px}
+  .seg button{padding:6px 14px;min-height:38px}
+  .inq-intro{margin:-4px 0 16px}
+  .inq-intro h2{font-size:1.3rem}
+  .inq-intro p{font-size:.92rem;margin-top:6px}
+  .panel{padding:18px;border-radius:18px}
+  .renda-campo input{font-size:1.7rem!important}
+  .escolha button{padding:9px 10px;font-size:.95rem}
+  .escolha button[aria-pressed="true"]{padding:8px 9px}
+  .checks label{font-size:.9rem}
+  .veredicto{padding:16px 18px;border-radius:18px;gap:8px}
+  .veredicto .tit{font-size:1.08rem;gap:8px}
+  .veredicto .tit svg{width:22px;height:22px}
+  .veredicto .valor b{font-size:2rem}
+  .veredicto .valor span{font-size:.9rem}
+  .veredicto .txt{font-size:.95rem}
+  .veredicto .det{font-size:.8rem}
+  .cartao-inq{padding:16px}
+  .cartao-inq p,.cartao-inq .checklist li{font-size:.92rem}
+  .info-inq{font-size:.88rem}
+}
 @media (max-width:860px){input,select,textarea{font-size:16px!important}.sources a{display:inline-block;padding:6px 0}}
 @media (max-width:640px){.sources{columns:1}.room .r3{grid-template-columns:1fr 1fr}}
 </style>
