@@ -386,7 +386,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
     <div class="tabpanel" role="tabpanel" id="t-inq" aria-labelledby="b-inq" hidden>
       <h3>Antes de assinar</h3>
       <ul>
-        <li>Confirme no simulador que a renda do seu quarto não passa do limite do RSAA.</li>
+        <li>Veja no simulador se a renda permite ao senhorio beneficiar do RSAA (isenção de IRS): pode ser um argumento para negociar.</li>
         <li>Verifique que o contrato indica o quarto, a área, a renda, o prazo e as zonas partilhadas.</li>
         <li>Para contrato temporário, precisa de ter residência fiscal noutro concelho. Tenha o comprovativo pronto.</li>
         <li>Se partilhar o quarto, as duas pessoas devem constar do contrato.</li>
@@ -602,7 +602,7 @@ function requisitosInquilino(){
     "Tem de ter residência fiscal noutro concelho (ex.: estudante ou trabalhador deslocado).",
     "Prazo mínimo de 3 meses, renovável.",
     "O quarto tem de ter janela para o exterior e acesso à entrada, a uma casa de banho completa e à cozinha.",
-  ]).concat("A renda máxima é a mesma para contratos temporários e permanentes. Se as condições não se cumprirem, o contrato não fica no RSAA.").map(i).join("");
+  ]).concat("O valor máximo do RSAA é o mesmo para contratos temporários e permanentes. Se as condições não se cumprirem, o contrato não fica no RSAA (a renda continua a ser legal).").map(i).join("");
 }
 // Teto calculado para o inquilino (null enquanto faltarem dados): base do relatório exportável.
 let tenMax=null;
@@ -656,7 +656,7 @@ function renderTenantApt(max){
 // Nada é enviado nem processado no servidor.
 const TAXA_IRS_EXEMPLO=0.25; // taxa autónoma normal sobre rendas, só para o exemplo do senhorio
 // Estilos do relatório: fonte única para a impressão (PDF) e para a página "Análise da situação".
-const CSS_RELATORIO=`#relatorio{color:#111;background:#fff;font:8.8pt/1.38 "IBM Plex Sans",system-ui,sans-serif}\n#relatorio h1{font:800 14pt/1.15 Manrope,system-ui,sans-serif;margin:0 0 1mm;color:#0E1726}\n#relatorio h2{font:800 10pt/1.25 Manrope,system-ui,sans-serif;margin:3.2mm 0 1.2mm;color:#0B6E61;break-after:avoid}\n#relatorio p{margin:0 0 1.2mm}\n#relatorio .sub{color:#555;margin:0 0 1mm;font-size:8pt}\n#relatorio .duas{display:grid;grid-template-columns:1fr 1fr;gap:0 7mm}\n#relatorio table{width:100%;border-collapse:collapse;font-size:inherit}\n#relatorio th,#relatorio td{font-size:inherit;line-height:inherit}\n#relatorio th,#relatorio td{border-bottom:.25mm solid #ddd;padding:.7mm 1.2mm;text-align:left;vertical-align:top}\n#relatorio th{width:50%;font-weight:500;color:#444}\n#relatorio td.n{text-align:right;font-variant-numeric:tabular-nums}\n#relatorio .destaque{border:.35mm solid #0B6E61;border-radius:2.5mm;padding:2mm 3mm;margin:2.5mm 0 0;break-inside:avoid}\n#relatorio .destaque.acima{border-color:#A3282F}\n#relatorio .comparacao{margin-top:1.5mm}\n#relatorio .comparacao th{width:62%}\n#relatorio .comparacao tr.total th,#relatorio .comparacao tr.total td{font-weight:700;color:#0E1726}\n#relatorio ul{margin:0;padding-left:4mm}\n#relatorio ul.colunas{columns:2;column-gap:7mm}\n#relatorio ul.colunas li{break-inside:avoid}\n#relatorio ul.req{list-style:none;padding-left:0}\n#relatorio ul.req b{display:inline-block;width:4mm}\n#relatorio li{margin-bottom:.6mm}\n#relatorio .nota{font-size:7.6pt;color:#555}\n#relatorio .rodape{margin-top:3mm;padding-top:1.5mm;border-top:.25mm solid #ddd;font-size:7.4pt;color:#555}`;
+const CSS_RELATORIO=`#relatorio{color:#111;background:#fff;font:8.8pt/1.38 "IBM Plex Sans",system-ui,sans-serif}\n#relatorio h1{font:800 14pt/1.15 Manrope,system-ui,sans-serif;margin:0 0 1mm;color:#0E1726}\n#relatorio h2{font:800 10pt/1.25 Manrope,system-ui,sans-serif;margin:3.2mm 0 1.2mm;color:#0B6E61;break-after:avoid}\n#relatorio p{margin:0 0 1.2mm}\n#relatorio .sub{color:#555;margin:0 0 1mm;font-size:8pt}\n#relatorio .duas{display:grid;grid-template-columns:1fr 1fr;gap:0 7mm}\n#relatorio table{width:100%;border-collapse:collapse;font-size:inherit}\n#relatorio th,#relatorio td{font-size:inherit;line-height:inherit}\n#relatorio th,#relatorio td{border-bottom:.25mm solid #ddd;padding:.7mm 1.2mm;text-align:left;vertical-align:top}\n#relatorio th{width:50%;font-weight:500;color:#444}\n#relatorio td.n{text-align:right;font-variant-numeric:tabular-nums}\n#relatorio .destaque{border:.35mm solid #0B6E61;border-radius:2.5mm;padding:2mm 3mm;margin:2.5mm 0 0;break-inside:avoid}\n#relatorio .destaque.acima{border-color:#A3282F}\n#relatorio .destaque p{margin:0 0 1mm}\n#relatorio .renda{font:800 16pt/1.1 Manrope,system-ui,sans-serif;color:#0E1726;margin:0 0 1mm}\n#relatorio .renda span{font:500 9pt "IBM Plex Sans",system-ui,sans-serif;color:#555}\n#relatorio .comparacao{margin-top:1.5mm}\n#relatorio .comparacao th{width:62%}\n#relatorio .comparacao tr.total th,#relatorio .comparacao tr.total td{font-weight:700;color:#0E1726}\n#relatorio ul{margin:0;padding-left:4mm}\n#relatorio ul.colunas{columns:2;column-gap:7mm}\n#relatorio ul.colunas li{break-inside:avoid}\n#relatorio ul.req{list-style:none;padding-left:0}\n#relatorio ul.req b{display:inline-block;width:4mm}\n#relatorio li{margin-bottom:.6mm}\n#relatorio .nota{font-size:7.6pt;color:#555}\n#relatorio .rodape{margin-top:3mm;padding-top:1.5mm;border-top:.25mm solid #ddd;font-size:7.4pt;color:#555}`;
 document.head.appendChild(Object.assign(document.createElement("style"),{textContent:
   `#relatorio{display:none}@media print{@page{size:A4;margin:10mm 12mm}html.a-imprimir body>*:not(#relatorio){display:none!important}html.a-imprimir #relatorio{display:block!important}${CSS_RELATORIO}}`}));
 // Abre o relatório numa página nova (gerada no navegador, sem servidor), com botão para imprimir ou guardar PDF.
@@ -712,25 +712,27 @@ function exportarRelatorio(acao){
     linha("Área total dos quartos",`${ten.total} m²`),
     linha("Pessoas no quarto",String(ten.p)));
   dados.push(linha("Renda atual ou proposta",ten.prop?eur(ten.prop)+" por mês":"não indicada"));
-  const res=[linha(quarto?"Teto RSAA do quarto":"Teto RSAA do apartamento",eur(max)+" por mês")];
-  if(quarto){res.push(linha("Teto RSAA da casa toda",eur(Math.floor(Lm))+" por mês"),linha("Parte do quarto",`${Math.round(max/Math.floor(Lm)*100)} % do teto da casa`));if(ten.p===2)res.push(linha("Por pessoa",eur(Math.floor(max/2))))}
-  let estado,classe="";
-  if(!ten.prop)estado="Não indicou a renda: o valor acima é o máximo que o contrato pode ter para beneficiar do RSAA.";
-  else if(ten.prop<=max)estado=`A renda de ${eur(ten.prop)} está dentro do teto do RSAA (${eur(max-ten.prop)} abaixo). O contrato pode beneficiar do regime, se cumprir as restantes condições.`;
-  else{estado=`A renda de ${eur(ten.prop)} está ${eur(ten.prop-max)} acima do teto do RSAA. O contrato é legal, mas não beneficia do regime: o senhorio fica na tributação normal. Com uma renda até ${eur(max)}, passaria a ter isenção de IRS.`;classe=" acima"}
-  const pct=Math.round(TAXA_IRS_EXEMPLO*100),acima=ten.prop>max;
-  const base=ten.prop&&!acima?ten.prop:max,irs=Math.round(base*12*TAXA_IRS_EXEMPLO);
-  // Renda acima do teto: o que o senhorio recebe líquido por ano em cada regime (tributação típica, sem encargos).
+  // O valor do RSAA não é um limite à renda: é o máximo para o senhorio beneficiar da isenção de IRS.
+  // Com renda indicada, a análise centra-se nessa renda; sem renda, no valor máximo.
+  const pct=Math.round(TAXA_IRS_EXEMPLO*100),acima=ten.prop>max,temRenda=ten.prop>0;
+  const ref=[linha(quarto?"Valor máximo do quarto para o RSAA":"Valor máximo para o RSAA",eur(max)+" por mês")];
+  if(quarto){ref.push(linha("Valor máximo da casa toda",eur(Math.floor(Lm))+" por mês"),linha("Parte do quarto",`${Math.round(max/Math.floor(Lm)*100)} % do valor da casa`));if(ten.p===2)ref.push(linha("Por pessoa",eur(Math.floor(max/2))))}
+  let renda,classe="";
+  if(!temRenda)renda=`<p><strong>Não indicou a renda.</strong> Para que o senhorio possa beneficiar do RSAA, a renda tem de ser igual ou inferior a <strong>${eur(max)} por mês</strong>. Uma renda mais alta é legal, mas fica fora do regime.</p>`;
+  else if(!acima)renda=`<p class="renda">${eur(ten.prop)} <span>por mês</span></p><p>A renda está <strong>${eur(max-ten.prop)} abaixo</strong> do valor máximo do RSAA (${eur(max)}). Com esta renda, o senhorio pode optar pelo RSAA e ficar <strong>isento de IRS</strong> sobre ela, se cumprir as restantes condições.</p>`;
+  else{renda=`<p class="renda">${eur(ten.prop)} <span>por mês</span></p><p>A renda está <strong>${eur(ten.prop-max)} acima</strong> do valor máximo do RSAA (${eur(max)}). É uma renda <strong>legal</strong>, mas com ela o contrato não pode beneficiar do RSAA e o senhorio paga IRS pela tributação normal.</p>`;classe=" acima"}
+  const base=temRenda&&!acima?ten.prop:max,irs=Math.round(base*12*TAXA_IRS_EXEMPLO);
+  // Renda acima do valor máximo: o que o senhorio recebe líquido por ano com esta renda (regime normal) e com o valor do RSAA.
   let comparacao="";
   if(acima){
     const livre=Math.round(ten.prop*12*(1-TAXA_IRS_EXEMPLO)),rsaa=max*12,dif=rsaa-livre,equil=Math.ceil(max/(1-TAXA_IRS_EXEMPLO));
-    comparacao=`<h2>Para o senhorio: renda proposta ou teto do RSAA?</h2>
+    comparacao=`<h2>O que o senhorio recebe com esta renda</h2>
     <table class="comparacao">
-      <tr><th>Regime normal: ${eur(ten.prop)} × 12 − IRS de ${pct} %</th><td class="n">${eur(livre)} por ano</td></tr>
-      <tr><th>RSAA: ${eur(max)} × 12, sem IRS</th><td class="n">${eur(rsaa)} por ano</td></tr>
-      <tr class="total"><th>${dif>=0?"O RSAA rende mais":"O regime normal rende mais"}</th><td class="n">${eur(Math.abs(dif))} por ano</td></tr>
+      <tr><th>Com esta renda (regime normal): ${eur(ten.prop)} × 12 − IRS de ${pct} %</th><td class="n">${eur(livre)} por ano</td></tr>
+      <tr><th>Com ${eur(max)} no RSAA: ${eur(max)} × 12, sem IRS</th><td class="n">${eur(rsaa)} por ano</td></tr>
+      <tr class="total"><th>${dif>=0?"Diferença a favor do RSAA":"Diferença a favor desta renda"}</th><td class="n">${eur(Math.abs(dif))} por ano</td></tr>
     </table>
-    <p>${dif>=0?"Mesmo com uma renda mais baixa, o senhorio recebe mais no RSAA, porque não paga IRS.":"Com esta renda, o regime normal rende mais ao senhorio."} O regime normal só compensa acima de ${eur(equil)} por mês (${eur(max)} ÷ ${(1-TAXA_IRS_EXEMPLO).toLocaleString("pt-PT")}).</p>
+    <p>${dif>=0?`Mesmo pedindo menos, o senhorio receberia mais no RSAA, porque não paga IRS: um bom argumento para negociar a renda para ${eur(max)}.`:`Com esta renda, o senhorio recebe mais no regime normal do que no RSAA.`} Para o senhorio, uma renda fora do RSAA só compensa acima de ${eur(equil)} por mês (${eur(max)} ÷ ${(1-TAXA_IRS_EXEMPLO).toLocaleString("pt-PT")}).</p>
     <p class="nota">Valores líquidos estimados com a taxa autónoma típica de ${pct} %, sem descontar encargos (IMI, condomínio, seguros, obras) nem reduções de taxa para contratos longos; a situação de cada senhorio pode ser diferente.</p>`;
   }
   const condicoes=[...document.querySelectorAll("#tReq li")].map(li=>`<li>${e(li.textContent.trim().replace(/^!\s*/,""))}</li>`).join("");
@@ -738,23 +740,23 @@ function exportarRelatorio(acao){
     ${cabecalhoRelatorio("Arrendamento acessível (RSAA): análise da renda")}
     <div class="duas">
       <div><h2>Os seus dados</h2><table>${dados.join("")}</table></div>
-      <div><h2>Resultado</h2><table>${res.join("")}</table><div class="destaque${classe}">${e(estado)}</div></div>
+      <div><h2>${temRenda?"A renda em análise":"Valor máximo para o RSAA"}</h2><div class="destaque${classe}">${renda}</div><table style="margin-top:2mm">${ref.join("")}</table></div>
     </div>
     ${comparacao}
-    <h2>O que é o teto do RSAA</h2>
-    <p>É a renda máxima que um contrato pode ter para beneficiar do Regime Simplificado de Arrendamento Acessível. Não é um preço de referência: a renda pode ser mais baixa, consoante a localização e o estado do imóvel. ${quarto?"Num quarto, o teto da casa é repartido em proporção da área de cada quarto (Portaria n.º 454/2026/1, art. 2.º, n.º 2).":"No apartamento inteiro, o teto depende só do concelho, da tipologia e das majorações."}</p>
+    <h2>O que é o valor máximo do RSAA</h2>
+    <p>É a renda mais alta com que o senhorio pode beneficiar do Regime Simplificado de Arrendamento Acessível, que lhe dá isenção de IRS. <strong>Não é um limite à renda:</strong> o senhorio pode pedir mais, e é legal; nesse caso, o contrato fica fora do regime e é tributado normalmente. Também não é um preço de referência: a renda pode ser mais baixa. ${quarto?"Num quarto, o valor da casa é repartido em proporção da área de cada quarto (Portaria n.º 454/2026/1, art. 2.º, n.º 2).":"No apartamento inteiro, depende só do concelho, da tipologia e das majorações."}</p>
     <div class="duas">
-      <div><h2>Vantagens para o inquilino</h2>
+      <div><h2>Para o inquilino</h2>
       <ul>
-        <li><strong>Renda limitada</strong> ao teto fixado por lei para o concelho e a tipologia.</li>
-        <li><strong>Estabilidade:</strong> prazo mínimo de 3 anos (residência permanente) ou 3 meses renováveis (temporária).</li>
-        <li><strong>Despesas à parte:</strong> o teto não inclui água, luz ou internet, que devem ficar definidas no contrato.</li>
+        <li><strong>Argumento para negociar:</strong> com a isenção de IRS, uma renda dentro do valor do RSAA pode render mais ao senhorio do que uma renda mais alta fora do regime.</li>
+        <li><strong>Se o senhorio optar pelo RSAA:</strong> prazo mínimo de 3 anos (residência permanente) ou 3 meses renováveis (temporária), o que dá estabilidade.</li>
+        <li><strong>Despesas à parte:</strong> o valor do RSAA não inclui água, luz ou internet, que devem ficar definidas no contrato.</li>
         <li><strong>Contrato formal:</strong> comunicado às Finanças, com recibos eletrónicos que permitem deduzir parte das rendas no IRS, nas condições da lei.</li>
       </ul></div>
-      <div><h2>Vantagens para o senhorio</h2>
+      <div><h2>Para o senhorio</h2>
       <ul>
         <li><strong>Isenção total de IRS (ou IRC)</strong> sobre as rendas, enquanto cumprir as regras, incluindo renovações (DL n.º 97/2026, Anexo III, art. 6.º).</li>
-        ${acima?"":`<li><strong>Exemplo:</strong> com ${eur(base)} por mês, à taxa autónoma de ${pct} %, deixa de pagar cerca de <strong>${eur(irs)} de IRS por ano</strong> (estimativa; sem encargos).</li>`}
+        ${acima?"":`<li><strong>Exemplo:</strong> com ${temRenda?"esta renda":eur(base)+" por mês"}, à taxa autónoma de ${pct} %, deixa de pagar cerca de <strong>${eur(irs)} de IRS por ano</strong> (estimativa; sem encargos).</li>`}
         <li>Adesão na plataforma do IHRU, até 15 de janeiro do ano seguinte ao contrato.</li>
       </ul></div>
     </div>
@@ -1113,7 +1115,7 @@ function relatorio(acao){
     <h2>Requisitos do contrato</h2>
     <ul class="req colunas">${req}</ul>
     <h2>E para o inquilino?</h2>
-    <p>Para o inquilino, o RSAA não altera impostos: o benefício é a <strong>renda limitada ao teto</strong>, a <strong>estabilidade</strong> do prazo mínimo (3 anos, ou 3 meses renováveis em residência temporária), as <strong>despesas definidas à parte</strong> e um <strong>contrato formal</strong>, comunicado às Finanças e com recibos eletrónicos. Um imóvel no RSAA é, por isso, mais atrativo para quem procura casa.</p>
+    <p>Para o inquilino, o RSAA não altera impostos: o benefício, quando o senhorio opta pelo RSAA, é a <strong>renda dentro do valor do regime</strong>, a <strong>estabilidade</strong> do prazo mínimo (3 anos, ou 3 meses renováveis em residência temporária), as <strong>despesas definidas à parte</strong> e um <strong>contrato formal</strong>, comunicado às Finanças e com recibos eletrónicos. Um imóvel no RSAA é, por isso, mais atrativo para quem procura casa.</p>
     ${RODAPE_RELATORIO}`,"senhorio");
 }
 $("exportarSen").addEventListener("click",()=>relatorio("imprimir"));
