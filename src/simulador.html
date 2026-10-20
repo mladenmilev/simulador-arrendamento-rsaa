@@ -46,7 +46,15 @@ a{color:var(--tile)}
 .wrap{max-width:1120px;margin:0 auto;padding:28px 20px 60px}
 a.casa{color:inherit;text-decoration:none}
 a.casa:hover{opacity:.85}
-header.top{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;margin-bottom:28px}
+/* Cabeçalho comum (igual a public/css/tema.css; repetido aqui porque o simulador traz os seus próprios estilos). */
+.cab{display:flex;align-items:center;justify-content:space-between;gap:10px 20px;flex-wrap:wrap;padding:0 0 18px}
+.cab .marca{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font:800 18px Manrope,system-ui,sans-serif}
+.cab .marca .tiles{--s:34px}
+.cab .marca b{color:var(--tile);font-weight:800}
+.cab .marca:hover{opacity:.85}
+.cab nav{display:flex;align-items:center;gap:2px 18px;flex-wrap:wrap;font-weight:600;font-size:15px}
+.cab nav a{color:var(--muted);text-decoration:none;padding:8px 0}
+.cab nav a:hover{color:var(--ink)}
 .tiles{--s:64px;width:var(--s);height:var(--s);flex:none;border-radius:28%;background:#0B6E61;display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--s)*.09);padding:calc(var(--s)*.19)}
 .tiles span{background:#FFFFFF;border-radius:50%}
 .tiles span:nth-child(2),.tiles span:nth-child(3){background:#9FE3D6;border-radius:2px}
@@ -56,7 +64,7 @@ h1{font-size:clamp(1.7rem,3.4vw,2.5rem);letter-spacing:-.02em}
 .tres{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;margin:16px 0;align-items:baseline}
 .tres dt{color:var(--muted);font-size:.92rem}
 .tres dd{margin:0;font-weight:600}
-@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}header.top{grid-template-columns:1fr}.tiles{--s:48px}}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px}
 .panel h2{font-size:1.25rem;margin-bottom:14px}
 label{display:block;font-weight:600;font-size:.92rem;margin-bottom:4px}
@@ -143,7 +151,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .sources{font-size:.85rem;columns:2;column-gap:24px;padding-left:18px}
 /* ===== Vista do inquilino: verificar a renda (a renda primeiro, o veredicto em destaque) ===== */
 .inq-intro{margin:-6px 0 22px}
-.inq-intro h2{font-size:clamp(1.5rem,3vw,2.1rem);letter-spacing:-.02em}
+.inq-intro h1{font-size:clamp(1.5rem,3vw,2.1rem);letter-spacing:-.02em}
 .inq-intro p{margin:8px 0 0;color:var(--muted);max-width:760px}
 .grid{grid-template-columns:minmax(0,420px) minmax(0,1fr)}
 body:not([data-view="inq"]) #ti-q{order:-1}
@@ -219,13 +227,12 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
 /* Telemóvel: letras e espaços mais contidos para caber no ecrã. */
 @media (max-width:640px){
   .wrap{padding:18px 16px 48px}
-  header.top{grid-template-columns:auto 1fr;gap:12px;margin-bottom:18px}
-  .tiles{--s:40px}
-  h1{font-size:1.25rem;letter-spacing:-.01em}
+  .cab{padding-bottom:12px}
+  .cab nav{gap:2px 14px;font-size:14px}
   .viewbar{margin:-4px 0 18px}
   .seg button{padding:6px 14px;min-height:38px}
   .inq-intro{margin:-4px 0 16px}
-  .inq-intro h2{font-size:1.3rem}
+  .inq-intro h1{font-size:1.3rem}
   .inq-intro p{font-size:.92rem;margin-top:6px}
   .panel{padding:18px;border-radius:18px}
   .renda-campo input{font-size:1.7rem!important}
@@ -249,28 +256,26 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
 </head>
 <body>
 <div class="wrap">
-  <header class="top">
-    <a href="/?inicio=1" class="casa" aria-label="Página inicial"><div class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span></div></a>
-    <div>
-      <h1><a href="/?inicio=1" class="casa">Simulador de Arrendamento Acessível (RSAA)</a></h1>
-    </div>
+  <header class="cab">
+    <a class="marca" href="/?inicio=1"><span class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span></span><span>Simulador <b>RSAA</b></span></a>
+    <nav aria-label="Principal"><a href="/renda-acessivel/">Concelhos</a><a href="/perguntas-frequentes">Perguntas</a><a href="/contacto">Contacto</a></nav>
   </header>
   <div class="viewbar">
     <span class="lbl" id="vlbl">Vista</span>
     <div class="seg" role="group" aria-labelledby="vlbl">
-      <button type="button" id="v-sen" aria-pressed="true">Senhorio</button>
       <button type="button" id="v-inq" aria-pressed="false">Inquilino</button>
+      <button type="button" id="v-sen" aria-pressed="true">Senhorio</button>
     </div>
   </div>
   <p class="senlock" id="senLock" hidden>A vista do senhorio requer identificação. <a href="/?identificar=1">Identificar-me</a></p>
   <!-- senhorio:inicio -->
   <div class="inq-intro only-sen">
-    <h2>Quanto pode pedir para o contrato ficar no RSAA?</h2>
+    <h1>Quanto pode pedir para o contrato ficar no RSAA?</h1>
     <p>Indique a casa, os quartos e o contrato. Vê o valor máximo de cada quarto, se as suas rendas cabem no RSAA e quanto ganha face ao mercado.</p>
   </div>
   <!-- senhorio:fim -->
   <div class="inq-intro only-inq">
-    <h2>A sua renda pode ficar no arrendamento acessível?</h2>
+    <h1>A sua renda pode ficar no arrendamento acessível?</h1>
     <p>Indique a renda e a casa. Vê de imediato se está dentro do valor máximo do RSAA e o que isso significa para si e para o senhorio.</p>
   </div>
 
@@ -411,7 +416,7 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
       <div class="so-assist nav-passos"><button type="button" class="btn" id="anterior">← Voltar</button><button type="button" class="btn primary" id="seguinte">Continuar</button></div>
 
       <div class="fillrow" style="margin-top:18px">
-        <button type="button" class="btn primary" id="fillMax"><span class="only-sen">Calcular</span><span class="only-inq">Verificar a minha renda</span></button>
+        <button type="button" class="btn primary" id="fillMax"><span class="only-sen">Calcular valores máximos</span><span class="only-inq">Verificar a minha renda</span></button>
       </div>
       <p class="hint nota-local" style="text-align:center;margin:6px 0 0">O cálculo é feito no seu dispositivo; nada é enviado.</p>
     </section>
@@ -479,10 +484,10 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
   <section class="guides" aria-labelledby="h-guias">
     <h2 id="h-guias" style="font-size:1.5rem;margin-bottom:12px">Como cumprir as regras</h2>
     <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="false" aria-controls="t-inq" id="b-inq">Para o inquilino</button>
       <!-- senhorio:inicio -->
       <button role="tab" aria-selected="true" aria-controls="t-sen" id="b-sen" class="only-sen">Para o senhorio</button>
       <!-- senhorio:fim -->
-      <button role="tab" aria-selected="false" aria-controls="t-inq" id="b-inq">Para quem aluga</button>
     </div>
     <!-- senhorio:inicio -->
     <div class="tabpanel" role="tabpanel" id="t-sen" aria-labelledby="b-sen">
@@ -1215,7 +1220,7 @@ function syncRooms(){
 function antes(){$("fiscalWrap").hidden=$("fin").value!=="temp"}
 function limpar(){
   $("exportarSenZona").hidden=true;
-  mostrarVeredicto("neutro","Calcule o valor máximo","","Preencha a casa, os quartos e o contrato, e clique em «Calcular».","sVer");
+  mostrarVeredicto("neutro","Calcule o valor máximo","","Preencha a casa, os quartos e o contrato, e clique em «Calcular valores máximos».","sVer");
   ["areaT","aptRes","split","tbody","checklist","cmpNote","netRT","netMT"].forEach(id=>$(id).innerHTML="");
   $("netR").textContent=$("netM").textContent="–";
   $("cmpR").classList.remove("win");$("cmpM").classList.remove("win");

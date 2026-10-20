@@ -42,3 +42,28 @@ a{color:var(--tile)}
 .tiles span:nth-child(2),.tiles span:nth-child(3){background:#9FE3D6;border-radius:2px}
 .versao{text-align:center;font-size:.75rem;color:var(--muted);opacity:.75;margin:0;padding:8px 20px 20px}
 .estado{min-height:60vh;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+/* Cabeçalho comum a todas as páginas: logótipo, nome curto e menu.
+   Variante .claro para usar sobre a ilustração da rua (texto branco). */
+.cab{display:flex;align-items:center;justify-content:space-between;gap:10px 20px;flex-wrap:wrap;padding:18px 0}
+.cab .marca{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font:800 18px Manrope,system-ui,sans-serif}
+.cab .marca .tiles{--s:34px}
+.cab .marca b{color:var(--tile);font-weight:800}
+.cab .marca:hover{opacity:.85}
+.cab nav{display:flex;align-items:center;gap:2px 18px;flex-wrap:wrap;font-weight:600;font-size:15px}
+.cab nav a{color:var(--muted);text-decoration:none;padding:8px 0}
+.cab nav a:hover{color:var(--ink)}
+.cab nav a.entrar{background:var(--navy);color:var(--on-navy);border-radius:999px;padding:9px 18px}
+.cab.claro .marca{color:#FFFFFF}.cab.claro .marca b{color:#9FE3D6}
+.cab.claro nav a{color:#E2E8F0}.cab.claro nav a:hover{color:#FFFFFF}
+.cab.claro nav a.entrar{background:#FFFFFF;color:#0E1726}
+/* Ilustração da rua (desenho original, public/img/rua.svg): preenche o contentor, encostada à direita. */
+.rua{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right bottom}
+/* Faixa com a rua no topo das páginas de conteúdo. */
+.faixa{position:relative;overflow:hidden;background:#0E1726;min-height:150px}
+.faixa .rua{object-position:right 42%}
+.faixa-veu{position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,23,38,.92) 0%,rgba(14,23,38,.72) 45%,rgba(14,23,38,.45) 100%)}
+@media (max-width:640px){
+  .faixa{min-height:120px}
+  .faixa-veu{background:linear-gradient(180deg,rgba(14,23,38,.6),rgba(14,23,38,.85))}
+  .cab nav{gap:2px 14px;font-size:14px}
+}

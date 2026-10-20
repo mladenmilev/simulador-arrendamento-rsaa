@@ -1,8 +1,6 @@
 /* Páginas públicas de concelhos (SEO). */
 .wrap{max-width:860px;margin:0 auto;padding:24px 20px 48px}
-.topo{display:flex;gap:10px;align-items:center;color:var(--ink);text-decoration:none;font-family:Manrope,system-ui,sans-serif;font-weight:800;font-size:1.05rem;margin-bottom:16px}
-.topo .tiles{--s:34px}
-.topo:hover{opacity:.85}
+.faixa-wrap{position:relative;padding-top:0;padding-bottom:0}
 .migalhas{font-size:.85rem;color:var(--muted);margin-bottom:18px}
 h1{font-size:clamp(1.7rem,4vw,2.4rem);margin-bottom:10px}
 h2{font-size:1.3rem;margin:28px 0 10px}
@@ -25,6 +23,9 @@ td.num{white-space:nowrap}
 .cta h2{margin-top:0}
 .btn{display:inline-flex;align-items:center;min-height:48px;border:1px solid var(--tile);border-radius:999px;padding:12px 24px;font-weight:600;text-decoration:none}
 .btn.primary{background:var(--tile);color:var(--on-tile)}
+.btn.claro{background:#FFFFFF;border-color:#FFFFFF;color:#0E1726}
+.cta-acoes{display:flex;gap:12px;flex-wrap:wrap}
+.cta .cta-nota{font-size:.85rem;margin:12px 0 0}
 .nota{font-size:.82rem;color:var(--muted);margin-top:28px}
 .indice ol{padding-left:22px;columns:2;column-gap:28px;font-size:.92rem}
 .indice li{break-inside:avoid;margin-bottom:6px}
