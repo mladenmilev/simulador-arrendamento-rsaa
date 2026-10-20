@@ -1,4 +1,5 @@
 // Publicação com versão: sobe a versão minor (semver), publica e regista a versão no git.
+//   `npm run deploy -- --major` sobe a versão major (ex.: 1.18.0 → 2.0.0).
 //   1. exige o git sem alterações por guardar (cada versão corresponde a um commit);
 //   2. sobe a versão minor em package.json e public/js/versao.js;
 //   3. gera as páginas públicas (concelhos, sitemap), publica o simulador no Firestore, as regras e o site;
@@ -19,7 +20,7 @@ if (sh("git status --porcelain")) {
 
 const pkg = JSON.parse(readFileSync(raiz + "package.json", "utf8"));
 const [maj, min] = pkg.version.split(".").map(Number);
-const versao = `${maj}.${min + 1}.0`;
+const versao = process.argv.includes("--major") ? `${maj + 1}.0.0` : `${maj}.${min + 1}.0`;
 
 function escreverVersao(v) {
   for (const f of ["package.json", "package-lock.json"]) {
