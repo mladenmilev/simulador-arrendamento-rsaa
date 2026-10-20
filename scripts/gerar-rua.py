@@ -83,3 +83,33 @@ out.append(f'<path d="M1240 {CHAO}V560" stroke="#6B4A2E" stroke-width="10"/><cir
 out.append('</svg>')
 open(__import__('os').path.join(__import__('os').path.dirname(__file__),'..','public','img','rua.svg'),'w').write('\n'.join(out))
 print(len('\n'.join(out)))
+
+# Versão em traço fino (public/img/rua-leve.svg): os mesmos prédios, só contornos, janelas e telhados,
+# numa cor; o fundo é transparente. Usada muito clara no topo das restantes páginas (body.com-rua).
+random.seed(7)
+C="#0B6E61"
+leve=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {CHAO}" width="{W}" height="{CHAO}">',
+      f'<g fill="none" stroke="{C}" stroke-width="2.2" stroke-linejoin="round">']
+for i,(x,w,h) in enumerate(predios):
+    topo=CHAO-h
+    leve.append(f'<rect x="{x}" y="{topo}" width="{w}" height="{h}" fill="{C}" fill-opacity=".05"/>')
+    leve.append(f'<path d="M{x-6} {topo-10}H{x+w+6}V{topo+2}H{x-6}z"/>')
+    if i%2==0:
+        leve.append(f'<path d="M{x-4} {topo-10}L{x+18} {topo-46}H{x+w-18}L{x+w+4} {topo-10}"/>')
+        leve+= [f'<path d="M{x+24+k*16} {topo-42}v30" stroke-width="1.2"/>' for k in range(int((w-40)/16))]
+    if i in (1,5):  # fachadas de azulejo: losangos espaçados
+        for yy in range(topo+20,CHAO-20,44):
+            for xx in range(x+22,x+w-10,44):
+                leve.append(f'<path d="M{xx} {yy-8}l8 8-8 8-8-8z" stroke-width="1.2"/>')
+    pisos=int((h-90)/92);cols=max(2,int(w/80));jw=min(38,w/cols*.46);jh=58
+    for p in range(pisos):
+        yy=topo+28+p*92
+        for c in range(cols):
+            cx=x+(c+.5)*w/cols-jw/2
+            leve.append(f'<rect x="{cx:.1f}" y="{yy}" width="{jw:.1f}" height="{jh}" fill="{C}" fill-opacity=".06"/>')
+            leve.append(f'<path d="M{cx+jw/2:.1f} {yy}v{jh}M{cx:.1f} {yy+jh*.42:.1f}h{jw:.1f}" stroke-width="1.2"/>')
+            if p>0 and (i+p)%3==0:
+                leve.append(f'<path d="M{cx-8:.1f} {yy+jh+8}h{jw+16:.1f}M{cx-8:.1f} {yy+jh-18}h{jw+16:.1f}" stroke-width="1.6"/>')
+                leve+= [f'<path d="M{cx-8+k*7:.1f} {yy+jh-18}v26" stroke-width="1"/>' for k in range(int((jw+16)/7)+1)]
+leve+=['</g>','</svg>']
+open(__import__('os').path.join(__import__('os').path.dirname(__file__),'..','public','img','rua-leve.svg'),'w').write('\n'.join(leve))

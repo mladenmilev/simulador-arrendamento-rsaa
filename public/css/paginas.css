@@ -1,6 +1,6 @@
 /* Páginas públicas de concelhos (SEO). */
-.wrap{max-width:860px;margin:0 auto;padding:24px 20px 48px}
-.faixa-wrap{position:relative;padding-top:0;padding-bottom:0}
+.wrap{max-width:860px;margin:0 auto;padding:8px 20px 48px}
+.wrap>.cab{margin-bottom:18px}
 .migalhas{font-size:.85rem;color:var(--muted);margin-bottom:18px}
 h1{font-size:clamp(1.7rem,4vw,2.4rem);margin-bottom:10px}
 h2{font-size:1.3rem;margin:28px 0 10px}

@@ -58,12 +58,15 @@ a{color:var(--tile)}
 .cab.claro nav a.entrar{background:#FFFFFF;color:#0E1726}
 /* Ilustração da rua (desenho original, public/img/rua.svg): preenche o contentor, encostada à direita. */
 .rua{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right bottom}
-/* Faixa com a rua no topo das páginas de conteúdo. */
-.faixa{position:relative;overflow:hidden;background:#0E1726;min-height:150px}
-.faixa .rua{object-position:right 42%}
-.faixa-veu{position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,23,38,.92) 0%,rgba(14,23,38,.72) 45%,rgba(14,23,38,.45) 100%)}
+/* Rua leve (public/img/rua-leve.svg, traço fino) no topo das páginas, a desvanecer para o fundo.
+   Fica atrás do conteúdo (z-index -1 dentro do body) e não reage ao rato. */
+body.com-rua{position:relative;z-index:0}
+body.com-rua::before{content:"";position:absolute;left:0;right:0;top:0;height:190px;z-index:-1;pointer-events:none;
+  background:url(/img/rua-leve.svg) center top/auto 400px repeat-x;opacity:.3;
+  -webkit-mask-image:linear-gradient(180deg,#000 25%,transparent 100%);mask-image:linear-gradient(180deg,#000 25%,transparent 100%)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) body.com-rua::before{opacity:.45}}
+:root[data-theme="dark"] body.com-rua::before{opacity:.45}
 @media (max-width:640px){
-  .faixa{min-height:120px}
-  .faixa-veu{background:linear-gradient(180deg,rgba(14,23,38,.6),rgba(14,23,38,.85))}
+  body.com-rua::before{height:150px;background-size:auto 320px}
   .cab nav{gap:2px 14px;font-size:14px}
 }

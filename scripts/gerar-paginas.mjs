@@ -57,18 +57,12 @@ function cabeca({ titulo, descricao, url, jsonld, migalhas = '<a href="/renda-ac
 <link rel="stylesheet" href="/css/paginas.css">
 <script type="application/ld+json">${JSON.stringify(jsonld)}</script>
 </head>
-<body>
-<div class="faixa">
-  <img class="rua" src="/img/rua.svg" alt="" width="1600" height="700" decoding="async">
-  <div class="faixa-veu"></div>
-  <div class="wrap faixa-wrap">
-    <header class="cab claro">
-      <a class="marca" href="/"><span class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span></span><span>Simulador <b>RSAA</b></span></a>
-      <nav aria-label="Principal"><a href="/renda-acessivel/">Concelhos</a><a href="/perguntas-frequentes">Perguntas</a><a href="/contacto">Contacto</a><a class="entrar" href="/#acesso">Entrar</a></nav>
-    </header>
-  </div>
-</div>
+<body class="com-rua">
 <div class="wrap">
+  <header class="cab">
+    <a class="marca" href="/"><span class="tiles" aria-hidden="true"><span></span><span></span><span></span><span></span></span><span>Simulador <b>RSAA</b></span></a>
+    <nav aria-label="Principal"><a href="/renda-acessivel/">Concelhos</a><a href="/perguntas-frequentes">Perguntas</a><a href="/contacto">Contacto</a><a class="entrar" href="/#acesso">Entrar</a></nav>
+  </header>
   <nav class="migalhas" aria-label="Navegação"><a href="/">Simulador RSAA</a> › ${migalhas}</nav>`;
 }
 
