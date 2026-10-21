@@ -34,3 +34,4 @@ td.num{white-space:nowrap}
 .contacto{font-size:1.15rem;margin:18px 0}
 .contacto a{font-weight:600}
 button.btn{font:inherit;font-weight:600;cursor:pointer;background:transparent;color:var(--tile)}
+.formula{background:var(--tile-soft);border-left:4px solid var(--tile);border-radius:10px;padding:10px 14px;margin:10px 0}

@@ -3,6 +3,8 @@
 //   public/renda-acessivel/<concelho>.html – uma página por concelho (308)
 //   public/perguntas-frequentes.html       – perguntas frequentes (com dados estruturados FAQPage)
 //   public/contacto.html                    – contacto do autor (e-mail protegido contra robôs)
+//   public/como-se-calcula.html             – fórmulas e exemplos (para pessoas, motores de busca e assistentes de IA)
+//   public/llms.txt                         – resumo do site e valores de todos os concelhos, para assistentes de IA
 //   public/dados/concelhos.json             – valores máximos por concelho para a página de entrada (concelho lembrado)
 //   public/sitemap.xml
 // Os ficheiros gerados não vão para o git; são criados por `npm run dev` e `npm run deploy`.
@@ -13,6 +15,7 @@ const raiz = fileURLToPath(new URL("..", import.meta.url));
 // Endereço público do site. Se passar a haver domínio próprio, muda-se só aqui.
 export const SITE = "https://simulador-arrendamento-pt.web.app";
 const PORTARIA = "https://diariodarepublica.pt/dr/detalhe/portaria/454-2026-1179722108";
+const DECRETO = "https://diariodarepublica.pt/dr/detalhe/decreto-lei/97-2026-1124493227";
 const TIPS = ["T0", "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8"];
 
 export function lerConcelhos() {
@@ -76,7 +79,7 @@ const rodape = `
     </div>
     <p class="cta-nota">Grátis e sem registo</p>
   </section>
-  <p class="nota"><a href="/perguntas-frequentes">Perguntas frequentes sobre o RSAA</a> · <a href="/renda-acessivel/">Renda acessível por concelho</a> · <a href="/contacto">Contacto</a></p>
+  <p class="nota"><a href="/perguntas-frequentes">Perguntas frequentes sobre o RSAA</a> · <a href="/como-se-calcula">Como se calcula</a> · <a href="/renda-acessivel/">Renda acessível por concelho</a> · <a href="/contacto">Contacto</a></p>
   <p class="nota">Valores da <a href="${PORTARIA}" target="_blank" rel="noopener">Portaria n.º 454/2026/1</a>, de 13 de outubro (anexo), que regulamenta o RSAA (Decreto-Lei n.º 97/2026, Anexo III). Atualizados automaticamente a 1 de janeiro de cada ano pelo coeficiente do NRAU. Página informativa; não substitui um contabilista ou advogado. Não afiliado ao IHRU.</p>
 </div>
 <p class="versao" id="versao"></p>
@@ -199,7 +202,7 @@ export const FAQ = [
   ["Há majorações ao valor máximo?",
    `Sim, cumulativas (${PT}, art. 2.º, n.º 4): <strong>+10 %</strong> se o arrendamento incluir estacionamento privativo e <strong>+10 %</strong> se o imóvel tiver certificado energético A ou superior, válido à data do contrato. Com as duas, o valor sobe 20 %.`],
   ["Qual é o valor máximo para tipologias acima de T5?",
-   `É o valor de T5 mais um montante por cada quarto adicional, que conforme o concelho é de 50 €, 75 € ou 100 € (nota ao anexo da ${PT}). Por exemplo, um T6 tem o valor do T5 mais um desses montantes.`],
+   `É o valor de T5 mais um montante por cada quarto adicional, que conforme o concelho é de 50 €, 75 € ou 100 € (150 € em Lisboa) (nota ao anexo da ${PT}). Por exemplo, um T6 tem o valor do T5 mais um desses montantes.`],
   ["Posso arrendar um quarto no RSAA?",
    `Sim, mas só em contratos de <strong>residência temporária</strong>, com um inquilino que tenha residência fiscal noutro concelho, por exemplo um estudante ou trabalhador deslocado (${DL}, art. 3.º). O quarto tem de ter janela para o exterior (ou varanda ou marquise em contacto direto com o exterior), e o inquilino acesso autónomo à entrada da habitação, a uma casa de banho completa e à cozinha. Em residência permanente só é possível arrendar a habitação inteira.`],
   ["Como se calcula o valor máximo de um quarto?",
@@ -235,7 +238,7 @@ function paginaFAQ() {
   const id = i => "p" + (i + 1);
   return cabeca({ titulo, descricao, url, jsonld, migalhas: "Perguntas frequentes" }) + `
   <h1>Perguntas frequentes sobre o RSAA</h1>
-  <p class="lede">O essencial sobre o Regime Simplificado de Arrendamento Acessível, para senhorios e inquilinos, com referência aos artigos da lei.</p>
+  <p class="lede">O essencial sobre o Regime Simplificado de Arrendamento Acessível, para senhorios e inquilinos, com referência aos artigos da lei. As fórmulas, com exemplos, estão em <a href="/como-se-calcula">Como se calcula</a>.</p>
   <nav class="indice" aria-label="Perguntas">
     <ol>${FAQ.map(([q], i) => `<li><a href="#${id(i)}">${esc(q)}</a></li>`).join("")}</ol>
   </nav>
@@ -244,6 +247,113 @@ ${FAQ.map(([q, r], i) => `
     <h2>${esc(q)}</h2>
     <p>${r}</p>
   </section>`).join("")}` + rodape;
+}
+
+// Como se calcula: as regras do simulador em texto, com exemplos calculados a partir da tabela (Lisboa, T3).
+// Serve quem quer perceber o resultado e os motores de busca e assistentes de IA, que não correm o simulador.
+function paginaCalculo(todos) {
+  const url = `${SITE}/como-se-calcula`;
+  const titulo = "Como se calcula a renda máxima do arrendamento acessível (RSAA)";
+  const descricao = "Fórmulas e exemplos do RSAA: valor máximo da casa, majorações, valor de um quarto, tipologias acima de T5 e a renda a partir da qual compensa ficar fora do regime.";
+  const c = "Lisboa", L = limite(todos[c], 3), [, v, extra] = todos[c];
+  const q = a => Math.floor(L * a / 31), eq = Math.ceil(L / 0.75);
+  const iFaq = FAQ.findIndex(([p]) => /aumentada todos os anos/.test(p));
+  const jsonld = {
+    "@context": "https://schema.org", "@type": "TechArticle", headline: titulo, description: descricao, inLanguage: "pt-PT", url,
+    isBasedOn: [PORTARIA, DECRETO], about: "Regime Simplificado de Arrendamento Acessível (RSAA)",
+  };
+  return cabeca({ titulo, descricao, url, jsonld, migalhas: "Como se calcula" }) + `
+  <h1>Como se calcula a renda máxima do RSAA</h1>
+  <p class="lede">As regras que o simulador aplica, com a referência na lei e exemplos para um T3 em ${c}. Os valores de cada concelho estão na <a href="/renda-acessivel/">tabela por concelho</a>.</p>
+
+  <section>
+    <h2>1. Valor máximo da casa</h2>
+    <p>É fixado em euros por concelho e tipologia no anexo da <a href="${PORTARIA}" target="_blank" rel="noopener">${PT}</a>, com base em 80 % da mediana das rendas do INE para o concelho (<a href="${DECRETO}" target="_blank" rel="noopener">${DL}</a>, art. 4.º). A área da casa não conta: dois T3 do mesmo concelho têm o mesmo valor máximo.</p>
+    <p><strong>Exemplo:</strong> um T3 em ${c} tem um valor máximo de <strong>${eur(L)}</strong> por mês.</p>
+    <p>Acima de T5, soma-se ao valor do T5 um montante por cada quarto a mais, de 50 €, 75 € ou 100 € consoante o concelho, e de 150 € em Lisboa (anexo da Portaria). Em ${c}: T5 ${eur(v[5])}, T6 ${eur(v[5] + extra)}, T7 ${eur(v[5] + 2 * extra)}.</p>
+  </section>
+
+  <section>
+    <h2>2. Majorações</h2>
+    <p>O valor máximo sobe <strong>10 %</strong> se o arrendamento incluir estacionamento privativo e <strong>10 %</strong> se o imóvel tiver certificado energético A ou superior. São cumulativas (${PT}, art. 2.º, n.º 4).</p>
+    <p class="formula"><strong>Valor com majorações = valor máximo × (1 + 0,10 por cada majoração)</strong></p>
+    <p><strong>Exemplo:</strong> T3 em ${c} com estacionamento: ${eur(L)} × 1,10 = <strong>${eur(Math.floor(L * 1.1))}</strong>; com estacionamento e certificado A: ${eur(L)} × 1,20 = <strong>${eur(Math.floor(L * 1.2))}</strong>.</p>
+  </section>
+
+  <section>
+    <h2>3. Valor máximo de um quarto</h2>
+    <p>O valor da casa reparte-se pelos quartos em proporção da área (${PT}, art. 2.º, n.º 2). Só contam os quartos: sala, cozinha e casas de banho ficam de fora. A área de um quarto com casa de banho privativa conta mais 25 %; a soma das áreas não é majorada.</p>
+    <p class="formula"><strong>Valor do quarto = valor máximo da casa × área do quarto ÷ soma das áreas de todos os quartos</strong></p>
+    <p><strong>Exemplo:</strong> T3 em ${c} (${eur(L)}) com quartos de 12, 10 e 9 m² (soma: 31 m²):</p>
+    <ul class="quartos">
+      <li>Quarto de 12 m²: ${eur(L)} × 12 ÷ 31 = <strong>${eur(q(12))}</strong></li>
+      <li>Quarto de 10 m²: ${eur(L)} × 10 ÷ 31 = <strong>${eur(q(10))}</strong></li>
+      <li>Quarto de 9 m²: ${eur(L)} × 9 ÷ 31 = <strong>${eur(q(9))}</strong></li>
+      <li>O quarto de 12 m² com casa de banho privativa conta como 15 m²: ${eur(L)} × 15 ÷ 31 = <strong>${eur(q(15))}</strong></li>
+    </ul>
+    <p>Num quarto para 2 pessoas, o valor máximo é o do quarto; o simulador mostra também a metade por pessoa (${eur(Math.floor(q(12) / 2))} no quarto de 12 m²). Arrendar quartos no RSAA só é possível em residência temporária, com um inquilino com residência fiscal noutro concelho (${DL}, art. 3.º).</p>
+    <p class="hint">O simulador arredonda os valores para baixo, ao euro, para a renda ficar sempre dentro do valor máximo.</p>
+  </section>
+
+  <section>
+    <h2>4. A renda proposta cabe no RSAA?</h2>
+    <p>Cabe se for <strong>igual ou inferior</strong> ao valor máximo (da casa ou do quarto) e o contrato cumprir as outras condições: prazo mínimo de 3 anos em residência permanente ou de 3 meses, renovável, em residência temporária (${DL}, art. 5.º). O valor máximo não inclui despesas de água, luz ou internet pagas à parte (art. 4.º, n.º 3).</p>
+    <p>Acima do valor máximo a renda continua a ser <strong>legal</strong>; o contrato apenas fica fora do RSAA e as rendas pagam IRS pela tributação normal.</p>
+  </section>
+
+  <section>
+    <h2>5. A partir de que renda compensa ficar fora do RSAA</h2>
+    <p>No RSAA as rendas ficam isentas de IRS (${DL}, art. 6.º). Fora dele, o senhorio pode pedir mais, mas paga IRS. Compensa ficar fora só quando a renda, depois do imposto, deixa mais do que o valor máximo isento:</p>
+    <p class="formula"><strong>Renda a partir da qual compensa = valor máximo ÷ (1 − taxa de IRS)</strong></p>
+    <p><strong>Exemplo:</strong> com a taxa autónoma de 25 %, o T3 em ${c} só compensa fora do RSAA com uma renda acima de ${eur(L)} ÷ 0,75 = <strong>${eur(eq)}</strong> por mês. Abaixo disso, o RSAA rende mais ao senhorio. As contas não descontam encargos (IMI, condomínio, seguros, obras) nem reduções de taxa para contratos longos; confirme a taxa aplicável com um contabilista.</p>
+  </section>
+
+  <section>
+    <h2>6. Atualização anual</h2>
+    <p>Os valores máximos sobem a 1 de janeiro de cada ano pelo coeficiente de atualização das rendas (${DL}, art. 4.º, n.º 2; ${PT}, art. 3.º). A renda de um contrato pode ser atualizada pelas regras gerais do Código Civil (art. 1077.º): <a href="/perguntas-frequentes#p${iFaq + 1}">ver a pergunta sobre o aumento anual</a>.</p>
+  </section>
+
+  <section>
+    <h2>Fontes</h2>
+    <ul>
+      <li><a href="${DECRETO}" target="_blank" rel="noopener">Decreto-Lei n.º 97/2026, de 20 de maio</a>, Anexo III (Regime Simplificado de Arrendamento Acessível)</li>
+      <li><a href="${PORTARIA}" target="_blank" rel="noopener">Portaria n.º 454/2026/1, de 13 de outubro</a> (valores máximos por concelho e tipologia)</li>
+    </ul>
+  </section>` + rodape;
+}
+
+// llms.txt: resumo do site para assistentes de IA (formato llmstxt.org), com os valores de todos os concelhos
+// em texto simples, para poderem responder e citar sem correr o simulador.
+function llmsTxt(todos) {
+  const nomes = Object.keys(todos).sort(porNome);
+  const linha = x => { const [d, v, extra] = todos[x];
+    return `- [${nome(x)}](${SITE}/renda-acessivel/${slug(x)}) (${d}): ${v.slice(0, 6).map((y, t) => `T${t} ${y} €`).join(" · ")} · +${extra} € por quarto acima de T5`; };
+  return `# Simulador de Arrendamento Acessível (RSAA)
+
+> Ferramenta informativa e gratuita sobre o Regime Simplificado de Arrendamento Acessível (RSAA) em Portugal, criado pelo Decreto-Lei n.º 97/2026 (Anexo III), em vigor desde 1 de setembro de 2026. Os contratos com renda igual ou inferior a um valor máximo, definido por concelho e tipologia na Portaria n.º 454/2026/1, ficam isentos de IRS ou IRC sobre as rendas. Acima do valor máximo a renda é legal, mas o contrato fica na tributação normal. Não afiliado ao IHRU; não substitui um contabilista ou advogado.
+
+Regras essenciais:
+- Valor máximo da casa: tabela por concelho e tipologia (Portaria n.º 454/2026/1, anexo). A área da casa não conta. Acima de T5: valor do T5 + 50, 75 ou 100 € por quarto a mais, conforme o concelho (150 € em Lisboa).
+- Majorações cumulativas: +10 % com estacionamento privativo; +10 % com certificado energético A ou superior (Portaria, art. 2.º, n.º 4).
+- Valor de um quarto: valor da casa × área do quarto ÷ soma das áreas de todos os quartos; um quarto com casa de banho privativa conta mais 25 % de área (Portaria, art. 2.º, n.º 2). Quartos só em residência temporária, com inquilino com residência fiscal noutro concelho (DL 97/2026, Anexo III, art. 3.º).
+- Prazos mínimos: 3 anos em residência permanente; 3 meses, renovável, em residência temporária (art. 5.º).
+- Os valores máximos não incluem despesas (art. 4.º, n.º 3) e sobem a 1 de janeiro de cada ano pelo coeficiente de atualização das rendas (art. 4.º, n.º 2).
+- Adesão: o senhorio comunica o contrato às Finanças e submete-o na plataforma do IHRU até 15 de janeiro do ano seguinte (art. 6.º, n.º 3).
+- Compensa ficar fora do RSAA só com uma renda acima de valor máximo ÷ (1 − taxa de IRS); com 25 %, cerca de um terço acima do valor máximo.
+
+## Páginas
+- [Como se calcula](${SITE}/como-se-calcula): fórmulas e exemplos (casa, majorações, quartos, limiar do IRS, atualização anual)
+- [Perguntas frequentes](${SITE}/perguntas-frequentes): ${FAQ.length} perguntas com referência aos artigos da lei
+- [Valores por concelho](${SITE}/renda-acessivel/): tabela dos 308 concelhos, com uma página por concelho
+- [Simulador](${SITE}/): verificação interativa da renda para inquilinos e senhorios (requer JavaScript)
+
+## Fontes legais
+- [Decreto-Lei n.º 97/2026, de 20 de maio](${DECRETO})
+- [Portaria n.º 454/2026/1, de 13 de outubro](${PORTARIA})
+
+## Valores máximos por concelho (€/mês, sem majorações, em vigor desde 1 de setembro de 2026)
+${nomes.map(linha).join("\n")}
+`;
 }
 
 // Contacto: o e-mail não aparece no HTML. Está guardado em partes invertidas e só é montado no navegador
@@ -292,17 +402,19 @@ export function gerar() {
   writeFileSync(pasta + "index.html", paginaIndice(todos));
   writeFileSync(raiz + "public/perguntas-frequentes.html", paginaFAQ());
   writeFileSync(raiz + "public/contacto.html", paginaContacto());
+  writeFileSync(raiz + "public/como-se-calcula.html", paginaCalculo(todos));
+  writeFileSync(raiz + "public/llms.txt", llmsTxt(todos));
   mkdirSync(raiz + "public/dados", { recursive: true });
   writeFileSync(raiz + "public/dados/concelhos.json", JSON.stringify(Object.fromEntries(
     nomes.map(c => [c, { nome: nome(c), d: todos[c][0], v: todos[c][1], x: todos[c][2], s: slug(c) }]))));
   const hoje = new Date().toISOString().slice(0, 10);
-  const urls = ["/", "/perguntas-frequentes", "/contacto", "/renda-acessivel/", ...nomes.map(c => `/renda-acessivel/${slug(c)}`)];
+  const urls = ["/", "/perguntas-frequentes", "/como-se-calcula", "/contacto", "/renda-acessivel/", ...nomes.map(c => `/renda-acessivel/${slug(c)}`)];
   writeFileSync(raiz + "public/sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url><loc>${SITE}${u}</loc><lastmod>${hoje}</lastmod></url>`).join("\n")}
 </urlset>
 `);
-  console.log(`Páginas SEO geradas: ${nomes.length} concelhos + índice + perguntas frequentes + contacto + sitemap (${urls.length} endereços)`);
+  console.log(`Páginas SEO geradas: ${nomes.length} concelhos + índice + perguntas frequentes + como se calcula + contacto + llms.txt + sitemap (${urls.length} endereços)`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) gerar();
