@@ -443,10 +443,10 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
         <div class="veredicto neutro" id="sVer"></div>
         <div class="inq-cartoes">
           <div class="cartao-inq">
-            <h3>RSAA ou mercado?</h3>
+            <h3 id="cmpH">RSAA ou mercado?</h3>
             <div class="cmp-duas">
               <div class="cmp" id="cmpR"><span>RSAA, líquido por ano</span><b id="netR">–</b><small id="netRT"></small></div>
-              <div class="cmp" id="cmpM"><span>Mercado, líquido por ano<span id="netMEst" hidden> (estimativa)</span></span><b id="netM">–</b><small id="netMT"></small></div>
+              <div class="cmp" id="cmpM"><span><span id="cmpMLbl">Mercado</span>, líquido por ano<span id="netMEst" hidden> (estimativa)</span></span><b id="netM">–</b><small id="netMT"></small></div>
             </div>
             <p id="cmpNote" style="margin:0"></p>
           </div>
@@ -866,7 +866,6 @@ const CSS_RELATORIO=`#relatorio{color:#0E1726;background:#fff;font:11.5px/1.45 "
 #relatorio .comp{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;font-size:10.5px;border-top:1px solid #E2E8F0;padding-top:6px}
 #relatorio .comp span{color:#64748B}#relatorio .comp .n{text-align:right}
 #relatorio .nota{color:#64748B;font-size:9.5px}
-#relatorio .aviso{border:1.5px solid #B45309;background:#FDF4E6;border-radius:12px;padding:8px 12px}
 #relatorio table{width:100%;border-collapse:collapse;font-size:inherit}
 #relatorio th,#relatorio td{font-size:inherit;line-height:inherit;border-bottom:1px solid #E2E8F0;padding:3px 6px;text-align:left;vertical-align:top}
 #relatorio th{font-weight:500;color:#64748B}
@@ -1254,7 +1253,7 @@ function render(L,maj,Lm){
     add(ok, ok?"Renda proposta dentro do valor máximo do RSAA do apartamento.":"A renda proposta está acima do valor máximo do RSAA: para ter isenção de IRS tem de baixar; caso contrário, o contrato (legal) fica na tributação normal.");
     requisitos(add,fin,prazo,false);
     $("checklist").innerHTML=items.join("");
-    comparar(apt.prop&&apt.prop<=max?apt.prop:max, parseFloat($("mkt").value)||0, true, 1);
+    comparar(apt.prop&&apt.prop<=max?apt.prop:max, parseFloat($("mkt").value)||0, true, 1, apt.prop>max?[{prop:apt.prop,max}]:[]);
     veredicto(maj,Lm,[{prop:apt.prop,max}],falhas-(ok?0:1));
     ultimo={maxes:[max],acima:!ok,falhas:falhas-(ok?0:1),comRenda:!!apt.prop};
     return;
@@ -1291,7 +1290,7 @@ function render(L,maj,Lm){
   add(null,"Cabe ao senhorio comunicar cada contrato às Finanças e submeter a cópia e o comprovativo no IHRU até 15 de janeiro do ano seguinte.");
   $("checklist").innerHTML=items.join("");
   const nR=rooms.filter(r=>r.rent).length;
-  comparar(sumRSAA, sumMkt, anyRent, nR);
+  comparar(sumRSAA, sumMkt, anyRent, nR, rooms.map((r,i)=>({prop:r.prop,max:maxes[i],rent:r.rent})).filter(c=>c.rent&&c.prop>c.max));
   // No modo quartos, o veredicto soma os quartos arrendados (a parte dos não arrendados não é redistribuída).
   veredicto(maj,Lm,rooms.map((r,i)=>({prop:r.prop,max:maxes[i],rent:r.rent})).filter(c=>c.rent),falhas-falhaRendas);
   ultimo={maxes,acima:anyRent&&!allOk,falhas:falhas-falhaRendas,comRenda:rooms.some(r=>r.rent&&r.prop),semQuartos:!anyRent};
@@ -1335,18 +1334,43 @@ function requisitos(add,fin,prazo,quartos){
     add(null,"Cabe ao senhorio comunicar o contrato às Finanças e submeter a cópia do contrato e o comprovativo no IHRU até 15 de janeiro do ano seguinte.");
   }
 }
-function comparar(rendaRSAA,rendaMkt,anyRent,n){
+// RSAA face à alternativa fora do regime. Se alguma renda proposta passa o valor máximo, a alternativa é essa renda
+// (o que o senhorio quer cobrar), com IRS; caso contrário, a renda de mercado indicada (ou estimada).
+// Equilíbrio: renda que, depois do IRS, deixa o mesmo que o valor máximo isento = valor ÷ (1 − taxa).
+function comparar(rendaRSAA,rendaMkt,anyRent,n,acima=[]){
   const tax=(parseFloat($("tax").value)||0)/100,mkt=parseFloat($("mkt").value)||0,pct=(Math.round(tax*1000)/10).toLocaleString("pt-PT");
-  const netR=rendaRSAA*12, netM=rendaMkt*12*(1-tax), tem=anyRent&&rendaMkt>0;
+  const proposta=anyRent&&acima.length>0,um=acima.length===1;
+  const propA=acima.reduce((s,c)=>s+c.prop,0),maxA=acima.reduce((s,c)=>s+c.max,0);
+  const netR=rendaRSAA*12;
+  const netM=proposta?Math.round((rendaRSAA-maxA)*12+propA*12*(1-tax)):rendaMkt*12*(1-tax);
+  const tem=proposta||(anyRent&&rendaMkt>0);
+  $("cmpMLbl").textContent=proposta?(modo==="apt"?"Renda proposta":"Rendas propostas"):"Mercado";
+  $("cmpH").textContent=proposta?`RSAA ou ${modo==="apt"?"renda proposta":"rendas propostas"}?`:"RSAA ou mercado?";
+  if(proposta)$("netMEst").hidden=true;else marcaEstimativa(!$("mktEst").hidden);
   $("netR").textContent=anyRent?eur(netR):"–";
   $("netM").textContent=tem?eur(netM):"–";
   $("netRT").textContent=anyRent?`${eur(rendaRSAA)} × 12, sem IRS`:"";
-  $("netMT").textContent=tem?`${eur(mkt)}${n>1?` × ${n}`:""} × 12 − IRS de ${pct} %`:"";
+  $("netMT").textContent=!tem?"":proposta
+    ?(modo==="apt"?`${eur(propA)} × 12 − IRS de ${pct} %`:`${um?"o quarto":"os quartos"} acima do máximo com IRS de ${pct} %`)
+    :`${eur(mkt)}${n>1?` × ${n}`:""} × 12 − IRS de ${pct} %`;
   $("cmpR").classList.toggle("win",tem&&netR>=netM);
   $("cmpM").classList.toggle("win",tem&&netM>netR);
-  const equil=n&&tax<1?Math.ceil(rendaRSAA/n/(1-tax)):0;
-  $("cmpNote").innerHTML=!anyRent?"":!tem?"Indique a renda de mercado para comparar."
-    :`<strong>${netR>=netM?`O RSAA rende mais ${eur(netR-netM)} por ano.`:`O mercado rende mais ${eur(netM-netR)} por ano.`}</strong> O mercado só compensaria acima de ${eur(equil)} por ${modo==="apt"?"mês":"quarto e por mês"}. <span class="hint">Sem despesas nem custos de manutenção.</span>`;
+  const formula=v=>`${eur(v)} ÷ (1 − ${pct} %)`;
+  const ref=mkt?` A renda de mercado da zona (${eur(mkt)}${!$("mktEst").hidden?", estimativa":""}) serve só de referência.`:"";
+  let nota;
+  if(!anyRent)nota="";
+  else if(proposta){
+    const ganha=netR>=netM?`O RSAA rende mais ${eur(netR-netM)} por ano.`:`${modo==="apt"?"A renda proposta rende":"As rendas propostas rendem"} mais ${eur(netM-netR)} por ano.`;
+    const eq=tax<1?(um
+      ?` Fora do RSAA, ${modo==="apt"?"a renda":"a renda desse quarto"} só compensa a partir de <strong>${eur(Math.ceil(acima[0].max/(1-tax)))}</strong> por mês: é o valor máximo a dividir por (1 − taxa de IRS), ${formula(acima[0].max)}, a renda que, depois de pagar IRS, deixa o mesmo que o valor máximo isento.`
+      :` Cada quarto acima do máximo só compensa fora do RSAA se a renda passar o seu valor máximo ÷ (1 − ${pct} %).`):"";
+    nota=`<strong>${ganha}</strong>${eq}${ref} <span class="hint">Sem despesas nem custos de manutenção.</span>`;
+  }else if(!tem)nota="Indique a renda de mercado para comparar.";
+  else{
+    const base=n?rendaRSAA/n:0;
+    nota=`<strong>${netR>=netM?`O RSAA rende mais ${eur(netR-netM)} por ano.`:`O mercado rende mais ${eur(netM-netR)} por ano.`}</strong> O mercado só compensaria a partir de <strong>${eur(Math.ceil(base/(1-tax)))}</strong> por ${modo==="apt"?"mês":"quarto e por mês"}: a renda no RSAA a dividir por (1 − taxa de IRS), ${formula(Math.round(base))}, que depois de pagar IRS deixa o mesmo. <span class="hint">Sem despesas nem custos de manutenção.</span>`;
+  }
+  $("cmpNote").innerHTML=nota;
 }
 function applyAuto(){
   const {Lm}=limites();
@@ -1423,12 +1447,20 @@ function relatorio(acao){
   const tabela=!quartos?"":contratos.length>5
     ?`<section><h2>Quartos</h2><div class="duas" style="font-size:10.5px">${tabelaQuartos(contratos.slice(0,meio))}${tabelaQuartos(contratos.slice(meio))}</div></section>`
     :`<section><h2>Quartos</h2>${tabelaQuartos(contratos)}</section>`;
-  let avisoAcima="";
+  // Comparação: com renda proposta acima do máximo, a alternativa é essa renda (com IRS); senão, a renda de mercado.
+  // Equilíbrio: valor ÷ (1 − taxa), a renda que depois do IRS deixa o mesmo que o valor isento.
+  let comparacao;
   if(acima.length){
-    const propA=acima.reduce((s,c)=>s+c.prop,0),maxA=acima.reduce((s,c)=>s+c.max,0);
-    const livre=Math.round(propA*12*(1-t)),rsaa=maxA*12,d=rsaa-livre;
-    avisoAcima=`<p class="aviso"><strong>${quartos?(acima.length===1?acima[0].nome+" tem renda":acima.length+" quartos têm rendas"):"A renda proposta está"} acima do valor máximo.</strong> Com ${acima.length===1&&!quartos?"a renda proposta":"as rendas propostas"} (${eur(propA)}/mês) recebe ${eur(livre)} líquidos por ano no regime normal; com o valor máximo (${eur(maxA)}/mês), ${eur(rsaa)} isentos. ${d>=0?`O RSAA rende mais ${eur(d)} por ano.`:`O regime normal rende mais ${eur(-d)} por ano.`}</p>`;
-  }
+    const propA=acima.reduce((s,c)=>s+c.prop,0),maxA=acima.reduce((s,c)=>s+c.max,0),um=acima.length===1;
+    const anualProp=Math.round(anualRSAA-maxA*12+propA*12*(1-t)),d=anualRSAA-anualProp;
+    comparacao=`<h2>RSAA ou ${quartos?"rendas propostas":"renda proposta"}?</h2>
+        <div class="comp" style="border:0;padding:0;font-size:inherit"><span>RSAA, líquido por ano</span><strong class="n">${eur(anualRSAA)}</strong><span>${quartos?`Rendas propostas (${um?"1 quarto":acima.length+" quartos"} com IRS)`:`Renda proposta: ${eur(propA)} × 12 − IRS`}</span><span class="n" style="color:inherit">${eur(anualProp)}</span></div>
+        <p style="margin-top:4px"><strong>${d>=0?`O RSAA rende mais ${eur(d)} por ano.`:`${quartos?"As rendas propostas rendem":"A renda proposta rende"} mais ${eur(-d)} por ano.`}</strong> ${um&&t<1?`Fora do RSAA só compensa a partir de ${eur(Math.ceil(acima[0].max/(1-t)))} por mês (${eur(acima[0].max)} ÷ (1 − ${pctT} %)).`:`Cada quarto só compensa fora do RSAA acima do seu valor máximo ÷ (1 − ${pctT} %).`}</p>
+        <p class="nota" style="margin-top:4px">${NOTA_IRS(pctT)}${mkt?` Renda de mercado da zona (referência): ${eur(mkt)}.`:""}</p>`;
+  }else comparacao=`<h2>Comparação com o mercado</h2>
+        ${mkt?`<div class="comp" style="border:0;padding:0;font-size:inherit"><span>RSAA, líquido por ano</span><strong class="n">${eur(anualRSAA)}</strong><span>Mercado: ${eur(mkt)}${n>1?` × ${n}`:""} × 12 − IRS</span><span class="n" style="color:inherit">${eur(anualMkt)}</span></div>
+        <p style="margin-top:4px"><strong>${difMkt>=0?`O RSAA rende mais ${eur(difMkt)} por ano.`:`O mercado rende mais ${eur(-difMkt)} por ano.`}</strong> O mercado só compensa a partir de ${eur(equilMkt)} por ${quartos?"quarto e por mês":"mês"} (${eur(Math.round(anualRSAA/12/(n||1)))} ÷ (1 − ${pctT} %)).</p>
+        <p class="nota" style="margin-top:4px">${NOTA_IRS(pctT)} Renda de mercado: valor indicado no simulador.</p>`:`<p>Indique a renda de mercado no simulador para comparar.</p>`}`;
   (acao==="abrir"?abrirRelatorio:imprimirRelatorio)(`
     ${cabecalhoRelatorio("Análise para o senhorio · arrendamento acessível (RSAA)")}
     <section class="duas">
@@ -1437,15 +1469,11 @@ function relatorio(acao){
         <p class="legenda">✓ cumprido · ✕ não cumprido · ⓘ a confirmar</p></div>
     </section>
     ${tabela}
-    ${avisoAcima}
     <section class="duas">
       <div><h2>Mais-valias para si</h2>
         <dl class="kv"><dt>Rendas por ano no RSAA</dt><dd>${eur(anualRSAA)} (isentas)</dd><dt>IRS que deixa de pagar</dt><dd class="forte">cerca de ${eur(irsEvitado)} /ano</dd></dl>
         <p class="nota" style="margin-top:6px">Taxa de ${pctT} %. As rendas ficam isentas de IRS (ou IRC) enquanto o contrato cumprir as regras, incluindo renovações (DL n.º 97/2026, Anexo III, art. 6.º).</p></div>
-      <div><h2>Comparação com o mercado</h2>
-        ${mkt?`<div class="comp" style="border:0;padding:0;font-size:inherit"><span>RSAA, líquido por ano</span><strong class="n">${eur(anualRSAA)}</strong><span>Mercado: ${eur(mkt)} × ${n} × 12 − IRS</span><span class="n" style="color:inherit">${eur(anualMkt)}</span></div>
-        <p style="margin-top:4px"><strong>${difMkt>=0?`O RSAA rende mais ${eur(difMkt)} por ano.`:`O mercado rende mais ${eur(-difMkt)} por ano.`}</strong> O mercado só compensa acima de ${eur(equilMkt)} por ${quartos?"quarto e por mês":"mês"}.</p>
-        <p class="nota" style="margin-top:4px">${NOTA_IRS(pctT)} Renda de mercado: valor indicado no simulador.</p>`:`<p>Indique a renda de mercado no simulador para comparar.</p>`}</div>
+      <div>${comparacao}</div>
     </section>
     <section class="duas">
       <div><h2>E para o inquilino?</h2><ul>
