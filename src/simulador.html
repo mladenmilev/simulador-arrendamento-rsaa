@@ -449,7 +449,7 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
             <div class="split only-q" id="split" role="img" aria-label="Divisão do valor máximo pelos quartos"></div>
             <div class="tbl only-q">
               <table>
-                <thead><tr><th>Quarto</th><th class="num">Área p/ cálculo</th><th class="num">Máx. RSAA</th><th class="num">Por pessoa</th><th class="num">Proposta</th><th>Estado</th></tr></thead>
+                <thead><tr><th>Quarto</th><th class="num">Área p/ cálculo</th><th class="num">Máx. RSAA</th><th class="num">Por pessoa</th><th class="num">Proposta</th><th>Resultado</th></tr></thead>
                 <tbody id="tbody"></tbody>
               </table>
             </div>
@@ -1159,7 +1159,7 @@ function render(L,maj,Lm){
     else if(!apt.prop)st='<span class="pill warn">Sem proposta</span>';
     else if(apt.prop<=max)st='<span class="pill ok">Dentro do valor</span>';
     else{st=`<span class="pill bad">${eur(apt.prop-max)} acima</span>`;ok=false}
-    $("aptRes").innerHTML=`<dl class="tres"><dt>Máx. RSAA</dt><dd>${eur(max)}</dd><dt>Renda proposta</dt><dd>${apt.prop?eur(apt.prop):"–"}</dd><dt>Estado</dt><dd>${st}</dd></dl>`;
+    $("aptRes").innerHTML=`<dl class="tres"><dt>Máx. RSAA</dt><dd>${eur(max)}</dd><dt>Renda proposta</dt><dd>${apt.prop?eur(apt.prop):"–"}</dd><dt>Resultado</dt><dd>${st}</dd></dl>`;
     add(ok, ok?"Renda proposta dentro do valor máximo do RSAA do apartamento.":"A renda proposta está acima do valor máximo do RSAA: para ter isenção de IRS tem de baixar; caso contrário, o contrato (legal) fica na tributação normal.");
     requisitos(add,fin,prazo,false);
     $("checklist").innerHTML=items.join("");
@@ -1336,7 +1336,7 @@ function relatorio(acao){
   const cls={ok:"ok",bad:"mal",warn:"info",info:"info"};
   const req=[...document.querySelectorAll("#checklist li")].map(li=>{const ic=li.querySelector(".ic"),k=ic?[...ic.classList].find(c=>cls[c]):"warn";return [cls[k]||"info",escRel(li.textContent.replace(ic?ic.textContent:"","").trim())]});
   // Com muitos quartos (T6 ou mais), a tabela divide-se em duas colunas para o relatório caber numa folha A4.
-  const tabelaQuartos=lista=>`<table><tr><th>Quarto</th><th>Área p/ cálculo</th><th>Máx. RSAA</th><th>Proposta</th><th>Estado</th></tr>${
+  const tabelaQuartos=lista=>`<table><tr><th>Quarto</th><th>Área p/ cálculo</th><th>Máx. RSAA</th><th>Proposta</th><th>Resultado</th></tr>${
     lista.map(c=>`<tr><td>${c.nome}${c.p===2?" (2 p.)":""}</td><td>${Math.round(c.area)} m²${c.wc?" (c/ WC)":""}</td><td>${eur(c.max)}</td><td>${c.prop?eur(c.prop):"–"}</td><td>${estado(c)}</td></tr>`).join("")}</table>`;
   const meio=Math.ceil(contratos.length/2);
   const tabela=!quartos?"":contratos.length>5
