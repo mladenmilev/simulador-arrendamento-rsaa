@@ -1,6 +1,6 @@
 {
   "name": "simulador-arrendamento",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "private": true,
   "scripts": {
     "dev": "firebase emulators:exec --only firestore --ui \"METADATA_SERVER_DETECTION=none node scripts/dev.mjs\"",
