@@ -53,7 +53,8 @@ for (const d of docs) {
     const areaQuartos = qs.reduce((a, r) => a + (r.area || 0), 0);
     Object.assign(linha, {
       finalidade: h.finalidade, prazoMeses: h.prazoMeses, residenciaFiscalFora: h.residenciaFiscalFora, despesasAParte: h.despesasAParte,
-      rendaMercado: h.rendaMercado, rendaMercadoEstimada: h.rendaMercadoEstimada, taxaIRS: h.taxaIRS,
+      // rendaForaRSAA: valor indicado pelo senhorio (desde a v2.3); rendaMercado: estimativa por médias (até à v2.2)
+      rendaForaRSAA: h.rendaForaRSAA ?? h.rendaMercado, rendaMercadoEstimada: h.rendaMercadoEstimada, taxaIRS: h.taxaIRS,
       areaApartamento: h.apartamento?.area, nQuartos: qs.length || undefined, nArrendados: qs.length ? qs.filter(r => r.arrendado).length : undefined,
       areaQuartos: qs.length ? areaQuartos : undefined,
       renda: h.apartamento ? h.apartamento.renda : qs.filter(r => r.arrendado).reduce((a, r) => a + (r.renda || 0), 0),
@@ -70,7 +71,7 @@ for (const d of docs) {
 
 const COLS = ["id", "data", "versao", "ecra", "vista", "modo", "distrito", "concelho", "tipologia", "estacionamento", "certificadoA",
   "valorMaxCasa", "resultado", "renda", "rendaAuto", "valorMax", "rendaM2", "areaApartamento", "areaQuarto", "areaQuartos", "nQuartos",
-  "nArrendados", "finalidade", "prazoMeses", "residenciaFiscalFora", "despesasAParte", "rendaMercado", "rendaMercadoEstimada", "taxaIRS"];
+  "nArrendados", "finalidade", "prazoMeses", "residenciaFiscalFora", "despesasAParte", "rendaForaRSAA", "rendaMercadoEstimada", "taxaIRS"];
 const COLS_Q = ["id", "data", "versao", "vista", "origem", "distrito", "concelho", "tipologia", "estacionamento", "certificadoA",
   "valorMaxCasa", "quarto", "area", "areaQuartos", "wcPrivativa", "pessoas", "arrendado", "renda", "rendaAuto", "valorMax", "rendaM2", "dentro"];
 

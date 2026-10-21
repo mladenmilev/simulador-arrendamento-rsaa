@@ -69,7 +69,7 @@ function cabeca({ titulo, descricao, url, jsonld, migalhas = '<a href="/renda-ac
 const rodape = `
   <section class="cta">
     <h2>A sua renda pode ficar no RSAA?</h2>
-    <p>Sem registo. Inquilinos verificam a renda; senhorios calculam o valor máximo de cada quarto, comparam com o mercado e veem se a isenção de IRS compensa.</p>
+    <p>Sem registo. Inquilinos verificam a renda; senhorios calculam o valor máximo de cada quarto e veem a partir de que renda compensaria ficar fora do RSAA.</p>
     <div class="cta-acoes">
       <a class="btn primary" href="/simulador?vista=inquilino">Verificar a minha renda</a>
       <a class="btn claro" href="/simulador?vista=senhorio">Calcular valores máximos</a>
@@ -191,7 +191,7 @@ export const FAQ = [
   ["O valor máximo do RSAA é um limite à renda?",
    `Não. É a renda mais alta com que o contrato pode <strong>beneficiar do RSAA</strong>. O senhorio pode pedir mais, e é <strong>legal</strong>: nesse caso o contrato fica fora do regime e as rendas são tributadas normalmente. Também não é um preço de referência: a renda pode ser mais baixa, consoante a localização e o estado do imóvel.`],
   ["O RSAA compensa sempre ao senhorio?",
-   `Não necessariamente. No RSAA não paga IRS sobre as rendas, mas a renda não pode passar o valor máximo; fora do regime pode pedir mais, mas paga IRS. O que compensa depende da renda de mercado da casa e da taxa de IRS de cada senhorio. O <a href="/">simulador</a> compara os dois cenários com os valores do seu caso.`],
+   `Não necessariamente. No RSAA não paga IRS sobre as rendas, mas a renda não pode passar o valor máximo; fora do regime pode pedir mais, mas paga IRS. O que compensa depende da renda que a casa consegue fora do regime e da taxa de IRS de cada senhorio. Fora do RSAA só compensa com uma renda acima do valor máximo ÷ (1 − taxa de IRS): com a taxa de 25 %, cerca de um terço acima do valor máximo (por exemplo, 1784 € para um valor máximo de 1338 €). O <a href="/">simulador</a> mostra esse valor para o seu caso.`],
   ["Que vantagens tem o RSAA para o inquilino?",
    `O RSAA não altera os impostos do inquilino. O que ganha é <strong>clareza contratual</strong> (contrato com regras definidas, que o senhorio comunica às Finanças e submete no IHRU, com recibos eletrónicos e despesas definidas à parte) e um prazo mínimo conforme a finalidade: 3 anos em residência permanente, que dá estabilidade, ou 3 meses renováveis em residência temporária, que dá flexibilidade. Quando a análise o confirma, pode também ser um argumento para negociar a renda.`],
   ["Como são definidos os valores máximos?",
