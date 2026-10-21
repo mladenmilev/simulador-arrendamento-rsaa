@@ -124,6 +124,19 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 #tbody td:first-child{white-space:nowrap}
 .pill.ok{background:var(--ok-soft);color:var(--ok)}
 .pill.bad{background:var(--bad-soft);color:var(--bad)}
+/* Telemóvel: a tabela dos quartos passa a um cartão por quarto (quarto e resultado em cima; valores por baixo). */
+@media (max-width:640px){
+  .tbl{overflow:visible}
+  .tbl table,.tbl tbody{display:block}
+  .tbl thead{display:none}
+  .tbl tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 12px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .tbl td{display:block;padding:0;border:0;text-align:left!important}
+  .tbl td.c-q{order:1;grid-column:1/3;font-weight:700;white-space:normal}
+  .tbl td.c-r{order:2;justify-self:end}
+  .tbl td.c-a{order:3}.tbl td.c-m{order:4}.tbl td.c-pr{order:5}.tbl td.c-pp{order:6}
+  .tbl td.c-pp.vazio{display:none}
+  .tbl td[data-l]::before{content:attr(data-l);display:block;font-size:.75rem;color:var(--muted);margin-bottom:1px}
+}
 .pill.warn{background:var(--warn-soft);color:var(--warn)}
 .checklist{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:8px}
 .checklist li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:.92rem}
@@ -1186,7 +1199,8 @@ function render(L,maj,Lm){
     else if(r.prop<=max)st='<span class="pill ok">Dentro do valor</span>';
     else{st=`<span class="pill bad">${eur(r.prop-max)} acima</span>`;allOk=false}
     if(r.rent){anyRent=true;sumRSAA+=r.prop&&r.prop<=max?r.prop:max}
-    tb.insertAdjacentHTML("beforeend",`<tr><td>Quarto ${i+1}${r.p===2?" (2 pessoas)":""}</td><td class="num">${calcA.toLocaleString("pt-PT",{maximumFractionDigits:0})} m²</td><td class="num"><strong>${eur(max)}</strong></td><td class="num">${r.p===2?eur(per):"–"}</td><td class="num">${r.prop?eur(r.prop):"–"}</td><td>${st}</td></tr>`);
+    // data-l: nome da coluna, usado no telemóvel, onde cada quarto aparece como um cartão.
+    tb.insertAdjacentHTML("beforeend",`<tr><td class="c-q">Quarto ${i+1}${r.p===2?" (2 pessoas)":""}</td><td class="num c-a" data-l="Área p/ cálculo">${calcA.toLocaleString("pt-PT",{maximumFractionDigits:0})} m²</td><td class="num c-m" data-l="Máx. RSAA"><strong>${eur(max)}</strong></td><td class="num c-pp${r.p===2?"":" vazio"}" data-l="Por pessoa">${r.p===2?eur(per):"–"}</td><td class="num c-pr" data-l="Proposta">${r.prop?eur(r.prop):"–"}</td><td class="c-r">${st}</td></tr>`);
     const w=total>0?(r.a/total*100):0;
     sp.insertAdjacentHTML("beforeend",`<div class="${r.rent?"":"off"}" style="flex:${w} 1 0" title="Quarto ${i+1}: ${eur(max)}">Q${i+1} · ${eur(max)}</div>`);
   });
