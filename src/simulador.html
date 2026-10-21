@@ -363,20 +363,13 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
           <label><input type="checkbox" id="desp" checked> Despesas (água, luz, internet) pagas à parte</label>
         </div>
         <div class="sep"></div>
-        <h2 class="passo-h"><span class="passo-num">5</span>Comparação e impostos <em>(opcional)</em></h2>
+        <h2 class="passo-h"><span class="passo-num">5</span>Impostos e arredondamento <em>(opcional)</em></h2>
         <div class="row2 campos">
-          <div class="field">
-            <label for="mkt">Renda que conseguiria fora do RSAA <span class="only-q">por quarto</span> (€/mês)</label>
-            <input type="number" id="mkt" min="0" step="1" inputmode="numeric">
-            <p class="hint">Opcional, para comparar. Não usamos médias de mercado: casas da mesma tipologia variam muito (ano de construção, estado, área). Indique o valor que acha realista para esta casa.</p>
-          </div>
           <div class="field">
             <label for="tax">Taxa de IRS sobre rendas (%)</label>
             <input type="number" id="tax" min="0" max="60" step="0.5" value="25">
             <p class="hint">Confirme a taxa aplicável com um contabilista.</p>
           </div>
-        </div>
-        <div class="row2">
           <div class="field">
             <label for="round">Arredondar</label>
             <select id="round">
@@ -446,7 +439,7 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
             <h3 id="cmpH">RSAA ou regime normal?</h3>
             <div class="cmp-duas">
               <div class="cmp" id="cmpR"><span>RSAA, líquido por ano</span><b id="netR">–</b><small id="netRT"></small></div>
-              <div class="cmp" id="cmpM"><span><span id="cmpMLbl">Fora do RSAA</span>, líquido por ano</span><b id="netM">–</b><small id="netMT"></small></div>
+              <div class="cmp" id="cmpM"><span id="cmpMLbl">Fora do RSAA, só compensa a partir de</span><b id="netM">–</b><small id="netMT"></small></div>
             </div>
             <p id="cmpNote" style="margin:0"></p>
           </div>
@@ -1170,7 +1163,7 @@ function render(L,maj,Lm){
     add(ok, ok?"Renda proposta dentro do valor máximo do RSAA do apartamento.":"A renda proposta está acima do valor máximo do RSAA: para ter isenção de IRS tem de baixar; caso contrário, o contrato (legal) fica na tributação normal.");
     requisitos(add,fin,prazo,false);
     $("checklist").innerHTML=items.join("");
-    comparar(apt.prop&&apt.prop<=max?apt.prop:max, parseFloat($("mkt").value)||0, true, 1, apt.prop>max?[{prop:apt.prop,max}]:[]);
+    comparar(apt.prop&&apt.prop<=max?apt.prop:max, true, apt.prop>max?[{prop:apt.prop,max}]:[]);
     veredicto(maj,Lm,[{prop:apt.prop,max}],falhas-(ok?0:1));
     ultimo={maxes:[max],acima:!ok,falhas:falhas-(ok?0:1),comRenda:!!apt.prop};
     return;
@@ -1180,7 +1173,7 @@ function render(L,maj,Lm){
   $("areaT").textContent=`Área total dos quartos: ${total.toLocaleString("pt-PT",{maximumFractionDigits:0})} m² · área arrendada: ${rentedA.toLocaleString("pt-PT",{maximumFractionDigits:0})} m² · renda máxima por m²: ${total>0?(Lm/total).toLocaleString("pt-PT",{maximumFractionDigits:2})+" €":"–"}`;
   const maxes=[];
   const tb=$("tbody");tb.innerHTML="";const sp=$("split");sp.innerHTML="";
-  let sumRSAA=0,sumMkt=0,allOk=true,anyRent=false,tooSmall=false;
+  let sumRSAA=0,allOk=true,anyRent=false,tooSmall=false;
   rooms.forEach((r,i)=>{
     const calcA=r.wc?r.a*1.25:r.a;
     const max=total>0?Math.floor(Lm*calcA/total):0;
@@ -1192,7 +1185,7 @@ function render(L,maj,Lm){
     else if(!r.prop)st='<span class="pill warn">Sem proposta</span>';
     else if(r.prop<=max)st='<span class="pill ok">Dentro do valor</span>';
     else{st=`<span class="pill bad">${eur(r.prop-max)} acima</span>`;allOk=false}
-    if(r.rent){anyRent=true;sumRSAA+=r.prop&&r.prop<=max?r.prop:max;sumMkt+=parseFloat($("mkt").value)||0}
+    if(r.rent){anyRent=true;sumRSAA+=r.prop&&r.prop<=max?r.prop:max}
     tb.insertAdjacentHTML("beforeend",`<tr><td>Quarto ${i+1}${r.p===2?" (2 pessoas)":""}</td><td class="num">${calcA.toLocaleString("pt-PT",{maximumFractionDigits:0})} m²</td><td class="num"><strong>${eur(max)}</strong></td><td class="num">${r.p===2?eur(per):"–"}</td><td class="num">${r.prop?eur(r.prop):"–"}</td><td>${st}</td></tr>`);
     const w=total>0?(r.a/total*100):0;
     sp.insertAdjacentHTML("beforeend",`<div class="${r.rent?"":"off"}" style="flex:${w} 1 0" title="Quarto ${i+1}: ${eur(max)}">Q${i+1} · ${eur(max)}</div>`);
@@ -1207,7 +1200,7 @@ function render(L,maj,Lm){
   add(null,"Cabe ao senhorio comunicar cada contrato às Finanças e submeter a cópia e o comprovativo no IHRU até 15 de janeiro do ano seguinte.");
   $("checklist").innerHTML=items.join("");
   const nR=rooms.filter(r=>r.rent).length;
-  comparar(sumRSAA, sumMkt, anyRent, nR, rooms.map((r,i)=>({prop:r.prop,max:maxes[i],rent:r.rent})).filter(c=>c.rent&&c.prop>c.max));
+  comparar(sumRSAA, anyRent, rooms.map((r,i)=>({prop:r.prop,max:maxes[i],rent:r.rent})).filter(c=>c.rent&&c.prop>c.max));
   // No modo quartos, o veredicto soma os quartos arrendados (a parte dos não arrendados não é redistribuída).
   veredicto(maj,Lm,rooms.map((r,i)=>({prop:r.prop,max:maxes[i],rent:r.rent})).filter(c=>c.rent),falhas-falhaRendas);
   ultimo={maxes,acima:anyRent&&!allOk,falhas:falhas-falhaRendas,comRenda:rooms.some(r=>r.rent&&r.prop),semQuartos:!anyRent};
@@ -1251,42 +1244,35 @@ function requisitos(add,fin,prazo,quartos){
     add(null,"Cabe ao senhorio comunicar o contrato às Finanças e submeter a cópia do contrato e o comprovativo no IHRU até 15 de janeiro do ano seguinte.");
   }
 }
-// RSAA face ao regime normal. Se alguma renda proposta passa o valor máximo, a alternativa é essa renda, com IRS;
-// senão, a renda que o senhorio diz conseguir fora do RSAA (opcional; não usamos médias de mercado).
-// Equilíbrio: renda que, depois do IRS, deixa o mesmo que o valor isento = valor ÷ (1 − taxa).
-function comparar(rendaRSAA,rendaFora,anyRent,n,acima=[]){
-  const tax=(parseFloat($("tax").value)||0)/100,fora=parseFloat($("mkt").value)||0,pct=(Math.round(tax*1000)/10).toLocaleString("pt-PT");
+// RSAA face ao regime normal, sem médias de mercado (casas da mesma tipologia variam muito).
+// Se alguma renda proposta passa o valor máximo, compara com essa renda, com IRS. Senão, mostra o limiar:
+// a renda que, depois do IRS, deixa o mesmo que no RSAA = renda no RSAA ÷ (1 − taxa).
+function comparar(rendaRSAA,anyRent,acima=[]){
+  const tax=(parseFloat($("tax").value)||0)/100,pct=(Math.round(tax*1000)/10).toLocaleString("pt-PT");
   const proposta=anyRent&&acima.length>0,um=acima.length===1,q=modo!=="apt";
   const propA=acima.reduce((s,c)=>s+c.prop,0),maxA=acima.reduce((s,c)=>s+c.max,0);
-  const netR=rendaRSAA*12;
-  const netM=proposta?Math.round((rendaRSAA-maxA)*12+propA*12*(1-tax)):rendaFora*12*(1-tax);
-  const tem=proposta||(anyRent&&rendaFora>0);
-  $("cmpMLbl").textContent=proposta?(q?"Rendas propostas":"Renda proposta"):"Fora do RSAA";
+  const netR=rendaRSAA*12,netM=Math.round((rendaRSAA-maxA)*12+propA*12*(1-tax));
+  const limiar=tax<1?Math.ceil(rendaRSAA/(1-tax)):0;
   $("cmpH").textContent=proposta?`RSAA ou ${q?"rendas propostas":"renda proposta"}?`:"RSAA ou regime normal?";
+  $("cmpMLbl").textContent=proposta?`${q?"Rendas propostas":"Renda proposta"}, líquido por ano`:"Fora do RSAA, só compensa a partir de";
   $("netR").textContent=anyRent?eur(netR):"–";
-  $("netM").textContent=tem?eur(netM):"–";
   $("netRT").textContent=anyRent?`${eur(rendaRSAA)} × 12, sem IRS`:"";
-  $("netMT").textContent=!anyRent?"":!tem?"indique um valor no passo 5":proposta
+  $("netM").textContent=!anyRent?"–":proposta?eur(netM):`${eur(limiar)} /mês`;
+  $("netMT").textContent=!anyRent?"":proposta
     ?(q?`${um?"o quarto":"os quartos"} acima do máximo com IRS de ${pct} %`:`${eur(propA)} × 12 − IRS de ${pct} %`)
-    :`${eur(fora)}${n>1?` × ${n}`:""} × 12 − IRS de ${pct} %`;
-  $("cmpR").classList.toggle("win",tem&&netR>=netM);
-  $("cmpM").classList.toggle("win",tem&&netM>netR);
-  const explica=v=>`(${eur(v)} ÷ (1 − ${pct} %)): é a renda que, depois de pagar IRS, deixa o mesmo que ${eur(v)} isentos`;
+    :`${eur(rendaRSAA)} ÷ (1 − ${pct} %)${q?", soma dos quartos":""}`;
+  $("cmpR").classList.toggle("win",proposta&&netR>=netM);
+  $("cmpM").classList.toggle("win",proposta&&netM>netR);
   const fim=' <span class="hint">Sem despesas nem custos de manutenção.</span>';
   let nota="";
   if(anyRent&&tax<1){
     if(proposta){
       const ganha=netR>=netM?`O RSAA rende mais ${eur(netR-netM)} por ano.`:`${q?"As rendas propostas rendem":"A renda proposta rende"} mais ${eur(netM-netR)} por ano.`;
       nota=`<strong>${ganha}</strong> `+(um
-        ?`Fora do RSAA, ${q?"esse quarto":"a casa"} só compensa a partir de <strong>${eur(Math.ceil(acima[0].max/(1-tax)))}</strong> por mês ${explica(acima[0].max)}.`
+        ?`Fora do RSAA, ${q?"esse quarto":"a casa"} só compensa a partir de <strong>${eur(Math.ceil(acima[0].max/(1-tax)))}</strong> por mês (${eur(acima[0].max)} ÷ (1 − ${pct} %)): é a renda que, depois de pagar IRS, deixa o mesmo que ${eur(acima[0].max)} isentos.`
         :`Cada quarto acima do máximo só compensa fora do RSAA se a renda passar o seu valor máximo ÷ (1 − ${pct} %).`)+fim;
-    }else{
-      const base=n?rendaRSAA/n:0,eq=Math.ceil(base/(1-tax));
-      const limiar=`Fora do RSAA só compensa com uma renda a partir de <strong>${eur(eq)}</strong> por ${q?"quarto e por mês":"mês"} ${explica(Math.round(base))}.`;
-      nota=tem
-        ?`<strong>${netR>=netM?`O RSAA rende mais ${eur(netR-netM)} por ano.`:`Fora do RSAA rende mais ${eur(netM-netR)} por ano.`}</strong> ${limiar}${fim}`
-        :`${limiar} Se acha que ${q?"cada quarto consegue":"a casa consegue"} mais do que isso, indique o valor no passo 5 para comparar.${fim}`;
-    }
+    }else
+      nota=`É a renda que, depois de pagar IRS de ${pct} %, deixa o mesmo que ${eur(rendaRSAA)} isentos no RSAA. Abaixo disso, o RSAA rende mais. Se acha que ${q?"os quartos conseguem":"a casa consegue"} mais, escreva essa renda como renda proposta: o simulador compara as duas opções.${fim}`;
   }
   $("cmpNote").innerHTML=nota;
 }
@@ -1306,7 +1292,7 @@ function applyAuto(){
 // Rendas já escritas pelo utilizador mantêm-se (para verificar contra o limite); só as vazias recebem o máximo.
 function preencher(){if(modo==="apt"){if(!apt.prop)apt.auto=true}else rooms.forEach(r=>{if(r.rent&&!r.prop)r.auto=true})}
 
-["fin","prazo","fiscal","desp","mkt","tax","round"].forEach(id=>{$(id).addEventListener("input",recalc);$(id).addEventListener("change",recalc)});
+["fin","prazo","fiscal","desp","tax","round"].forEach(id=>{$(id).addEventListener("input",recalc);$(id).addEventListener("change",recalc)});
 $("aptR").addEventListener("input",()=>{apt.prop=parseFloat($("aptR").value)||0;apt.auto=false;recalc()});
 $("aptA").addEventListener("input",()=>{apt.a=Math.round(parseFloat($("aptA").value)||0);recalc()});
 $("tip").addEventListener("change",()=>{
@@ -1317,7 +1303,7 @@ syncRooms();
 // depois as mais-valias para o senhorio e, por fim, o que muda para o inquilino.
 function relatorio(acao){
   const {Lm}=limites(),tip=$("tip").value,quartos=modo!=="apt";
-  const t=(parseFloat($("tax").value)||0)/100,pctT=(Math.round(t*1000)/10).toLocaleString("pt-PT"),mkt=parseFloat($("mkt").value)||0; // renda fora do RSAA indicada pelo senhorio
+  const t=(parseFloat($("tax").value)||0)/100,pctT=(Math.round(t*1000)/10).toLocaleString("pt-PT");
   const fin=$("fin").value,prazo=parseFloat($("prazo").value)||0;
   const majs=[$("park").checked?"estacionamento (+10 %)":"",$("energy").checked?"certificado A+ (+10 %)":""].filter(Boolean);
   // Contratos: um por quarto arrendado, ou o apartamento inteiro
@@ -1329,8 +1315,7 @@ function relatorio(acao){
   const ativos=contratos.filter(c=>c.rent),n=ativos.length;
   const renda=c=>c.prop&&c.prop<=c.max?c.prop:c.max;           // renda no RSAA (proposta, ou o valor máximo se faltar ou passar)
   const anualRSAA=ativos.reduce((s,c)=>s+renda(c),0)*12,irsEvitado=Math.round(anualRSAA*t);
-  const anualMkt=Math.round(mkt*n*12*(1-t)),difMkt=anualRSAA-anualMkt;
-  const equilMkt=n?Math.ceil(anualRSAA/12/n/(1-t||1)):0;
+  const limiar=t<1?Math.ceil(anualRSAA/12/(1-t)):0; // renda total a partir da qual compensa ficar fora do RSAA
   const acima=ativos.filter(c=>c.prop>c.max);
   const somaProp=ativos.every(c=>c.prop)?ativos.reduce((s,c)=>s+c.prop,0):0,somaMax=ativos.reduce((s,c)=>s+c.max,0);
   const estado=c=>!c.rent?"não arrendado":!c.prop?"sem proposta":c.prop<=c.max?"dentro do valor":`${eur(c.prop-c.max)} acima`;
@@ -1357,7 +1342,7 @@ function relatorio(acao){
   const tabela=!quartos?"":contratos.length>5
     ?`<section><h2>Quartos</h2><div class="duas" style="font-size:10.5px">${tabelaQuartos(contratos.slice(0,meio))}${tabelaQuartos(contratos.slice(meio))}</div></section>`
     :`<section><h2>Quartos</h2>${tabelaQuartos(contratos)}</section>`;
-  // Comparação: com renda proposta acima do máximo, a alternativa é essa renda (com IRS); senão, a renda fora do RSAA indicada.
+  // Comparação: com renda proposta acima do máximo, a alternativa é essa renda (com IRS); senão, o limiar a partir do qual compensa.
   // Equilíbrio: valor ÷ (1 − taxa), a renda que depois do IRS deixa o mesmo que o valor isento.
   let comparacao;
   if(acima.length){
@@ -1368,11 +1353,8 @@ function relatorio(acao){
         <p style="margin-top:4px"><strong>${d>=0?`O RSAA rende mais ${eur(d)} por ano.`:`${quartos?"As rendas propostas rendem":"A renda proposta rende"} mais ${eur(-d)} por ano.`}</strong> ${um&&t<1?`Fora do RSAA só compensa a partir de ${eur(Math.ceil(acima[0].max/(1-t)))} por mês (${eur(acima[0].max)} ÷ (1 − ${pctT} %)).`:`Cada quarto só compensa fora do RSAA acima do seu valor máximo ÷ (1 − ${pctT} %).`}</p>
         <p class="nota" style="margin-top:4px">${NOTA_IRS(pctT)}</p>`;
   }else comparacao=`<h2>RSAA ou regime normal?</h2>
-        ${mkt?`<div class="comp" style="border:0;padding:0;font-size:inherit"><span>RSAA, líquido por ano</span><strong class="n">${eur(anualRSAA)}</strong><span>Fora do RSAA: ${eur(mkt)}${n>1?` × ${n}`:""} × 12 − IRS</span><span class="n" style="color:inherit">${eur(anualMkt)}</span></div>
-        <p style="margin-top:4px"><strong>${difMkt>=0?`O RSAA rende mais ${eur(difMkt)} por ano.`:`Fora do RSAA rende mais ${eur(-difMkt)} por ano.`}</strong> Fora do RSAA só compensa a partir de ${eur(equilMkt)} por ${quartos?"quarto e por mês":"mês"} (${eur(Math.round(anualRSAA/12/(n||1)))} ÷ (1 − ${pctT} %)).</p>
-        <p class="nota" style="margin-top:4px">${NOTA_IRS(pctT)} Renda fora do RSAA: valor indicado no simulador.</p>`
-        :`<p>Fora do RSAA só compensa com uma renda a partir de <strong>${eur(equilMkt)}</strong> por ${quartos?"quarto e por mês":"mês"}: ${eur(Math.round(anualRSAA/12/(n||1)))} ÷ (1 − ${pctT} %), a renda que, depois de pagar IRS, deixa o mesmo que no RSAA.</p>
-        <p class="nota" style="margin-top:4px">${NOTA_IRS(pctT)}</p>`}`;
+        <p>Fora do RSAA só compensa com ${quartos?"rendas que somem":"uma renda de"} pelo menos <strong>${eur(limiar)}</strong> por mês (${eur(anualRSAA/12)} ÷ (1 − ${pctT} %)): é a renda que, depois de pagar IRS, deixa o mesmo que ${eur(anualRSAA/12)} isentos. Abaixo disso, o RSAA rende mais.</p>
+        <p class="nota" style="margin-top:4px">${NOTA_IRS(pctT)}</p>`;
   (acao==="abrir"?abrirRelatorio:imprimirRelatorio)(`
     ${cabecalhoRelatorio("Análise para o senhorio · arrendamento acessível (RSAA)")}
     <section class="duas">
@@ -1405,7 +1387,7 @@ function dados(){
   const u=ultimo||{maxes:[],falhas:0},num=id=>parseFloat($(id).value)||0;
   const d={finalidade:$("fin").value==="temp"?"temporaria":"permanente",prazoMeses:num("prazo"),
     residenciaFiscalFora:$("fin").value==="temp"&&$("fiscal").checked,despesasAParte:$("desp").checked,
-    rendaForaRSAA:num("mkt"),taxaIRS:num("tax"),arredondar:+$("round").value};
+    taxaIRS:num("tax"),arredondar:+$("round").value};
   if(modo==="apt")d.apartamento={area:apt.a,renda:apt.prop,auto:!!apt.auto,valorMax:u.maxes[0]??0};
   else d.quartos=rooms.slice(0,12).map((r,i)=>({area:r.a,arrendado:r.rent,wcPrivativa:r.wc,pessoas:r.p,renda:r.prop,auto:!!r.auto,valorMax:u.maxes[i]??0}));
   const resultado=u.semQuartos?"incompleto":u.acima?"acima":u.falhas?"requisitos":u.comRenda?"dentro":"sem_renda";
