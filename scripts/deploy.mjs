@@ -4,7 +4,7 @@
 //   2. sobe a versão minor em package.json e public/js/versao.js;
 //   3. gera as páginas públicas (concelhos, sitemap), publica o simulador no Firestore, as regras e o site;
 //   4. se correr bem, faz commit e cria a tag vX.Y.Z; se falhar, repõe a versão anterior.
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { execSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
@@ -15,6 +15,12 @@ const FICHEIROS = ["package.json", "package-lock.json", "public/js/versao.js"];
 
 if (sh("git status --porcelain")) {
   console.error("Há alterações por guardar no git. Faça commit antes de publicar, para a versão corresponder ao código.");
+  process.exit(1);
+}
+
+// O e-mail de contacto vem de um ficheiro fora do git; sem ele a página de contacto sairia sem e-mail.
+if (!existsSync(raiz + "contacto.local.json")) {
+  console.error('Falta contacto.local.json (ex.: {"email": "nome@exemplo.pt"}). Crie-o antes de publicar.');
   process.exit(1);
 }
 

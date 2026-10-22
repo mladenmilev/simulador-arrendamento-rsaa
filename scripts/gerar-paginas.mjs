@@ -356,9 +356,18 @@ ${nomes.map(linha).join("\n")}
 `;
 }
 
+// E-mail de contacto: fica fora do git, em contacto.local.json ({"email": "..."}), para não aparecer no código público.
+// Sem esse ficheiro, a página de contacto mostra um aviso (o deploy recusa publicar assim).
+export const CONTACTO = raiz + "contacto.local.json";
+function emailContacto() {
+  try { return JSON.parse(readFileSync(CONTACTO, "utf8")).email || ""; } catch (e) { return ""; }
+}
+
 // Contacto: o e-mail não aparece no HTML. Está guardado em partes invertidas e só é montado no navegador
 // depois de um clique, o que trava a maioria dos robôs que recolhem endereços.
 function paginaContacto() {
+  const email = emailContacto(), inv = t => t.split("").reverse().join("");
+  const [u, d] = email.split("@");
   const url = `${SITE}/contacto`;
   const titulo = "Contacto – Simulador de Arrendamento Acessível (RSAA)";
   const descricao = "Sugestões, correções ou interesse em usar o simulador RSAA: contacte o autor.";
@@ -366,11 +375,13 @@ function paginaContacto() {
   return cabeca({ titulo, descricao, url, jsonld, migalhas: "Contacto" }) + `
   <h1>Contacto</h1>
   <p class="lede">Sugestões, correções ou interesse em usar o simulador? Escreva para:</p>
-  <p class="contacto"><button type="button" class="btn" id="mostrar" data-u="velim.nedalm" data-d="moc.liamg">Mostrar e-mail</button></p>
+  ${email ? `<p class="contacto"><button type="button" class="btn" id="mostrar" data-u="${esc(inv(u))}" data-d="${esc(inv(d))}">Mostrar e-mail</button></p>`
+    : `<p class="contacto hint">(Falta configurar o e-mail em contacto.local.json.)</p>`}
   <noscript><p class="hint">Ative o JavaScript para ver o endereço de e-mail.</p></noscript>
   <p class="hint">Este simulador é informativo e não substitui um contabilista ou advogado; não é possível responder a pedidos de aconselhamento sobre casos concretos.</p>
   <script>
-  document.getElementById("mostrar").addEventListener("click", function () {
+  var mostrar = document.getElementById("mostrar");
+  if (mostrar) mostrar.addEventListener("click", function () {
     var r = function (s) { return s.split("").reverse().join(""); };
     var e = r(this.dataset.u) + "@" + r(this.dataset.d);
     var a = document.createElement("a");
@@ -401,6 +412,7 @@ export function gerar() {
   for (const c of nomes) writeFileSync(pasta + slug(c) + ".html", paginaConcelho(c, todos[c], todos, rankT2));
   writeFileSync(pasta + "index.html", paginaIndice(todos));
   writeFileSync(raiz + "public/perguntas-frequentes.html", paginaFAQ());
+  if (!emailContacto()) console.warn("Aviso: contacto.local.json em falta; a página de contacto fica sem e-mail.");
   writeFileSync(raiz + "public/contacto.html", paginaContacto());
   writeFileSync(raiz + "public/como-se-calcula.html", paginaCalculo(todos));
   writeFileSync(raiz + "public/llms.txt", llmsTxt(todos));

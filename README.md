@@ -22,6 +22,11 @@ Cria `exportacoes/simulacoes.csv` (uma linha por simulação) e `exportacoes/qua
 
 `scripts/apagar-registos.mjs` apaga os dados do tempo em que havia login (coleção `registos` e utilizadores do Authentication); só apaga com `--confirmar`.
 
+## Ficheiros locais (fora do git)
+
+- `service-account.json` – chave de serviço do Firebase, para publicar e exportar.
+- `contacto.local.json` – e-mail mostrado na página de contacto: `{"email": "nome@exemplo.pt"}`. O `deploy` recusa publicar sem ele.
+
 ## Desenvolvimento local (nada vai para a produção)
 
 Requisitos: Node.js e Java 21 (para os emuladores do Firebase).
@@ -51,3 +56,7 @@ O `deploy`:
 4. faz commit `Publicar vX.Y.Z` e cria a tag `vX.Y.Z` (se falhar, repõe a versão anterior).
 
 A versão aparece discretamente no fundo das páginas.
+
+## Licença
+
+MIT – ver [LICENSE](LICENSE).

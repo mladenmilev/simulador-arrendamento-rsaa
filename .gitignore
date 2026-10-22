@@ -12,7 +12,8 @@ firebase-debug.*.log*
 # Node
 node_modules/
 
-# Credenciais (nunca enviar para o git)
+# Credenciais e dados pessoais (nunca enviar para o git)
+contacto.local.json
 service-account*.json
 *-firebase-adminsdk-*.json
 
