@@ -795,7 +795,7 @@ function estadoRenda(max,detalhe){
     const corpo=`<div class="valor"><b>${eur(ten.prop)}<small> /mês</small></b><span>valor máximo <strong>${eur(max)}</strong> · ${a.acima?"mais":"margem"} <strong>${eur(Math.abs(ten.prop-max))}</strong></span></div>
       <div class="barra" aria-hidden="true"><i></i><i style="width:${pos(ten.prop)}"></i><u style="left:${pos(max)}"></u><s style="left:${pos(max)}">${eur(max)}</s></div>${det}`;
     if(!a.acima){
-      mostrarVeredicto("ok","Sim, a sua renda está dentro do valor máximo do RSAA",corpo,"Com esta renda, o senhorio pode optar pelo RSAA e ficar <strong>isento de IRS</strong> sobre ela, sem a baixar.");
+      mostrarVeredicto("ok","Sim, a sua renda está dentro do valor máximo do RSAA",corpo,"Com esta renda, o senhorio pode optar pelo RSAA e ficar <strong>isento de IRS</strong> sobre ela.");
       $("tNextH").textContent="Próximo passo";
       $("tNext").innerHTML=`<strong>Proponha o RSAA ao senhorio.</strong> Com esta renda, deixa de pagar cerca de <strong>${eur(a.irs)} de IRS por ano</strong> (taxa de ${a.pct} %). É vantajoso para ele e dá-lhe a si um contrato com regras claras.`;
     }else{
@@ -994,7 +994,7 @@ function exportarRelatorio(acao){
     </section>
     <section class="duas">
       <div><h2>Para o inquilino</h2><ul>
-        ${temRenda?`<li><strong>Proponha o RSAA:</strong> com esta renda, o senhorio fica isento de IRS sem a baixar. É vantajoso para ele e dá-lhe a si um contrato com regras claras.</li>`:""}
+        ${temRenda?`<li><strong>Proponha o RSAA:</strong> com esta renda, o senhorio fica isento de IRS. É vantajoso para ele e dá-lhe a si um contrato com regras claras.</li>`:""}
         ${clareza}${prazo}</ul></div>
       <div>${caixaDados("Para o senhorio",[["Rendas por ano",`${eur(base*12)} (isentas)`],["IRS que deixa de pagar",`cerca de ${eur(irs)} /ano`,"forte"]],true)}
         <p class="nota" style="margin-top:6px">Estimativa ${temRenda?"com esta renda":`com ${eur(max)} por mês`}, à taxa autónoma de ${pct} %, sem encargos. A isenção de IRS (ou IRC) mantém-se enquanto o contrato cumprir as regras (DL n.º 97/2026, Anexo III, art. 6.º).</p></div>
