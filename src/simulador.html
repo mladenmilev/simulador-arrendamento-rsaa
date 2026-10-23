@@ -816,7 +816,6 @@ function estadoRenda(max,detalhe){
 // Sem as duas áreas não há valor fiável, por isso não se mostra nenhum.
 function renderTenant(Lm){
   semTeto();
-  const {maj}=limites();
   $("tp").value=ten.p;
   if(ten.total&&ten.total<ten.a){mostrarVeredicto("neutro","Verifique as áreas","","A área de todos os quartos não pode ser menor do que a área do seu quarto.");return}
   if(!ten.a||!ten.total){
@@ -827,12 +826,16 @@ function renderTenant(Lm){
   const max=Math.floor(Lm*(ten.wc?ten.a*1.25:ten.a)/ten.total);
   const m2=v=>v.toLocaleString("pt-PT",{maximumFractionDigits:2})+" m²",conta=ten.wc?ten.a*1.25:ten.a,casa=Math.floor(Lm);
   $("qHint").textContent=`O seu quarto tem ${m2(ten.a)} dos ${m2(ten.total)} de todos os quartos${ten.wc?` e, por ter casa de banho privativa, conta como ${m2(conta)}`:""}. Não conte sala, cozinha nem casas de banho.`;
-  // Explicação sem percentagens: a casa toda tem um valor máximo, que se divide pelos quartos conforme o tamanho.
-  estadoRenda(max,`Quarto num ${$("tip").value} em ${nomeConcelho(sel.value)}. A casa toda pode ter uma renda até ${eur(casa)}${maj?` (já com +${Math.round(maj*100)} %)`:""}. Esse valor divide-se pelos quartos conforme o tamanho: o seu quarto tem ${m2(ten.a)} dos ${m2(ten.total)} de todos os quartos${ten.wc?` e conta como ${m2(conta)} por ter casa de banho privativa`:""}, por isso o seu máximo é <strong>${eur(max)}</strong> (${eur(casa)} × ${m2(conta).replace(" m²","")} ÷ ${m2(ten.total).replace(" m²","")}).${ten.p===2?` Para 2 pessoas: ${eur(Math.floor(max/2))} cada.`:""}`);
+  // Explicação sem percentagens: a casa toda tem um limite, que se divide pelos quartos conforme o tamanho.
+  estadoRenda(max,`Um ${casaDescrita()} pode ter uma renda até ${eur(casa)} no âmbito do RSAA. Esse valor divide-se pelos quartos conforme o tamanho: o seu quarto tem ${m2(ten.a)} dos ${m2(ten.total)} de todos os quartos${ten.wc?` e conta como ${m2(conta)} por ter casa de banho privativa`:""}. Para o contrato ser elegível para o RSAA, a renda do quarto não pode ultrapassar <strong>${eur(max)}</strong> (${eur(casa)} × ${m2(conta).replace(" m²","")} ÷ ${m2(ten.total).replace(" m²","")}).${ten.p===2?` Num quarto para 2 pessoas, são ${eur(Math.floor(max/2))} por pessoa.`:""}`);
 }
 function renderTenantApt(max){
-  const {maj}=limites();
-  estadoRenda(max,`Apartamento ${$("tip").value} em ${nomeConcelho(sel.value)}${maj?` · com majoração de ${Math.round(maj*100)} %`:""}`);
+  estadoRenda(max,`Para o contrato ser elegível para o RSAA, a renda de um ${casaDescrita()} não pode ultrapassar <strong>${eur(max)}</strong>.`);
+}
+// «T3 em Odivelas com estacionamento privativo e certificado energético A ou superior»: as majorações ditas pelo nome.
+function casaDescrita(){
+  const extras=[$("park").checked?"estacionamento privativo":"",$("energy").checked?"certificado energético A ou superior":""].filter(Boolean);
+  return `${$("tip").value} em ${nomeConcelho(sel.value)}${extras.length?` com ${extras.join(" e ")}`:""}`;
 }
 // Relatórios (inquilino e senhorio): montados no navegador com os valores do ecrã e impressos (ou guardados em PDF).
 // O relatório não é enviado nem processado no servidor.
