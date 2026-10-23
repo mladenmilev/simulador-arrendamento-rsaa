@@ -124,6 +124,12 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 #tbody td:first-child{white-space:nowrap}
 .pill.ok{background:var(--ok-soft);color:var(--ok)}
 .pill.bad{background:var(--bad-soft);color:var(--bad)}
+/* Campos obrigatórios em falta: contorno, mensagem por baixo do campo e resumo junto ao botão. */
+.invalido{border-color:var(--bad)!important;box-shadow:0 0 0 3px var(--bad-soft)!important}
+.renda-campo:has(.invalido){border-color:var(--bad)!important;box-shadow:0 0 0 3px var(--bad-soft)}
+.renda-campo input.invalido{border-color:transparent!important;box-shadow:none!important}
+.msg-erro{color:var(--bad);font-size:.85rem;font-weight:600;margin:5px 0 0}
+#faltam{text-align:center;margin:10px 0 0}
 /* Telemóvel: a tabela dos quartos passa a um cartão por quarto (quarto e resultado em cima; valores por baixo). */
 @media (max-width:640px){
   .tbl{overflow:visible}
@@ -423,6 +429,7 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
       <div class="fillrow" style="margin-top:18px">
         <button type="button" class="btn primary" id="fillMax"><span class="only-sen">Calcular valores máximos</span><span class="only-inq">Verificar a minha renda</span></button>
       </div>
+      <p class="msg-erro" id="faltam" role="alert" hidden></p>
       <p class="hint nota-local" style="text-align:center;margin:6px 0 0">O cálculo é feito no seu dispositivo. Os valores ficam registados de forma anónima, só para estatísticas.</p>
     </section>
 
@@ -1050,7 +1057,65 @@ function registarSimulacao(){
   ultimoRegisto=chave;
   try{window.guardarSimulacao(d)}catch(e){}
 }
+// Campos obrigatórios: sem eles o resultado não diz nada útil. Ao calcular, cada campo em falta fica assinalado
+// (contorno e mensagem por baixo), há um resumo junto ao botão e o cursor vai para o primeiro;
+// no telemóvel, o assistente volta ao passo desse campo.
+function camposEmFalta(){
+  const inq=document.body.dataset.view==="inq"||!Senhorio,f=[],num=id=>parseFloat($(id).value)||0;
+  if(inq){
+    if(!num("tr"))f.push(["tr","Indique a renda (atual ou proposta pelo senhorio)."]);
+    if(modo!=="apt"){
+      if(!num("qA"))f.push(["qA","Indique a área do seu quarto."]);
+      if(!num("qT"))f.push(["qT","Indique a soma das áreas de todos os quartos."]);
+      else if(num("qA")&&num("qT")<num("qA"))f.push(["qT","A soma das áreas dos quartos não pode ser menor do que a área do seu quarto."]);
+    }
+  }else{
+    if(modo!=="apt"){
+      let arrendados=0;
+      document.querySelectorAll('#rooms input[id^="x"]').forEach(x=>{
+        const i=x.id.slice(1);if(!x.checked)return;arrendados++;
+        if(!num("a"+i))f.push(["a"+i,`Indique a área do quarto ${+i+1}.`]);
+      });
+      if(!arrendados)f.push(["x0","Marque pelo menos um quarto como arrendado."]);
+    }
+    if(!num("prazo"))f.push(["prazo","Indique o prazo do contrato, em meses."]);
+  }
+  return f;
+}
+function limparErros(){document.querySelectorAll(".invalido").forEach(limparErro);$("faltam").hidden=true}
+function limparErro(el){
+  el.classList.remove("invalido");el.removeAttribute("aria-invalid");
+  const m=$("erro-"+el.id);if(m)m.remove();
+  if(!document.querySelector(".invalido"))$("faltam").hidden=true;
+}
+function validar(){
+  limparErros();
+  const f=camposEmFalta();
+  if(!f.length){$("faltam").hidden=true;return true}
+  f.forEach(([id,msg])=>{
+    const el=$(id);el.classList.add("invalido");el.setAttribute("aria-invalid","true");
+    const p=document.createElement("p");p.className="msg-erro";p.id="erro-"+id;p.textContent=msg;
+    // Depois da caixa da renda, da linha do checkbox, ou logo a seguir ao campo.
+    const depois=el.closest(".renda-campo")||(el.type==="checkbox"?el.closest("label"):el);
+    depois.after(p);
+    el.setAttribute("aria-describedby",[el.getAttribute("aria-describedby"),p.id].filter(Boolean).join(" "));
+  });
+  $("faltam").textContent=f.length===1?"Preencha ou corrija o campo assinalado a vermelho.":`Preencha ou corrija os ${f.length} campos assinalados a vermelho.`;
+  $("faltam").hidden=false;
+  const el=$(f[0][0]),passoEl=el.closest(".passo");
+  if(document.body.classList.contains("assistente")&&passoEl){
+    document.body.classList.remove("com-resultado");
+    passo=+(document.body.dataset.view==="inq"?passoEl.dataset.pi:passoEl.dataset.ps)||passo;
+    atualizarAssistente();
+  }
+  el.focus({preventScroll:true});el.scrollIntoView({block:"center",behavior:"smooth"});
+  return false;
+}
+// O erro desaparece assim que o campo é preenchido.
+document.addEventListener("input",e=>{if(e.target.classList&&e.target.classList.contains("invalido"))limparErro(e.target)});
+document.addEventListener("change",e=>{if(e.target.classList&&e.target.classList.contains("invalido")&&e.target.type==="checkbox"&&e.target.checked)limparErro(e.target)});
 function fillMax(){
+  if(!validar())return;
   calculated=true;
   if(Senhorio&&document.body.dataset.view!=="inq")Senhorio.preencher();
   recalc();
@@ -1093,6 +1158,7 @@ $("alterar").addEventListener("click",()=>{document.body.classList.remove("com-r
 ecraPequeno.addEventListener("change",atualizarAssistente);
 
 function setView(v){
+  limparErros();
   document.body.dataset.view=v;
   $("v-sen").setAttribute("aria-pressed",v==="sen");
   $("v-inq").setAttribute("aria-pressed",v==="inq");
@@ -1101,6 +1167,7 @@ function setView(v){
   try{localStorage.setItem("vista",v)}catch(e){}
 }
 function setModo(m){
+  limparErros();
   modo=m;document.body.dataset.modo=m;
   // Um T0 não tem quartos: só pode ser arrendado inteiro.
   $("tip").querySelector('[value="T0"]').disabled=m==="q";
@@ -1132,6 +1199,7 @@ function syncRooms(){
   while(rooms.length<n)rooms.push({a:9,rent:true,wc:false,p:1,prop:0});
   rooms.length=n;
   const box=$("rooms");box.innerHTML="";
+  if(!document.querySelector(".invalido"))$("faltam").hidden=true;
   $("nQ").textContent=`· ${n} pela tipologia`;
   rooms.forEach((r,i)=>{
     const d=document.createElement("div");d.className="room";
