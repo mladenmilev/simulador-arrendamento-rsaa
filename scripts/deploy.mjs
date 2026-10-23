@@ -3,7 +3,9 @@
 //   1. exige o git sem alterações por guardar (cada versão corresponde a um commit);
 //   2. sobe a versão minor em package.json e public/js/versao.js;
 //   3. gera as páginas públicas (concelhos, sitemap), publica o simulador no Firestore, as regras e o site;
-//   4. se correr bem, faz commit e cria a tag vX.Y.Z; se falhar, repõe a versão anterior.
+//   4. se correr bem, faz commit e cria a tag vX.Y.Z; se falhar, repõe a versão anterior;
+//   5. envia o commit e a tag para o GitHub (remote origin). Se o envio falhar, o site já está publicado:
+//      basta repetir `git push origin HEAD --tags`.
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { execSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -55,3 +57,7 @@ sh(`git add ${FICHEIROS.join(" ")}`);
 sh(`git commit -q -m "Publicar v${versao}"`);
 sh(`git tag v${versao}`);
 console.log(`\nVersão ${versao} publicada. Commit e tag v${versao} criados.`);
+
+// O código no GitHub acompanha cada versão publicada.
+if (corre("git", ["push", "origin", "HEAD", `refs/tags/v${versao}`])) console.log(`Código e tag v${versao} enviados para o GitHub.`);
+else console.error("Aviso: o envio para o GitHub falhou (o site está publicado). Repita com: git push origin HEAD --tags");

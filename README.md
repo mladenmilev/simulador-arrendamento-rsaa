@@ -53,7 +53,8 @@ O `deploy`:
 1. exige o git sem alterações por guardar (cada versão corresponde a um commit);
 2. sobe a versão **minor** (ou a **major**, com `npm run deploy -- --major`) ([semver](https://semver.org/lang/pt-BR/)) em `package.json` e `public/js/versao.js`;
 3. publica o simulador no Firestore, as regras e o site;
-4. faz commit `Publicar vX.Y.Z` e cria a tag `vX.Y.Z` (se falhar, repõe a versão anterior).
+4. faz commit `Publicar vX.Y.Z` e cria a tag `vX.Y.Z` (se falhar, repõe a versão anterior);
+5. envia o commit e a tag para o GitHub (`origin`).
 
 A versão aparece discretamente no fundo das páginas.
 
