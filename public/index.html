@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Simulador de Arrendamento Acessível (RSAA)</title>
-<meta name="description" content="Calcule a renda máxima para um apartamento ou quarto beneficiar do Regime Simplificado de Arrendamento Acessível (RSAA) e da isenção de IRS.">
+<meta name="description" content="Calcule o valor de referência do Regime Simplificado de Arrendamento Acessível (RSAA): a renda até à qual um apartamento ou quarto beneficia da isenção de IRS.">
 <meta name="google-site-verification" content="SzM1xtUF0_9wQFytluwUCWOPxOz2yBNuP44_uI1DbY8">
 <meta name="msvalidate.01" content="27ACA0C4E9C824CA55B22207893E8229">
 <link rel="canonical" href="https://simulador-arrendamento-pt.web.app/">
@@ -13,11 +13,11 @@
 <meta property="og:locale" content="pt_PT">
 <meta property="og:site_name" content="Simulador de Arrendamento Acessível (RSAA)">
 <meta property="og:title" content="Simulador de Arrendamento Acessível (RSAA)">
-<meta property="og:description" content="Calcule a renda máxima para um apartamento ou quarto beneficiar do RSAA e da isenção de IRS. Para senhorios e inquilinos.">
+<meta property="og:description" content="Calcule o valor de referência do RSAA: a renda até à qual um apartamento ou quarto beneficia da isenção de IRS. Para senhorios e inquilinos.">
 <meta property="og:url" content="https://simulador-arrendamento-pt.web.app/">
 <meta property="og:image" content="https://simulador-arrendamento-pt.web.app/og.png">
 <meta name="twitter:card" content="summary_large_image">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Simulador de Arrendamento Acessível (RSAA)","url":"https://simulador-arrendamento-pt.web.app/","applicationCategory":"FinanceApplication","operatingSystem":"Web","inLanguage":"pt-PT","description":"Calcula a renda máxima de um apartamento ou de cada quarto para beneficiar do Regime Simplificado de Arrendamento Acessível (RSAA), com vista para senhorio e inquilino.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Simulador de Arrendamento Acessível (RSAA)","url":"https://simulador-arrendamento-pt.web.app/","applicationCategory":"FinanceApplication","operatingSystem":"Web","inLanguage":"pt-PT","description":"Calcula o valor de referência do Regime Simplificado de Arrendamento Acessível (RSAA), a renda até à qual um apartamento ou cada quarto beneficia da isenção de IRS, com vista para senhorio e inquilino.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -115,15 +115,15 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--tile);outline-offse
         <p class="lede">Veja em segundos se uma renda pode ficar no arrendamento acessível (RSAA) e quanto vale a isenção de IRS, para a casa toda ou para cada quarto.</p>
         <div class="portas">
           <div class="porta"><span class="quem">Sou inquilino</span><h2>A minha renda pode ficar no RSAA?</h2><a class="botao primario" href="/simulador?vista=inquilino">Verificar a minha renda →</a><small>Grátis e sem registo</small></div>
-          <div class="porta"><span class="quem">Sou senhorio</span><h2>Quanto posso pedir no RSAA?</h2><a class="botao escuro" href="/simulador?vista=senhorio">Calcular valores máximos →</a><small>Grátis e sem registo</small></div>
+          <div class="porta"><span class="quem">Sou senhorio</span><h2>Até que renda pode usar o RSAA?</h2><a class="botao escuro" href="/simulador?vista=senhorio" style="text-wrap:balance">Calcular valores de&nbsp;referência&nbsp;→</a><small>Grátis e sem registo</small></div>
         </div>
-        <p class="nota-valor">O valor máximo do RSAA não é um limite à renda: acima dele, a renda continua a ser permitida, mas o contrato segue a tributação normal.</p>
+        <p class="nota-valor">O valor de referência do RSAA não é um limite à renda: acima dele, a renda continua a ser permitida, mas o contrato segue a tributação normal.</p>
       </div>
       <div class="exemplo" aria-label="Exemplo de resultado">
         <span class="tag" id="exLocal">Exemplo · Odivelas · T3 · apartamento inteiro</span>
-        <p class="tit"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>Sim, a renda está dentro do valor máximo do RSAA</p>
+        <p class="tit"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>Sim, a renda está dentro do valor de referência do RSAA</p>
         <div class="valor"><span id="exRenda">1070 €</span><small> /mês</small></div>
-        <div class="linha">valor máximo <strong id="exMax">1193 €</strong> · margem <strong id="exMargem">123 €</strong></div>
+        <div class="linha">valor de referência RSAA <strong id="exMax">1193 €</strong> · margem <strong id="exMargem">123 €</strong></div>
         <div class="barra" aria-hidden="true"><i></i><i id="exBarra" style="width:76.1%"></i><u id="exTraco" style="left:84.7%"></u><s id="exRotulo" style="left:84.7%">1193 €</s></div>
         <p>O senhorio pode optar pelo RSAA e ficar <strong>isento de IRS</strong>. <a id="exLink" href="/renda-acessivel/odivelas">Ver os valores de Odivelas</a></p>
       </div>
@@ -138,12 +138,12 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--tile);outline-offse
     <div class="passos">
       <div class="passo"><span class="n">1</span><h3>Indique a renda e a casa</h3><p>Concelho, tipologia e se é um quarto ou o apartamento inteiro. Os valores vêm da Portaria n.º 454/2026/1.</p></div>
       <div class="passo"><span class="n">2</span><h3>Veja o veredicto</h3><p>Verde se a renda cabe no RSAA, laranja se fica fora, com o que isso significa para cada parte.</p>
-        <div class="chips"><span class="chip ok">✓ Dentro do valor máximo</span><span class="chip fora">▲ Acima do valor máximo</span></div></div>
+        <div class="chips"><span class="chip ok">✓ Dentro do valor de referência</span><span class="chip fora">▲ Acima do valor de referência</span></div></div>
       <div class="passo"><span class="n">3</span><h3>Leve o relatório</h3><p>Uma página em PDF para mostrar ao senhorio, ao inquilino ou ao contabilista.</p></div>
     </div>
   </section>
   <section class="numeros" aria-label="O que o simulador faz">
-    <div><strong>308</strong><span>concelhos</span><p>Todos os valores máximos da Portaria, de T0 a T8, com majorações. <a href="/renda-acessivel/">Ver a tabela</a></p></div>
+    <div><strong>308</strong><span>concelhos</span><p>Todos os valores de referência da Portaria, de T0 a T8, com majorações. <a href="/renda-acessivel/">Ver a tabela</a></p></div>
     <div><strong>2 vistas</strong><span>inquilino e senhorio</span><p>Sem registo nem login, para quem arrenda e para quem procura casa.</p></div>
     <div><strong>✓ / ✕</strong><span>requisitos do contrato</span><p>Prazos, residência fiscal, área mínima e despesas verificados.</p></div>
   </section>
@@ -161,8 +161,8 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--tile);outline-offse
       </div>
       <div class="cartao">
         <h3>Sou senhorio</h3>
-        <p class="msg">Calcule o valor máximo da casa ou de cada quarto, confirme os requisitos do contrato e veja a partir de que renda compensaria ficar fora do RSAA.</p>
-        <a class="botao escuro largo" href="/simulador?vista=senhorio">Calcular valores máximos</a>
+        <p class="msg">Calcule o valor de referência do RSAA da casa ou de cada quarto, confirme os requisitos do contrato e veja a partir de que renda compensaria ficar fora do RSAA.</p>
+        <a class="botao escuro largo" href="/simulador?vista=senhorio">Calcular valores de referência</a>
       </div>
     </section>
 
