@@ -35,3 +35,5 @@ td.num{white-space:nowrap}
 .contacto a{font-weight:600}
 button.btn{font:inherit;font-weight:600;cursor:pointer;background:transparent;color:var(--tile)}
 .formula{background:var(--tile-soft);border-left:4px solid var(--tile);border-radius:10px;padding:10px 14px;margin:10px 0}
+.nota.licenca{margin-top:6px;font-size:.74rem;opacity:.85}
+.hint.licenca{font-size:.78rem;margin-top:16px}

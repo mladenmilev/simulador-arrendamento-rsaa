@@ -82,6 +82,7 @@ const rodape = `
   </section>
   <p class="nota"><a href="/perguntas-frequentes">Perguntas frequentes sobre o RSAA</a> · <a href="/como-se-calcula">Como se calcula</a> · <a href="/renda-acessivel/">Renda acessível por concelho</a> · <a href="/contacto">Contacto</a> · <a href="/termos">Termos de utilização</a></p>
   <p class="nota">Valores da <a href="${PORTARIA}" target="_blank" rel="noopener">Portaria n.º 454/2026/1</a>, de 13 de outubro (anexo), que regulamenta o RSAA (Decreto-Lei n.º 97/2026, Anexo III). Atualizados automaticamente a 1 de janeiro de cada ano pelo coeficiente do NRAU. Página informativa; não substitui um contabilista ou advogado. Não afiliado ao IHRU.</p>
+  <p class="nota licenca">Uso pessoal gratuito; uso profissional ou comercial requer licença do autor (Business Source License 1.1). Ver os <a href="/termos">termos de utilização</a>.</p>
 </div>
 <p class="versao" id="versao"></p>
 <script type="module">
@@ -419,6 +420,7 @@ function paginaContacto() {
     : `<p class="contacto hint">(Falta configurar o e-mail em contacto.local.json.)</p>`}
   <noscript><p class="hint">Ative o JavaScript para ver o endereço de e-mail.</p></noscript>
   <p class="hint">Este simulador é informativo e não substitui um contabilista ou advogado; não é possível responder a pedidos de aconselhamento sobre casos concretos.</p>
+  <p class="hint licenca">Licenças para uso profissional, comercial ou para incorporar o simulador noutro site: escreva para o mesmo endereço. O uso pessoal é gratuito. O código-fonte está disponível em <a href="${REPOSITORIO}" target="_blank" rel="noopener">GitHub</a> sob a Business Source License 1.1; ver os <a href="/termos">termos de utilização</a>.</p>
   <script>
   var mostrar = document.getElementById("mostrar");
   if (mostrar) mostrar.addEventListener("click", function () {
