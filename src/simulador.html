@@ -803,10 +803,10 @@ function estadoRenda(max,detalhe){
       mostrarVeredicto("fora","A sua renda está acima do valor de referência do RSAA",corpo,"É uma renda <strong>legal</strong>, mas com ela o contrato fica fora do RSAA e o senhorio paga IRS pela tributação normal.");
       if(a.dif>=0){
         $("tNextH").textContent="O RSAA compensaria ao senhorio";
-        $("tNext").innerHTML=`Com ${eur(max)} no RSAA, o senhorio receberia <strong>mais ${eur(a.dif)} por ano</strong> do que com esta renda no regime normal, porque não paga IRS. E o inquilino pagaria menos ${eur((ten.prop-max)*12)} por ano. É um argumento para negociar. <strong>O RSAA é opcional.</strong>`;
+        $("tNext").innerHTML=`Com ${eur(max)} no RSAA, o senhorio receberia <strong>mais ${eur(a.dif)} por ano</strong> do que com esta renda no regime normal, porque não paga IRS (${CONTA_IRS(a.rsaa,a.livre,a.pct)}). E o inquilino pagaria menos ${eur((ten.prop-max)*12)} por ano. É um argumento para negociar. <strong>O RSAA é opcional.</strong>`;
       }else{
         $("tNextH").textContent="O que isto significa";
-        $("tNext").innerHTML=`Com esta renda, o senhorio recebe <strong>mais ${eur(-a.dif)} por ano</strong> fora do RSAA, mesmo pagando IRS: não tem motivação fiscal para aderir. <strong>O RSAA é opcional.</strong> Pode comparar com rendas semelhantes na zona e confirmar no contrato o prazo e as despesas.`;
+        $("tNext").innerHTML=`Com esta renda, o senhorio recebe <strong>mais ${eur(-a.dif)} por ano</strong> fora do RSAA, mesmo pagando IRS (${CONTA_IRS(a.rsaa,a.livre,a.pct)}): não tem motivação fiscal para aderir. <strong>O RSAA é opcional.</strong> Pode comparar com rendas semelhantes na zona e confirmar no contrato o prazo e as despesas.`;
       }
     }
   }
@@ -960,7 +960,11 @@ const listaReq=(itens)=>`<div class="req">${itens.map(([s,h])=>`${ICONE_REL[s]}<
 const textoValorMaximo=(quarto,curto)=>curto
   ?`É a renda mensal até à qual o contrato pode beneficiar do RSAA e da isenção de IRS para o senhorio. Não é um limite à renda: o senhorio pode pedir mais, e é legal, mas nesse caso o contrato segue a tributação normal.`
   :`É a renda mensal até à qual o contrato pode beneficiar do RSAA e da isenção de IRS para o senhorio. Não é um limite à renda: o senhorio pode pedir mais, e é legal, mas nesse caso o contrato segue a tributação normal. ${quarto?"Num quarto, o valor de referência da casa é repartido em proporção da área de cada quarto (Portaria n.º 454/2026/1, art. 2.º, n.º 2).":"Para um apartamento inteiro, depende do concelho, da tipologia e das majorações aplicáveis."}`;
-const NOTA_IRS=pct=>`Líquido estimado à taxa autónoma de ${pct} %, sem descontar encargos (IMI, condomínio, seguros, obras) nem reduções de taxa para contratos longos.`;
+// Contas de IRS: tributação habitual das rendas (taxa autónoma, art. 72.º do CIRS), sem as despesas dedutíveis.
+const SEM_DESPESAS="sem descontar despesas como IMI, condomínio ou obras";
+const NOTA_IRS=pct=>`Valores líquidos com a tributação habitual das rendas (taxa autónoma de IRS de ${pct} %), ${SEM_DESPESAS}, nem reduções de taxa para contratos longos.`;
+// «5616 € isentos de IRS contra 4500 € líquidos com a tributação habitual, à taxa autónoma de 25 %, sem descontar…»
+const CONTA_IRS=(isento,liquido,pct)=>`${eur(isento)} isentos de IRS contra ${eur(liquido)} líquidos com a tributação habitual, à taxa autónoma de ${pct} %, ${SEM_DESPESAS}`;
 function exportarRelatorio(acao){
   if(tenMax==null)return;
   const {Lm,maj}=limites(),max=tenMax,quarto=modo!=="apt",tip=$("tip").value;
@@ -1008,12 +1012,12 @@ function exportarRelatorio(acao){
     const compensa=dif>=0;
     const painel=compensa
       ?`<h2>O RSAA compensaria ao senhorio</h2>
-        <ul><li>Com ${eur(max)} no RSAA, o senhorio receberia <strong>mais ${eur(dif)} por ano</strong> do que com esta renda no regime normal, porque não paga IRS.</li>
+        <ul><li>Com ${eur(max)} no RSAA, o senhorio receberia <strong>mais ${eur(dif)} por ano</strong> do que com esta renda no regime normal, porque não paga IRS (${CONTA_IRS(rsaa,livre,pct)}).</li>
         <li>E o inquilino pagaria menos ${eur((ten.prop-max)*12)} por ano.</li>
         <li>É um argumento para negociar: ambos ficam a ganhar. <strong>O RSAA é opcional.</strong></li></ul>`
       :`<h2>Porque esta renda fica fora do RSAA</h2>
         <ul><li>O senhorio só adere ao RSAA se lhe compensar.</li>
-        <li>Com esta renda, recebe <strong>mais ${eur(-dif)} por ano</strong> fora do regime, mesmo pagando IRS. Por isso, não tem motivação fiscal para aderir.</li>
+        <li>Com esta renda, recebe <strong>mais ${eur(-dif)} por ano</strong> fora do regime, mesmo pagando IRS (${CONTA_IRS(rsaa,livre,pct)}). Por isso, não tem motivação fiscal para aderir.</li>
         <li>Uma renda acima do valor de referência do RSAA pode refletir as características da casa, a localização ou a procura na zona. <strong>O RSAA é opcional.</strong></li></ul>`;
     corpo=`<section class="duas">
       <div class="col">${cartaoEstado(ten.prop,max,{selo:"Acima do valor de referência · fora do RSAA",texto:"Renda <strong>legal</strong>, mas fora do RSAA: o senhorio paga IRS pela tributação normal."})}
@@ -1321,7 +1325,7 @@ function veredicto(maj,Lm,ativos,falhas){
     const propA=acima.reduce((s,c)=>s+c.prop,0),maxA=acima.reduce((s,c)=>s+c.max,0);
     const livre=Math.round(propA*12*(1-t)),rsaa=maxA*12,d=rsaa-livre,um=acima.length===1;
     mostrarVeredicto("fora",q?`${um?"Um quarto tem":acima.length+" quartos têm"} renda acima do valor de referência do RSAA`:"A renda proposta está acima do valor de referência do RSAA",corpo,
-      `É legal, mas ${um?"esse contrato fica":"esses contratos ficam"} fora do RSAA e ${um?"é tributado":"são tributados"} normalmente. Com ${um&&!q?"a renda proposta":"as rendas propostas"} recebe ${eur(livre)} líquidos por ano; com o valor de referência do RSAA, ${eur(rsaa)} isentos: ${d>=0?`o RSAA rende mais <strong>${eur(d)}</strong> por ano`:`o regime normal rende mais <strong>${eur(-d)}</strong> por ano`}.`,"sVer");
+      `É legal, mas ${um?"esse contrato fica":"esses contratos ficam"} fora do RSAA e ${um?"é tributado":"são tributados"} normalmente. ${d>=0?`Com ${q?(um?"esse quarto":"esses quartos")+" no valor de referência":"o valor de referência"} (${eur(maxA)}), rende mais <strong>${eur(d)} por ano</strong>`:`Com ${um&&!q?"a renda proposta":"as rendas propostas"}, rende mais <strong>${eur(-d)} por ano</strong> do que no RSAA`}: ${CONTA_IRS(rsaa,livre,(Math.round(t*1000)/10).toLocaleString("pt-PT"))}.`,"sVer");
   }else if(falhas)
     mostrarVeredicto("fora",`${q?"As rendas cabem":"A renda cabe"} no valor de referência do RSAA, mas há requisitos por cumprir`,corpo,"Sem cumprir todos os requisitos, o contrato não fica no RSAA. Veja os requisitos do contrato.","sVer");
   else
@@ -1359,7 +1363,7 @@ function comparar(rendaRSAA,anyRent,acima=[]){
     :`${eur(rendaRSAA)} ÷ (1 − ${pct} %)${q?", soma dos quartos":""}`;
   $("cmpR").classList.toggle("win",proposta&&netR>=netM);
   $("cmpM").classList.toggle("win",proposta&&netM>netR);
-  const fim=' <span class="hint">Sem despesas nem custos de manutenção.</span>';
+  const fim=` <span class="hint">Tributação habitual (taxa autónoma de ${pct} %), ${SEM_DESPESAS}.</span>`;
   let nota="";
   if(anyRent&&tax<1){
     if(proposta){
