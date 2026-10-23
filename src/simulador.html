@@ -72,11 +72,12 @@ label{display:block;font-weight:600;font-size:.92rem;margin-bottom:4px}
 select,input[type=number],input[type=text]{width:100%;min-height:44px;padding:9px 12px;border:1px solid var(--field);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit}
 select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid var(--tile);outline-offset:2px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.row2.alinhar{align-items:end}
 /* Duas colunas com rótulo, campo e dica alinhados linha a linha (subgrid). */
-.row2.campos{grid-template-rows:auto auto auto;row-gap:0}
-.row2.campos>.field{display:grid;grid-row:span 3;grid-template-rows:subgrid;row-gap:0}
-.row2.campos>.field>label{align-self:end}
+.row2.alinhar,.row2.campos{grid-template-rows:auto auto auto auto;row-gap:0}
+/* Campos lado a lado partilham as linhas (rótulo, campo, mensagem de erro, ajuda): os campos ficam sempre
+   à mesma altura, mesmo que só um tenha mensagem por baixo ou um rótulo em duas linhas. */
+.row2.alinhar>.field,.row2.campos>.field{display:grid;grid-row:span 4;grid-template-rows:subgrid;row-gap:0;align-content:start}
+.row2.alinhar>.field>label,.row2.campos>.field>label{align-self:end}
 /* Garante que [hidden] esconde mesmo elementos com display próprio (ex.: .pill). */
 [hidden]{display:none!important}
 .field{margin-bottom:14px}
@@ -98,8 +99,10 @@ body:not([data-view="inq"]) .only-inq{display:none!important}
 .room{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--bg)}
 .room-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .room-head strong{font-family:Manrope,system-ui,sans-serif;font-weight:800;font-size:1.05rem}
-.room .r3{display:grid;grid-template-columns:76px 1fr 1fr;gap:8px;align-items:end}
-.room .r3 strong{font-family:Manrope,system-ui,sans-serif;font-weight:800;align-self:center}
+.room .r3{display:grid;grid-template-columns:76px 1fr 1fr;grid-template-rows:auto auto auto;gap:0 8px}
+.room .r3>div{display:grid;grid-row:span 3;grid-template-rows:subgrid}
+.room .r3>div>label{align-self:end}
+.room .r3 strong{font-family:Manrope,system-ui,sans-serif;font-weight:800;grid-column:1;grid-row:2;align-self:center}
 .room .r3 label{font-size:.75rem;font-weight:500;color:var(--muted);margin-bottom:2px}
 .room .r3 input{min-height:38px;padding:6px 10px}
 .room .flags{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:8px;font-size:.85rem}
@@ -270,7 +273,7 @@ body.assistente:not(.primeiro-passo) .inq-intro{display:none}
   .info-inq{font-size:.88rem}
 }
 @media (max-width:860px){input,select,textarea{font-size:16px!important}.sources a{display:inline-block;padding:6px 0}}
-@media (max-width:640px){.sources{columns:1}.room .r3{grid-template-columns:1fr 1fr}.room .r3 strong{grid-column:1/-1}.cmp-duas{gap:8px}.cmp b{font-size:1.3rem}}
+@media (max-width:640px){.sources{columns:1}.room .r3{grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto auto}.room .r3 strong{grid-column:1/-1;grid-row:1;margin-bottom:6px}.cmp-duas{gap:8px}.cmp b{font-size:1.3rem}}
 </style>
 </head>
 <body>
