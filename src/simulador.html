@@ -841,72 +841,110 @@ function casaDescrita(){
 // Relatórios (inquilino e senhorio): montados no navegador com os valores do ecrã e impressos (ou guardados em PDF).
 // O relatório não é enviado nem processado no servidor.
 const TAXA_IRS_EXEMPLO=0.25; // taxa autónoma normal sobre rendas, só para o exemplo do senhorio
-// Estilos do relatório: fonte única para a impressão (PDF) e para a página "Análise da situação".
-// Medidas em px pensadas para uma folha A4 (794 px de largura); as cores fortes imprimem-se (print-color-adjust).
-const CSS_RELATORIO=`#relatorio{color:#0E1726;background:#fff;font:11.5px/1.45 "IBM Plex Sans",system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;display:flex;flex-direction:column;gap:14px}
+// Relatórios (versão 3): uma folha A4 com cabeçalho ilustrado (rua em contorno), resultado com escala,
+// números-chave, requisitos, próximos passos e a definição do valor de referência. Mesmo HTML e estilos na
+// «Análise da situação» (página nova) e no PDF (impressão da própria página, sem margens).
+// A escala mostra duas zonas: até ao valor de referência (pode ficar no RSAA) e acima (legal, sem RSAA).
+const CSS_RELATORIO=`#relatorio{width:100%;max-width:210mm;min-height:296mm;margin:0 auto;background:#fff;color:#0E1726;font:12px/1.45 "IBM Plex Sans",system-ui,sans-serif;display:flex;flex-direction:column;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 #relatorio *{box-sizing:border-box}
-#relatorio .cab{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:10px;border-bottom:1px solid #E2E8F0}
-#relatorio .marca{display:flex;align-items:center;gap:8px;font:800 12px Manrope,system-ui,sans-serif;color:#0E1726}
-#relatorio .marca>span{color:#0E1726}
-#relatorio .marca em{font-style:normal;color:#0B6E61}
-#relatorio .tiles{width:22px;height:22px;border-radius:6px;background:#0B6E61;display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:4px}
-#relatorio .tiles i{background:#9FE3D6;border-radius:1px}#relatorio .tiles i:nth-child(3n+1){background:#fff;border-radius:50%}
-#relatorio .cab small{color:#64748B;font-size:10.5px;text-align:right}
-#relatorio h1{font:800 22px/1.15 Manrope,system-ui,sans-serif;letter-spacing:-.01em;margin:0}
-#relatorio h2{font:800 13px/1.25 Manrope,system-ui,sans-serif;margin:0 0 6px;color:#0B6E61;break-after:avoid}
+#relatorio h1,#relatorio h2,#relatorio h3,#relatorio h4{font-family:Manrope,system-ui,sans-serif;font-weight:800;margin:0;letter-spacing:-.01em}
 #relatorio p{margin:0}
-#relatorio ul{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:4px}
-#relatorio .duas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:stretch}
-#relatorio .col{display:flex;flex-direction:column;gap:10px}
-#relatorio section,#relatorio .cartao,#relatorio .caixa,#relatorio .painel,#relatorio .info{break-inside:avoid}
-#relatorio .cartao{--c:#0B6E61;--m:#335F57;--fundo:#EAF6F2;--pista:#CDE9E1;background:var(--fundo);border:1.5px solid var(--c);border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:5px}
-#relatorio .cartao.fora{--c:#B45309;--m:#7A4A12;--fundo:#FDF4E6;--pista:#F6DFBC}
-#relatorio .cartao.neutro{--c:#475569;--m:#475569;--fundo:#F4F6F8;--pista:#E2E8F0}
-#relatorio .selo{display:flex;align-items:center;gap:6px}
-#relatorio .selo span{background:var(--c);color:#fff;font-weight:600;font-size:9.5px;padding:2px 8px;border-radius:999px}
-#relatorio .valor{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
-#relatorio .valor b{font:800 24px/1.05 Manrope,system-ui,sans-serif}
-#relatorio .valor b small{font:500 10.5px "IBM Plex Sans",system-ui,sans-serif;color:var(--m)}
-#relatorio .valor span{font-size:10.5px;color:var(--m)}#relatorio .valor span strong:last-child{color:var(--c)}
-#relatorio .barra{position:relative;height:26px}
-#relatorio .barra i{position:absolute;left:0;top:4px;height:6px;border-radius:999px;background:var(--c)}
-#relatorio .barra i:first-child{right:0;background:var(--pista)}
-#relatorio .barra u{position:absolute;top:0;width:2px;height:14px;margin-left:-1px;background:#0E1726}
-#relatorio .barra s{position:absolute;top:14px;transform:translateX(-50%);font-size:9.5px;font-weight:700;text-decoration:none;white-space:nowrap}
-#relatorio .cartao p{font-size:11px}
-#relatorio .caixa{border:1px solid #E2E8F0;border-radius:12px;padding:10px 14px}
-#relatorio .info{background:#F4F6F8;border-radius:12px;padding:10px 14px}
-#relatorio .col .info{flex:1}
-#relatorio .painel{border:1px solid #E2E8F0;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
-#relatorio .painel h2{margin:0}#relatorio .painel h2+*{margin-top:-2px}
-#relatorio .painel ul{padding-left:15px}
-#relatorio .kv{display:grid;grid-template-columns:148px minmax(0,1fr);row-gap:4px;margin:0}
-#relatorio .kv dt{color:#64748B}#relatorio .kv dd{margin:0}
-#relatorio .kv .forte{font-weight:600;color:#0B6E61}
-#relatorio .req{display:grid;grid-template-columns:18px minmax(0,1fr);gap:6px 8px;align-items:start}
-#relatorio .legenda{margin-top:auto!important;color:#64748B;font-size:10px}
-#relatorio .comp{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;font-size:10.5px;border-top:1px solid #E2E8F0;padding-top:6px}
-#relatorio .comp span{color:#64748B}#relatorio .comp .n{text-align:right}
-#relatorio .nota{color:#64748B;font-size:9.5px}
-#relatorio table{width:100%;border-collapse:collapse;font-size:inherit}
-#relatorio th,#relatorio td{font-size:inherit;line-height:inherit;border-bottom:1px solid #E2E8F0;padding:3px 6px;text-align:left;vertical-align:top}
-#relatorio th{font-weight:500;color:#64748B}
-#relatorio .rodape{padding-top:8px;border-top:1px solid #E2E8F0;color:#64748B;font-size:9.5px}`;
+#relatorio .topo{flex:none;position:relative;overflow:hidden;background:#EAF6F2;padding:26px 40px 24px;min-height:150px}
+#relatorio .rua-rel{position:absolute;right:0;bottom:0} /* nome próprio: .rua já existe no site (imagem da página inicial) */
+#relatorio .l1{position:relative;display:flex;justify-content:space-between;align-items:center;gap:12px}
+#relatorio .marca{display:flex;align-items:center;gap:8px;font:800 13px Manrope,system-ui,sans-serif;color:#0E1726}
+#relatorio .marca em{font-style:normal;color:#0B6E61}
+#relatorio .logo{width:24px;height:24px;border-radius:7px;background:#0B6E61;display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:5px}
+#relatorio .logo i{background:#fff;border-radius:50%}#relatorio .logo i:nth-child(2),#relatorio .logo i:nth-child(3){background:#9FE3D6;border-radius:1px}
+#relatorio .data{font-size:11px;color:#335F57;text-align:right}
+#relatorio .topo h1{position:relative;font-size:22px;line-height:1.2;margin:16px 0 10px;white-space:nowrap}
+#relatorio .chips{position:relative;display:flex;gap:8px;flex-wrap:wrap}
+#relatorio .chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #CDE9E1;border-radius:999px;padding:4px 11px;font-weight:600;font-size:11.5px}
+#relatorio .corpo{flex:1 0 auto;padding:16px 40px 0;display:flex;flex-direction:column;gap:12px}
+#relatorio section{break-inside:avoid}
+#relatorio .ver{--c:#0B6E61;--t:#0B6E61;border:1.5px solid var(--c);border-radius:16px;padding:16px 18px 12px;display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:2px 14px;align-items:center}
+#relatorio .ver.fora{--c:#B45309;--t:#9A4708}#relatorio .ver.neutro{--c:#64748B;--t:#334155}
+#relatorio .ver .sel{width:44px;height:44px;border-radius:50%;background:var(--c);display:grid;place-items:center}
+#relatorio .ver h2{font-size:17px;color:var(--t)}
+#relatorio .ver p{margin-top:2px;color:#334155}
+#relatorio .ver .num{font:800 30px/1 Manrope,system-ui,sans-serif;text-align:right;white-space:nowrap}
+#relatorio .ver .num.peq{font-size:24px}
+#relatorio .ver .num small{font:500 12px "IBM Plex Sans",system-ui,sans-serif;color:#475569}
+#relatorio .escala{grid-column:1/-1;margin-top:10px;width:100%;height:auto}
+#relatorio .legenda{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 18px;font-size:11px;color:#475569;margin-top:2px}
+#relatorio .legenda span{display:inline-flex;align-items:center;gap:6px}
+#relatorio .legenda i{width:14px;height:8px;border-radius:3px;display:inline-block}
+#relatorio .kpis{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:10px}
+#relatorio .kpi{border:1px solid #E2E8F0;border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:32px minmax(0,1fr);gap:0 10px;align-items:center}
+#relatorio .kpi .ico{grid-row:span 2;width:32px;height:32px;border-radius:9px;background:#EAF6F2;display:grid;place-items:center}
+#relatorio .kpi span{color:#475569;font-size:11px}
+#relatorio .kpi b{font:800 16px Manrope,system-ui,sans-serif}
+#relatorio .caixa{border:1px solid #E2E8F0;border-radius:14px;padding:12px 14px}
+#relatorio .caixa h3,#relatorio .vant h3{font-size:13px;color:#0B6E61;margin:0 0 9px}
+#relatorio .duas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#relatorio .lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px;font-size:11.5px;line-height:1.4}
+#relatorio .lista li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px;align-items:start}
+#relatorio .lista svg{margin-top:1px}
+#relatorio .passos{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+#relatorio .passos li{display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;position:relative;padding-bottom:9px;font-size:11.5px;line-height:1.4}
+#relatorio .passos li:not(:last-child)::after{content:"";position:absolute;left:11px;top:24px;bottom:2px;width:2px;background:#CDE9E1}
+#relatorio .passos .n{width:24px;height:24px;border-radius:50%;background:#0B6E61;color:#fff;display:grid;place-items:center;font:800 11.5px Manrope,system-ui,sans-serif}
+#relatorio .passos b{display:block}#relatorio .passos span{color:#475569}
+#relatorio .vant{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#relatorio .vant>div{background:#F4F6F8;border-radius:14px;padding:12px 14px;display:grid;grid-template-columns:34px minmax(0,1fr);gap:0 12px}
+#relatorio .vant .ico{width:34px;height:34px;border-radius:50%;background:#fff;display:grid;place-items:center}
+#relatorio .vant p{color:#334155}
+#relatorio .reparte,#relatorio .comp{border:1px solid #E2E8F0;border-radius:14px;padding:12px 14px}
+#relatorio .reparte h3,#relatorio .comp h3{font-size:13px;color:#0B6E61;margin:0 0 8px}
+#relatorio .chave{display:flex;flex-direction:column;margin:0 0 4px}
+#relatorio .chave span{text-align:center;font-weight:600;font-size:11.5px}
+#relatorio .chave i{display:block;height:8px;border:2px solid #0E1726;border-bottom:0;border-radius:4px 4px 0 0;margin-top:3px}
+#relatorio .barra-q{display:flex;height:36px;border-radius:9px;overflow:hidden;gap:2px}
+#relatorio .barra-q div{display:flex;align-items:center;justify-content:center;font-weight:600;font-size:11.5px;white-space:nowrap;overflow:hidden;padding:0 4px}
+#relatorio .barra-q .off{background:repeating-linear-gradient(135deg,#F1F5F9 0 6px,#E2E8F0 6px 8px)!important;color:#475569!important}
+#relatorio .formula,#relatorio .comp p{margin-top:8px;color:#334155}
+#relatorio .bar{display:grid;grid-template-columns:230px minmax(0,1fr) 84px;gap:10px;align-items:center;margin-bottom:8px}
+#relatorio .bar span{color:#334155}
+#relatorio .bar .trilho{height:18px;border-radius:6px;background:#F1F5F9;position:relative}
+#relatorio .bar .trilho i{position:absolute;left:0;top:0;bottom:0;border-radius:6px}
+#relatorio .bar b{font:800 13px Manrope,system-ui,sans-serif;text-align:right}
+#relatorio .quartos{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:10px}
+#relatorio .qc{border:1px solid #E2E8F0;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:5px}
+#relatorio .qc.mal{border-color:#E8B67A;background:#FFFBF4}#relatorio .qc.off{background:#F8FAFC;color:#475569}
+#relatorio .qc h4{font-size:12.5px}
+#relatorio .qc dl{margin:0;display:grid;grid-template-columns:minmax(0,1fr) auto;row-gap:2px}
+#relatorio .qc dt{color:#475569}#relatorio .qc dd{margin:0;font-weight:600;text-align:right}
+#relatorio .quartos.compacto .qc{padding:7px 10px;gap:3px;font-size:11px}
+#relatorio .qc .linha{color:#334155}
+#relatorio .mini{position:relative;height:10px;margin:4px 0 2px}
+#relatorio .mini i{position:absolute;left:0;top:2px;height:6px;border-radius:3px}
+#relatorio .mini u{position:absolute;top:0;width:2px;height:10px;background:#0E1726;margin-left:-1px}
+#relatorio .pill{align-self:flex-start;font-size:10.5px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:normal;display:inline-block}
+#relatorio .pill.ok{background:#E1F1E7;color:#256B45}#relatorio .pill.mal{background:#FBEAD5;color:#9A4708}#relatorio .pill.off{background:#E2E8F0;color:#475569}
+#relatorio .def{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;border:1px dashed #9FB8B2;border-radius:12px;padding:10px 14px}
+#relatorio .rodape{flex:none;margin:auto 40px 0;padding:10px 0 18px;border-top:1px solid #E2E8F0;color:#64748B;font-size:10.5px;display:flex;flex-direction:column;gap:2px}
+#relatorio .corpo+.rodape{margin-top:14px}`;
 document.head.appendChild(Object.assign(document.createElement("style"),{textContent:
-  `#relatorio{display:none}@media print{@page{size:A4;margin:10mm 12mm}html.a-imprimir body>*:not(#relatorio){display:none!important}html.a-imprimir #relatorio{display:flex!important}${CSS_RELATORIO}}`}));
+  `#relatorio{display:none}@media print{@page{size:A4;margin:0}html.a-imprimir body{margin:0;background:#fff}html.a-imprimir body>*:not(#relatorio){display:none!important}html.a-imprimir #relatorio{display:flex!important}${CSS_RELATORIO}}`}));
 // Abre o relatório numa página nova (gerada no navegador, sem servidor), com botão para imprimir ou guardar PDF.
 function abrirRelatorio(html,tipo){
   const pagina=`<!DOCTYPE html><html lang="pt-PT"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Análise da situação – Arrendamento acessível (RSAA)</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-body{margin:0;background:#F4F6F8}
+body{margin:0;background:#E9EDF2}
 .barra-acoes{max-width:210mm;margin:16px auto 0;padding:0 12px;display:flex;justify-content:flex-end;box-sizing:border-box}
 .barra-acoes button{font:600 15px "IBM Plex Sans",system-ui,sans-serif;background:#0B6E61;color:#fff;border:0;border-radius:999px;padding:12px 22px;min-height:44px;cursor:pointer}
-.folha{max-width:210mm;margin:12px auto 24px;background:#fff;padding:36px 42px;box-shadow:0 2px 12px rgba(14,23,38,.08);border-radius:6px;box-sizing:border-box}
-@media (max-width:640px){.folha{padding:16px;margin:8px}#relatorio .duas{grid-template-columns:1fr!important}#relatorio .cab{flex-wrap:wrap}}
-@media print{@page{size:A4;margin:10mm 12mm}body{background:#fff}.barra-acoes{display:none}.folha{margin:0;padding:0;box-shadow:none;max-width:none;border-radius:0}}
+.folha{max-width:210mm;margin:12px auto 24px;background:#fff;box-shadow:0 2px 12px rgba(14,23,38,.1);border-radius:6px;overflow:hidden}
 ${CSS_RELATORIO}
+@media (max-width:640px){.folha{margin:8px;border-radius:10px}#relatorio{min-height:0}
+  #relatorio .topo{padding:18px 16px 16px;min-height:0}#relatorio .topo h1{white-space:normal;font-size:19px}#relatorio .l1{flex-wrap:wrap}
+  #relatorio .corpo{padding:14px 16px 0}#relatorio .rodape{margin:14px 16px 0}
+  #relatorio .ver{grid-template-columns:44px minmax(0,1fr)}#relatorio .ver .num{grid-column:1/-1;text-align:left}
+  #relatorio .kpis,#relatorio .duas,#relatorio .vant{grid-template-columns:1fr}#relatorio .quartos{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #relatorio .bar{grid-template-columns:1fr 70px}#relatorio .bar .trilho{grid-column:1/-1;grid-row:2}
+  #relatorio .barra-q div{font-size:10px}}
+@media print{@page{size:A4;margin:0}body{background:#fff}.barra-acoes{display:none}.folha{margin:0;box-shadow:none;max-width:none;border-radius:0}}
 </style></head><body>
 <div class="barra-acoes"><button type="button" onclick="print()">Imprimir ou guardar PDF</button></div>
 <div class="folha"><div id="relatorio">${html}</div></div>
@@ -925,37 +963,76 @@ function imprimirRelatorio(html,tipo){
   addEventListener("afterprint",fim);
   print();
 }
-// Peças do relatório (versão 2: cartão de estado a meia largura, dados por baixo, painel à direita).
+// ---- Peças do relatório ----
 const escRel=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
-const ICONE_REL={
-  ok:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0B6E61" stroke-width="2.4"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
-  mal:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg>',
-  info:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.2"/></svg>',
+const svgRel=(d,cor="#0B6E61",t=16,w=2.2)=>`<svg aria-hidden="true" width="${t}" height="${t}" viewBox="0 0 24 24" fill="none" stroke="${cor}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const IC={
+  pino:'<path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  casa:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
+  porta:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',
+  euro:'<circle cx="12" cy="12" r="9"/><path d="M15 9.5a3.5 3.5 0 1 0 0 5M7.5 11h6M7.5 13.5h6"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  sobe:'<path d="M4 18h16M7 14l4-4 3 3 5-6"/>',
+  escudo:'<path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/>',
+  pessoa:'<circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/>',
+  mais:'<path d="M12 5v14M5 12h14"/>',
+  ok:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  mal:'<path d="M6 6l12 12M18 6L6 18"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.2"/>',
+  aviso:'<path d="M12 4l9 16H3z"/><path d="M12 10v4.5M12 17.3v.2"/>',
 };
-const SELO_REL={
-  ok:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0B6E61" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>',
-  fora:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2.4"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5M12 17.3v.2"/></svg>',
-  neutro:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.2"/></svg>',
-};
-const cabecalhoRelatorio=(titulo)=>`<header class="cab"><span class="marca"><span class="tiles" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Simulador <em>RSAA</em></span></span>
-    <small>${new Date().toLocaleDateString("pt-PT",{day:"numeric",month:"long",year:"numeric"})} · ${escRel(location.host)}</small></header>
-    <h1>${titulo}</h1>`;
-const RODAPE_RELATORIO=`<footer class="rodape">Fontes: Portaria n.º 454/2026/1, de 13 de outubro (valores de referência do RSAA por concelho e tipologia); Decreto-Lei n.º 97/2026, Anexo III (regime do RSAA). Documento informativo gerado pelo Simulador de Arrendamento Acessível; não substitui um contabilista ou advogado e não é um documento oficial.<br>Uso pessoal gratuito; uso profissional ou comercial requer licença do autor (Business Source License 1.1). Termos: ${escRel(location.host)}/termos.</footer>`;
-// Cartão de estado. renda=0: sem renda indicada (mostra o valor máximo). A barra mostra a renda e um traço no valor máximo.
-function cartaoEstado(renda,max,{selo,texto}){
-  const estado=!renda?"neutro":renda<=max?"ok":"fora";
-  let corpo;
-  if(!renda)corpo=`<div class="valor"><b>${eur(max)}<small> /mês</small></b><span>valor de referência do RSAA</span></div>`;
-  else{
-    const escala=Math.max(renda*1.05,max*1.18),pos=v=>(v/escala*100).toFixed(1)+"%",d=renda-max;
-    corpo=`<div class="valor"><b>${eur(renda)}<small> /mês</small></b><span>referência RSAA <strong>${eur(max)}</strong> · <strong>${d>0?"+":d<0?"−":""}${eur(Math.abs(d))}</strong></span></div>
-      <div class="barra" aria-hidden="true"><i></i><i style="width:${pos(renda)}"></i><u style="left:${pos(max)}"></u><s style="left:${pos(max)}">${eur(max)}</s></div>`;
-  }
-  return `<div class="cartao ${estado}"><div class="selo">${SELO_REL[estado]}<span>${selo}</span></div>${corpo}<p>${texto}</p></div>`;
+const ICONE_REL={ok:svgRel(IC.ok,"#0B6E61",16,2.6),mal:svgRel(IC.mal,"#B45309",16,2.6),info:svgRel(IC.info,"#475569",16,2)};
+const RUA_REL=`<svg class="rua-rel" aria-hidden="true" width="794" height="132" viewBox="0 0 794 132"><defs><linearGradient id="esbate" x1="0" x2="1" y1="0" y2="0"><stop offset=".22" stop-color="#fff" stop-opacity="0"/><stop offset=".55" stop-color="#fff" stop-opacity="1"/></linearGradient><mask id="mascara"><rect width="794" height="132" fill="url(#esbate)"/></mask></defs><g mask="url(#mascara)"><rect x="250" y="54" width="78" height="74" fill="#DDF1EB" fill-opacity=".85" stroke="#0B6E61" stroke-width="1.6" stroke-opacity=".6"/><path d="M246 54L289.0 36L332 54Z" fill="#CDE9E1" fill-opacity=".7" stroke="#0B6E61" stroke-width="1.6" stroke-opacity=".6" stroke-linejoin="round"/><path d="M279.25 40.5h19.5" stroke="#0B6E61" stroke-width=".8" stroke-opacity=".3"/><path d="M269.5 45.0h39.0" stroke="#0B6E61" stroke-width=".8" stroke-opacity=".3"/><path d="M259.75 49.5h58.5" stroke="#0B6E61" stroke-width=".8" stroke-opacity=".3"/><path d="M306.15999999999997 42v-12h7v17" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.2" stroke-opacity=".5"/><rect x="268.0" y="64" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M274.0 64v15M268.0 71.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><path d="M266.0 81h16M266.0 81v-4M282.0 81v-4" stroke="#0B6E61" stroke-width=".9" stroke-opacity=".45"/><rect x="298.0" y="64" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M304.0 64v15M298.0 71.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><path d="M296.0 81h16M296.0 81v-4M312.0 81v-4" stroke="#0B6E61" stroke-width=".9" stroke-opacity=".45"/><path d="M282.0 128v-18a7 7 0 0 1 14 0v18" fill="#CDE9E1" fill-opacity=".8" stroke="#0B6E61" stroke-width="1.3" stroke-opacity=".6"/><rect x="328" y="64" width="62" height="64" fill="#DDF1EB" fill-opacity=".85" stroke="#0B6E61" stroke-width="1.6" stroke-opacity=".6"/><path d="M325 64h68v6h-68z" fill="#CDE9E1" fill-opacity=".7" stroke="#0B6E61" stroke-width="1.4" stroke-opacity=".55"/><path d="M329 98h60" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><path d="M329 104h60" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><path d="M329 110h60" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><path d="M329 116h60" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><path d="M329 122h60" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><rect x="340.7" y="74" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M346.7 74v15M340.7 81.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><rect x="365.3" y="74" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M371.3 74v15M365.3 81.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><path d="M352.0 128v-18a7 7 0 0 1 14 0v18" fill="#CDE9E1" fill-opacity=".8" stroke="#0B6E61" stroke-width="1.3" stroke-opacity=".6"/><rect x="394" y="44" width="62" height="84" fill="#F4FBF8" fill-opacity=".85" stroke="#0B6E61" stroke-width="1.6" stroke-opacity=".6"/><path d="M398 44L406 31H444L452 44" fill="#E4F4EF" stroke="#0B6E61" stroke-width="1.4" stroke-opacity=".55" stroke-linejoin="round"/><rect x="419.0" y="33" width="12" height="9" rx="1" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1" stroke-opacity=".45"/><rect x="406.7" y="54" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M412.7 54v15M406.7 61.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><path d="M404.7 71h16M404.7 71v-4M420.7 71v-4" stroke="#0B6E61" stroke-width=".9" stroke-opacity=".45"/><rect x="431.3" y="54" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M437.3 54v15M431.3 61.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><path d="M429.3 71h16M429.3 71v-4M445.3 71v-4" stroke="#0B6E61" stroke-width=".9" stroke-opacity=".45"/><path d="M418.0 128v-18a7 7 0 0 1 14 0v18" fill="#CDE9E1" fill-opacity=".8" stroke="#0B6E61" stroke-width="1.3" stroke-opacity=".6"/><rect x="460" y="20" width="62" height="108" fill="#FFFFFF" fill-opacity=".85" stroke="#0B6E61" stroke-width="1.6" stroke-opacity=".6"/><path d="M456 20L491.0 2L526 20Z" fill="#CDE9E1" fill-opacity=".7" stroke="#0B6E61" stroke-width="1.6" stroke-opacity=".6" stroke-linejoin="round"/><path d="M483.25 6.5h15.5" stroke="#0B6E61" stroke-width=".8" stroke-opacity=".3"/><path d="M475.5 11.0h31.0" stroke="#0B6E61" stroke-width=".8" stroke-opacity=".3"/><path d="M467.75 15.5h46.5" stroke="#0B6E61" stroke-width=".8" stroke-opacity=".3"/><path d="M504.64 8v-12h7v17" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.2" stroke-opacity=".5"/><path d="M461 98h60" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><path d="M461 104h60" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><path d="M461 110h60" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><path d="M461 116h60" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><path d="M461 122h60" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><rect x="472.7" y="30" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M478.7 30v15M472.7 37.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><rect x="497.3" y="30" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M503.3 30v15M497.3 37.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><rect x="472.7" y="56" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M478.7 56v15M472.7 63.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><rect x="497.3" y="56" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M503.3 56v15M497.3 63.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><path d="M484.0 128v-18a7 7 0 0 1 14 0v18" fill="#CDE9E1" fill-opacity=".8" stroke="#0B6E61" stroke-width="1.3" stroke-opacity=".6"/><rect x="522" y="64" width="62" height="64" fill="#FFFFFF" fill-opacity=".85" stroke="#0B6E61" stroke-width="1.6" stroke-opacity=".6"/><path d="M519 64h68v6h-68z" fill="#CDE9E1" fill-opacity=".7" stroke="#0B6E61" stroke-width="1.4" stroke-opacity=".55"/><rect x="534.7" y="74" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M540.7 74v15M534.7 81.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><path d="M532.7 91h16M532.7 91v-4M548.7 91v-4" stroke="#0B6E61" stroke-width=".9" stroke-opacity=".45"/><rect x="559.3" y="74" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M565.3 74v15M559.3 81.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><path d="M557.3 91h16M557.3 91v-4M573.3 91v-4" stroke="#0B6E61" stroke-width=".9" stroke-opacity=".45"/><path d="M546.0 128v-18a7 7 0 0 1 14 0v18" fill="#CDE9E1" fill-opacity=".8" stroke="#0B6E61" stroke-width="1.3" stroke-opacity=".6"/><rect x="584" y="64" width="86" height="64" fill="#FFFFFF" fill-opacity=".85" stroke="#0B6E61" stroke-width="1.6" stroke-opacity=".6"/><path d="M588 64L596 51H658L666 64" fill="#E4F4EF" stroke="#0B6E61" stroke-width="1.4" stroke-opacity=".55" stroke-linejoin="round"/><rect x="621.0" y="53" width="12" height="9" rx="1" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1" stroke-opacity=".45"/><path d="M585 98h84" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><path d="M585 104h84" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><path d="M585 110h84" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><path d="M585 116h84" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><path d="M585 122h84" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><rect x="598.0" y="74" width="10" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M603.0 74v15M598.0 81.5h10" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><rect x="622.0" y="74" width="10" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M627.0 74v15M622.0 81.5h10" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><rect x="646.0" y="74" width="10" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M651.0 74v15M646.0 81.5h10" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><path d="M620.0 128v-18a7 7 0 0 1 14 0v18" fill="#CDE9E1" fill-opacity=".8" stroke="#0B6E61" stroke-width="1.3" stroke-opacity=".6"/><rect x="670" y="20" width="62" height="108" fill="#DDF1EB" fill-opacity=".85" stroke="#0B6E61" stroke-width="1.6" stroke-opacity=".6"/><path d="M666 20L701.0 2L736 20Z" fill="#CDE9E1" fill-opacity=".7" stroke="#0B6E61" stroke-width="1.6" stroke-opacity=".6" stroke-linejoin="round"/><path d="M693.25 6.5h15.5" stroke="#0B6E61" stroke-width=".8" stroke-opacity=".3"/><path d="M685.5 11.0h31.0" stroke="#0B6E61" stroke-width=".8" stroke-opacity=".3"/><path d="M677.75 15.5h46.5" stroke="#0B6E61" stroke-width=".8" stroke-opacity=".3"/><path d="M714.64 8v-12h7v17" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.2" stroke-opacity=".5"/><rect x="682.7" y="30" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M688.7 30v15M682.7 37.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><path d="M680.7 47h16M680.7 47v-4M696.7 47v-4" stroke="#0B6E61" stroke-width=".9" stroke-opacity=".45"/><rect x="707.3" y="30" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M713.3 30v15M707.3 37.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><path d="M705.3 47h16M705.3 47v-4M721.3 47v-4" stroke="#0B6E61" stroke-width=".9" stroke-opacity=".45"/><rect x="682.7" y="56" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M688.7 56v15M682.7 63.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><rect x="707.3" y="56" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M713.3 56v15M707.3 63.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><path d="M694.0 128v-18a7 7 0 0 1 14 0v18" fill="#CDE9E1" fill-opacity=".8" stroke="#0B6E61" stroke-width="1.3" stroke-opacity=".6"/><rect x="732" y="20" width="62" height="108" fill="#FFFFFF" fill-opacity=".85" stroke="#0B6E61" stroke-width="1.6" stroke-opacity=".6"/><path d="M729 20h68v6h-68z" fill="#CDE9E1" fill-opacity=".7" stroke="#0B6E61" stroke-width="1.4" stroke-opacity=".55"/><path d="M733 98h60" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><path d="M733 104h60" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><path d="M733 110h60" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><path d="M733 116h60" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><path d="M733 122h60" stroke="#0B6E61" stroke-width=".6" stroke-opacity=".18"/><rect x="744.7" y="30" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M750.7 30v15M744.7 37.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><rect x="769.3" y="30" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M775.3 30v15M769.3 37.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><rect x="744.7" y="56" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M750.7 56v15M744.7 63.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><rect x="769.3" y="56" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M775.3 56v15M769.3 63.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><path d="M756.0 128v-18a7 7 0 0 1 14 0v18" fill="#CDE9E1" fill-opacity=".8" stroke="#0B6E61" stroke-width="1.3" stroke-opacity=".6"/><rect x="794" y="20" width="70" height="108" fill="#F4FBF8" fill-opacity=".85" stroke="#0B6E61" stroke-width="1.6" stroke-opacity=".6"/><path d="M798 20L806 7H852L860 20" fill="#E4F4EF" stroke="#0B6E61" stroke-width="1.4" stroke-opacity=".55" stroke-linejoin="round"/><rect x="823.0" y="9" width="12" height="9" rx="1" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1" stroke-opacity=".45"/><rect x="809.3" y="30" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M815.3 30v15M809.3 37.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><path d="M807.3 47h16M807.3 47v-4M823.3 47v-4" stroke="#0B6E61" stroke-width=".9" stroke-opacity=".45"/><rect x="836.7" y="30" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M842.7 30v15M836.7 37.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><path d="M834.7 47h16M834.7 47v-4M850.7 47v-4" stroke="#0B6E61" stroke-width=".9" stroke-opacity=".45"/><rect x="809.3" y="56" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M815.3 56v15M809.3 63.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><rect x="836.7" y="56" width="12" height="15" rx="1.5" fill="#FFFFFF" stroke="#0B6E61" stroke-width="1.1" stroke-opacity=".55"/><path d="M842.7 56v15M836.7 63.5h12" stroke="#0B6E61" stroke-width=".7" stroke-opacity=".35"/><path d="M822.0 128v-18a7 7 0 0 1 14 0v18" fill="#CDE9E1" fill-opacity=".8" stroke="#0B6E61" stroke-width="1.3" stroke-opacity=".6"/><path d="M0 128.5H794" stroke="#0B6E61" stroke-width="1.6" stroke-opacity=".5"/></g></svg>`;
+const dataRel=()=>new Date().toLocaleDateString("pt-PT",{day:"numeric",month:"long",year:"numeric"});
+// Cabeçalho: logótipo, data, título (uma linha) e etiquetas [ícone, texto].
+const relTopo=(titulo,chips)=>`<header class="topo">${RUA_REL}
+  <div class="l1"><span class="marca"><span class="logo" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Simulador <em>RSAA</em></span></span><span class="data">Relatório · ${dataRel()}</span></div>
+  <h1>${titulo}</h1>
+  <div class="chips">${chips.map(([ic,t])=>`<span class="chip">${svgRel(IC[ic],"#0B6E61",13)}${t}</span>`).join("")}</div></header>`;
+// Escala: barra até ao valor de referência (pode ficar no RSAA) e depois (legal, sem RSAA); marca da renda e do valor.
+function relEscala(renda,ref,rotRenda,rotRef){
+  const L=678,esc=Math.max(renda*1.05,ref*1.18),x=v=>Math.round(v/esc*L),xr=x(renda),xf=x(ref),fora=renda>ref;
+  const ancora=v=>v<80?["start",Math.max(0,v-6)]:v>L-80?["end",Math.min(L,v+6)]:["middle",v];
+  const [ar,tr]=ancora(xr),[af,tf]=ancora(xf);
+  return `<svg class="escala" role="img" aria-label="${escRel(rotRenda)}; ${escRel(rotRef)}" viewBox="0 0 ${L} 66" width="${L}" height="66">
+    <rect x="0" y="26" width="${L}" height="12" rx="6" fill="#FDF0DC"/><rect x="0" y="26" width="${xf}" height="12" rx="6" fill="#CDE9E1"/>
+    <rect x="0" y="26" width="${xr}" height="12" rx="6" fill="${fora?"#B45309":"#0B6E61"}"/>
+    <path d="M${xr} 20v6" stroke="${fora?"#B45309":"#0B6E61"}" stroke-width="2"/>
+    <text x="${tr}" y="14" text-anchor="${ar}" font-family="IBM Plex Sans,system-ui,sans-serif" font-size="11" font-weight="600" fill="${fora?"#9A4708":"#0B6E61"}">${escRel(rotRenda)}</text>
+    <path d="M${xf} 20v26" stroke="#0E1726" stroke-width="2"/>
+    <text x="${tf}" y="60" text-anchor="${af}" font-family="IBM Plex Sans,system-ui,sans-serif" font-size="11" font-weight="600" fill="#0E1726">${escRel(rotRef)}</text></svg>
+    <div class="legenda"><span><i style="background:#CDE9E1"></i>Até ${eur(ref)}: o contrato pode ficar no RSAA</span><span><i style="background:#FDF0DC"></i>Acima: a renda é legal, mas sem o RSAA</span></div>`;
 }
-const caixaDados=(titulo,linhas,simples)=>`<div class="${simples?"":"caixa"}"><h2>${titulo}</h2><dl class="kv">${linhas.map(([k,v,c])=>`<dt>${escRel(k)}</dt><dd${c?` class="${c}"`:""}>${escRel(v)}</dd>`).join("")}</dl></div>`;
-// Lista de verificação: [estado, html] com estado "ok", "mal" ou "info".
-const listaReq=(itens)=>`<div class="req">${itens.map(([s,h])=>`${ICONE_REL[s]}<span>${h}</span>`).join("")}</div>`;
+// Resultado: estado "ok" | "fora" | "neutro", título, texto, valor à direita e, opcionalmente, a escala.
+const ICONE_VER_REL={ok:IC.ok,fora:IC.aviso,neutro:IC.info};
+const relVer=({estado,titulo,texto,num,pequeno,escala})=>`<section class="ver ${estado}">
+  <span class="sel">${svgRel(ICONE_VER_REL[estado],"#FFFFFF",24,2.6)}</span>
+  <div><h2>${titulo}</h2><p>${texto}</p></div>
+  <div class="num${pequeno?" peq":""}">${num}</div>${escala||""}</section>`;
+const relKpis=itens=>`<section class="kpis" style="--n:${itens.length}" aria-label="Números-chave">${itens.map(([ic,rot,val])=>`<div class="kpi"><span class="ico">${svgRel(IC[ic],"#0B6E61",17)}</span><span>${rot}</span><b>${val}</b></div>`).join("")}</section>`;
+// Lista de verificação [estado, html] e próximos passos [título, texto].
+const relLista=itens=>`<ul class="lista">${itens.map(([s,h])=>`<li>${ICONE_REL[s]}<span>${h}</span></li>`).join("")}</ul>`;
+const relPassos=passos=>`<ol class="passos">${passos.map(([t,d],i)=>`<li><span class="n">${i+1}</span><div><b>${t}</b><span>${d}</span></div></li>`).join("")}</ol>`;
+const relDuas=(titulo,lista,passos)=>`<section class="duas"><div class="caixa"><h3>${titulo}</h3>${relLista(lista)}</div><div class="caixa"><h3>Próximos passos</h3>${relPassos(passos)}</div></section>`;
+// Divisão do valor da casa pelos quartos: [rótulo, peso (m²), cor de fundo, cor do texto].
+const relReparte=(casa,partes,formula)=>`<section class="reparte"><h3>Como se reparte o valor da casa pelos quartos</h3>
+  <div class="chave"><span>${casa}</span><i></i></div>
+  <div class="barra-q" role="img" aria-label="${escRel(partes.map(p=>p[0]).join("; "))}">${partes.map(([rot,peso,fundo,cor,cls])=>`<div${cls?` class="${cls}"`:""} style="flex:${peso} 1 0;background:${fundo};color:${cor}">${rot}</div>`).join("")}</div>
+  <p class="formula">${formula}</p></section>`;
+// Comparação em barras (líquido por ano): [rótulo, valor, cor].
+function relComp(titulo,barras,texto){
+  const mx=Math.max(...barras.map(b=>b[1]),1);
+  return `<section class="comp"><h3>${titulo}</h3>${barras.map(([rot,v,cor])=>`<div class="bar"><span>${rot}</span><div class="trilho"><i style="width:${(v/mx*100).toFixed(1)}%;background:${cor}"></i></div><b>${eur(v)}</b></div>`).join("")}<p>${texto}</p></section>`;
+}
+const relDef=()=>`<section class="def">${svgRel(IC.info,"#0B6E61",20,2)}<p><strong>O que é o valor de referência do RSAA?</strong> ${textoValorMaximo(false,true)}</p></section>`;
+const RODAPE_RELATORIO=`<footer class="rodape"><span>Fontes: Portaria n.º 454/2026/1, de 13 de outubro (valores de referência do RSAA por concelho e tipologia); Decreto-Lei n.º 97/2026, Anexo III. Documento informativo; não substitui um contabilista ou advogado e não é um documento oficial.</span><span>Uso pessoal gratuito; uso profissional ou comercial requer licença do autor (Business Source License 1.1). ${escRel(location.host)}/termos</span></footer>`;
+const relPagina=(topo,secoes)=>`${topo}<main class="corpo">${secoes.filter(Boolean).join("")}</main>${RODAPE_RELATORIO}`;
+// Etiquetas comuns: local e majorações.
+const chipLocal=()=>["pino",`${escRel(nomeConcelho(sel.value))}, ${escRel(CONCELHOS[sel.value][0])}`];
+function chipExtras(){
+  const e=[$("park").checked?"estacionamento privativo":"",$("energy").checked?"certificado A ou superior":""].filter(Boolean);
+  return e.length?["mais",`Com ${e.join(" e ")} (+${e.length*10} %)`]:null;
+}
 // Definição única do valor de referência do RSAA (também no ecrã e nas páginas do site): não é um limite à renda.
 const textoValorMaximo=(quarto,curto)=>curto
   ?`É a renda mensal até à qual o contrato pode beneficiar do RSAA e da isenção de IRS para o senhorio. Não é um limite à renda: o senhorio pode pedir mais, e é legal, mas nesse caso o contrato segue a tributação normal.`
@@ -965,80 +1042,50 @@ const SEM_DESPESAS="sem descontar despesas como IMI, condomínio ou obras";
 const NOTA_IRS=pct=>`Valores líquidos com a tributação habitual das rendas (taxa autónoma de IRS de ${pct} %), ${SEM_DESPESAS}, nem reduções de taxa para contratos longos.`;
 // «5616 € isentos de IRS contra 4500 € líquidos com a tributação habitual, à taxa autónoma de 25 %, sem descontar…»
 const CONTA_IRS=(isento,liquido,pct)=>`${eur(isento)} isentos de IRS contra ${eur(liquido)} líquidos com a tributação habitual, à taxa autónoma de ${pct} %, ${SEM_DESPESAS}`;
+const m2Rel=v=>v.toLocaleString("pt-PT",{maximumFractionDigits:2})+" m²";
+
+// Relatório do inquilino: apartamento ou quarto; renda dentro, acima ou por indicar.
 function exportarRelatorio(acao){
   if(tenMax==null)return;
-  const {Lm,maj}=limites(),max=tenMax,quarto=modo!=="apt",tip=$("tip").value;
-  const majs=[$("park").checked?"estacionamento privativo (+10 %)":"",$("energy").checked?"certificado energético A ou superior (+10 %)":""].filter(Boolean);
-  const dados=[
-    ["Concelho",`${nomeConcelho(sel.value)} (${CONCELHOS[sel.value][0]})`],
-    ["Tipologia",`${tip} · ${quarto?"um quarto":"apartamento inteiro"}`],
-    ["Majorações",majs.length?majs.join("; "):"nenhuma"],
-  ];
-  if(quarto)dados.push(
-    ["Área do quarto",`${ten.a} m²${ten.wc?" (casa de banho privativa: +25 %)":""}`],
-    ["Área dos quartos",`${ten.total} m² (todos)`],
-    ["Pessoas no quarto",String(ten.p)],
-    ["Valor de referência da casa",`${eur(Math.floor(Lm))} (a casa toda)`],
-    ["Valor de referência do quarto",`${eur(Math.floor(Lm))} × ${(ten.wc?ten.a*1.25:ten.a).toLocaleString("pt-PT",{maximumFractionDigits:2})} m² ÷ ${ten.total} m² = ${eur(max)}`]);
-  if(quarto&&ten.p===2)dados.push(["Por pessoa",`${eur(Math.floor(max/2))} (valor de referência)`]);
-  dados.push(["Renda",ten.prop?eur(ten.prop)+" por mês":"não indicada"]);
-  // O valor do RSAA não é um limite à renda: é o máximo para o senhorio beneficiar da isenção de IRS.
-  const {pct,temRenda,acima,livre,rsaa,dif,equil,base,irs}=analiseInquilino(max);
-  const reqs=[...document.querySelectorAll("#tReq li:not([data-renda]) span:last-child")].map(sp=>escRel(sp.textContent.trim())).filter(t=>!/^O valor de referência do RSAA é o mesmo/.test(t));
-  const clareza=`<li><strong>Clareza contratual:</strong> ${acima?"no RSAA, ":""}o senhorio comunica o contrato às Finanças e submete-o no IHRU; o inquilino recebe recibos eletrónicos e as despesas ficam definidas à parte. Estes registos não cabem ao inquilino.</li>`;
-  const prazo=`<li><strong>Prazo conforme a finalidade:</strong> ${quarto?"num quarto, só residência temporária, com 3 meses renováveis (flexibilidade para estudantes e deslocados).":"3 anos em residência permanente (estabilidade) ou 3 meses renováveis em residência temporária (flexibilidade)."}</li>`;
-  let corpo;
-  if(!acima){
-    // Dentro do valor máximo (ou sem renda): condições à direita; inquilino e senhorio por baixo.
-    const cartao=temRenda
-      ?cartaoEstado(ten.prop,max,{selo:"Dentro do valor de referência · RSAA possível",texto:"Com esta renda, o senhorio pode optar pelo RSAA e ficar <strong>isento de IRS</strong> sobre ela."})
-      :cartaoEstado(0,max,{selo:"Valor de referência do RSAA",texto:`Não indicou a renda. Para o contrato poder ficar no RSAA, a renda tem de ser igual ou inferior a <strong>${eur(max)} por mês</strong>.`});
-    corpo=`<section class="duas">
-      <div class="col">${cartao}${caixaDados("Os seus dados",dados)}</div>
-      <div class="painel"><h2>Para ficar no RSAA</h2>
-        ${listaReq([temRenda?["ok",`<strong>Renda dentro do valor de referência do RSAA</strong> (${eur(ten.prop)} ≤ ${eur(max)})`]:["info",`<strong>Renda até ${eur(max)}</strong> por mês`],...reqs.map(t=>["info",t])])}
-        <p class="legenda">${temRenda?"✓ cumprido · ":""}ⓘ a confirmar no contrato</p></div>
-    </section>
-    <section class="duas">
-      <div><h2>Para o inquilino</h2><ul>
-        ${temRenda?`<li><strong>Proponha o RSAA:</strong> com esta renda, o senhorio fica isento de IRS. É vantajoso para ele e dá-lhe a si um contrato com regras claras.</li>`:""}
-        ${clareza}${prazo}</ul></div>
-      <div>${caixaDados("Para o senhorio",[["Rendas por ano",`${eur(base*12)} (isentas)`],["IRS que deixa de pagar",`cerca de ${eur(irs)} /ano`,"forte"]],true)}
-        <p class="nota" style="margin-top:6px">Estimativa ${temRenda?"com esta renda":`com ${eur(max)} por mês`}, à taxa autónoma de ${pct} %, sem encargos. A isenção de IRS (ou IRC) mantém-se enquanto o contrato cumprir as regras (DL n.º 97/2026, Anexo III, art. 6.º).</p></div>
-    </section>
-    <section class="info"><h2>O que é o valor de referência do RSAA</h2><p>${textoValorMaximo(quarto)}</p></section>`;
-  }else{
-    // Acima do valor máximo: o painel explica o que isso significa para o senhorio, sem pressão sobre a renda.
-    const compensa=dif>=0;
-    const painel=compensa
-      ?`<h2>O RSAA compensaria ao senhorio</h2>
-        <ul><li>Com ${eur(max)} no RSAA, o senhorio receberia <strong>mais ${eur(dif)} por ano</strong> do que com esta renda no regime normal, porque não paga IRS (${CONTA_IRS(rsaa,livre,pct)}).</li>
-        <li>E o inquilino pagaria menos ${eur((ten.prop-max)*12)} por ano.</li>
-        <li>É um argumento para negociar: ambos ficam a ganhar. <strong>O RSAA é opcional.</strong></li></ul>`
-      :`<h2>Porque esta renda fica fora do RSAA</h2>
-        <ul><li>O senhorio só adere ao RSAA se lhe compensar.</li>
-        <li>Com esta renda, recebe <strong>mais ${eur(-dif)} por ano</strong> fora do regime, mesmo pagando IRS (${CONTA_IRS(rsaa,livre,pct)}). Por isso, não tem motivação fiscal para aderir.</li>
-        <li>Uma renda acima do valor de referência do RSAA pode refletir as características da casa, a localização ou a procura na zona. <strong>O RSAA é opcional.</strong></li></ul>`;
-    corpo=`<section class="duas">
-      <div class="col">${cartaoEstado(ten.prop,max,{selo:"Acima do valor de referência · fora do RSAA",texto:"Renda <strong>legal</strong>, mas fora do RSAA: o senhorio paga IRS pela tributação normal."})}
-        ${caixaDados("Os seus dados",dados)}
-        <div class="info"><h2>O que é o valor de referência do RSAA</h2><p>${textoValorMaximo(quarto,true)}</p></div></div>
-      <div class="painel">${painel}
-        <div class="comp"><span>Senhorio, com esta renda (regime normal)</span><strong class="n">${eur(livre)} /ano</strong><span>Senhorio, com ${eur(max)} no RSAA</span><span class="n" style="color:inherit">${eur(rsaa)} /ano</span></div>
-        <p class="nota">${NOTA_IRS(pct)} ${compensa?`O regime normal só compensaria ao senhorio com uma renda acima de ${eur(equil)} por mês.`:`O RSAA só compensaria ao senhorio se a renda de mercado da casa fosse inferior a ${eur(equil)} por mês.`}</p>
-        <h2 style="margin-top:4px">O que pode fazer</h2>
-        <ul>${compensa?`<li>Propor ao senhorio o RSAA com uma renda de ${eur(max)} por mês.</li>`:`<li>Comparar com rendas de casas ou quartos semelhantes na mesma zona.</li>`}
-        <li>Confirmar no contrato o prazo, as despesas e as condições, que valem também fora do RSAA.</li></ul></div>
-    </section>
-    <section class="duas">
-      <div><h2>Para o inquilino</h2><ul>${clareza}${prazo}</ul></div>
-      <div><h2>Condições para ficar no RSAA</h2><ul><li>Renda igual ou inferior a ${eur(max)} por mês.</li>${reqs.map(t=>`<li>${t}</li>`).join("")}</ul></div>
-    </section>`;
-  }
-  (acao==="abrir"?abrirRelatorio:imprimirRelatorio)(`
-    ${cabecalhoRelatorio("Análise da renda · arrendamento acessível (RSAA)")}
-    ${corpo}
-    ${RODAPE_RELATORIO}`,"inquilino");
+  const {Lm}=limites(),max=tenMax,quarto=modo!=="apt",casa=Math.floor(Lm);
+  const {pct,temRenda,acima,livre,rsaa,dif,irs}=analiseInquilino(max);
+  const conta=ten.wc?ten.a*1.25:ten.a;
+  const reqs=[...document.querySelectorAll("#tReq li:not([data-renda]) span:last-child")].map(sp=>escRel(sp.textContent.trim()))
+    .filter(t=>!/^O valor de referência do RSAA é o mesmo/.test(t)&&!/^O senhorio comunica o contrato/.test(t));
+  const chips=[chipLocal(),[quarto?"porta":"casa",`${$("tip").value} · ${quarto?`um quarto de ${m2Rel(ten.a)}`:"apartamento inteiro"}`],
+    ["euro",temRenda?`Renda de ${eur(ten.prop)} por mês`:"Renda por indicar"],chipExtras()].filter(Boolean);
+  const titulo=!temRenda?"Valor de referência do RSAA":acima?"A sua renda e o RSAA":"A sua renda pode ficar no RSAA";
+  const limite=quarto?`a renda do quarto não pode ultrapassar <strong>${eur(max)}</strong>`:`a renda de um ${escRel(casaDescrita())} não pode ultrapassar <strong>${eur(max)}</strong>`;
+  const ver=!temRenda
+    ?relVer({estado:"neutro",titulo:`Valor de referência do RSAA: ${eur(max)} por mês`,texto:`Para o contrato ser elegível para o RSAA, ${limite}. Indique a renda no simulador para a verificar.`,num:`${eur(max)}<small> /mês</small>`})
+    :relVer({estado:acima?"fora":"ok",
+      titulo:acima?"A sua renda está acima do valor de referência do RSAA":"Sim, a sua renda está dentro do valor de referência do RSAA",
+      texto:acima?`É uma renda <strong>legal</strong>, mas com ela o contrato fica fora do RSAA e o senhorio paga IRS pela tributação normal. Para ser elegível, ${limite}.`:`Para o contrato ser elegível para o RSAA, ${limite}.`,
+      num:`${eur(ten.prop)}<small> /mês</small>`,
+      escala:relEscala(ten.prop,max,`A sua renda ${eur(ten.prop)}`,`Valor de referência${quarto?" do quarto":""} ${eur(max)}`)});
+  const kpis=!temRenda
+    ?relKpis([["casa",`Valor de referência${quarto?" do quarto":" RSAA"}`,`${eur(max)} /mês`],["escudo","IRS que o senhorio poupa",`≈ ${eur(irs)} /ano`]])
+    :!acima?relKpis([["casa",`Valor de referência${quarto?" do quarto":" RSAA"}`,`${eur(max)} /mês`],["sobe","Margem até ao valor",`${eur(max-ten.prop)} /mês`],["escudo","IRS que o senhorio poupa",`≈ ${eur(irs)} /ano`]])
+    :"";
+  const reparte=quarto?relReparte(`A casa toda (${escRel(casaDescrita())}): ${eur(casa)} no âmbito do RSAA`,
+      [[`O seu quarto · ${m2Rel(ten.a)} · ${eur(max)}`,conta,"#0B6E61","#FFFFFF"],[`Outros quartos · ${m2Rel(ten.total-ten.a)}${ten.wc?"":` · ${eur(casa-max)}`}`,ten.total-ten.a,"#CDE9E1","#0E1726"]],
+      `O valor divide-se pelos quartos conforme o tamanho. O seu quarto tem ${m2Rel(ten.a)} dos ${m2Rel(ten.total)} de todos os quartos${ten.wc?` e conta como ${m2Rel(conta)} por ter casa de banho privativa`:""}: <strong>${eur(casa)} × ${conta.toLocaleString("pt-PT",{maximumFractionDigits:2})} ÷ ${ten.total} = ${eur(max)}</strong>. Sala, cozinha e casas de banho não contam.${ten.p===2?` Num quarto para 2 pessoas, são ${eur(Math.floor(max/2))} por pessoa.`:""}`):"";
+  const comp=temRenda&&acima?relComp("O senhorio: RSAA ou regime normal? Líquido por ano",
+      [[`No RSAA, com ${eur(max)} (isento de IRS)`,rsaa,"#0B6E61"],[`Regime normal, com ${eur(ten.prop)} (IRS ${pct} %)`,livre,"#9FB8B2"]],
+      dif>=0?`Com ${eur(max)} no RSAA, o senhorio receberia <strong>mais ${eur(dif)} por ano</strong>: ${CONTA_IRS(rsaa,livre,pct)}. E o inquilino pagaria menos ${eur((ten.prop-max)*12)} por ano. <strong>O RSAA é opcional.</strong>`
+        :`Com esta renda, o senhorio recebe <strong>mais ${eur(-dif)} por ano</strong> fora do RSAA, mesmo pagando IRS: ${CONTA_IRS(rsaa,livre,pct)}. Não tem motivação fiscal para aderir. <strong>O RSAA é opcional.</strong>`):"";
+  const lista=[temRenda?(acima?["mal",`<strong>Renda acima do valor de referência</strong> (${eur(ten.prop)} &gt; ${eur(max)})`]:["ok",`<strong>Renda dentro do valor de referência</strong> (${eur(ten.prop)} ≤ ${eur(max)})`]):["info",`<strong>Renda até ${eur(max)}</strong> por mês`],...reqs.map(t=>["info",t])];
+  const contrato=quarto?["Contrato de residência temporária","Pelo menos 3 meses, renovável; despesas definidas à parte."]:["Contrato com o prazo mínimo","3 anos (permanente) ou 3 meses renováveis (temporária)."];
+  const regista=["O senhorio regista o contrato","Finanças e IHRU, até 15 de janeiro do ano seguinte. Não cabe ao inquilino."];
+  const passos=!temRenda?[["Indique a renda no simulador","Para ver se fica dentro do valor de referência."],contrato,regista]
+    :!acima?[["Mostre este relatório ao senhorio","Com esta renda, o RSAA dá-lhe isenção de IRS."],contrato,regista]
+    :dif>=0?[[`Proponha o RSAA com ${eur(max)} por mês`,`O senhorio recebe mais ${eur(dif)} por ano e o inquilino paga menos ${eur((ten.prop-max)*12)}.`],contrato,regista]
+    :[["Compare com rendas semelhantes","Casas ou quartos parecidos na mesma zona."],["Confirme o contrato","Prazo, despesas e condições valem também fora do RSAA."],["O RSAA é opcional","Com esta renda, o senhorio recebe mais fora do regime."]];
+  const vant=!quarto&&temRenda&&!acima?`<section class="vant">
+      <div><span class="ico">${svgRel(IC.pessoa,"#0B6E61",18)}</span><div><h3>Para si</h3><p>Contrato com regras claras, recibos eletrónicos e um prazo mínimo que dá estabilidade (ou flexibilidade, se for temporário).</p></div></div>
+      <div><span class="ico">${svgRel(IC.porta,"#0B6E61",18)}</span><div><h3>Para o senhorio</h3><p>${eur(ten.prop*12)} de rendas por ano isentas de IRS: deixa de pagar cerca de ${eur(irs)} por ano (taxa autónoma de ${pct} %).</p></div></div></section>`:"";
+  (acao==="abrir"?abrirRelatorio:imprimirRelatorio)(relPagina(relTopo(titulo,chips),
+    [ver,kpis,reparte,comp,relDuas("Para o contrato ficar no RSAA",lista,passos),vant,relDef()]),"inquilino");
 }
 $("exportar").addEventListener("click",()=>exportarRelatorio("imprimir"));
 $("analise").addEventListener("click",()=>exportarRelatorio("abrir"));
@@ -1399,85 +1446,103 @@ $("tip").addEventListener("change",()=>{
   const auto=rooms.some(r=>r.auto);syncRooms();if(auto)rooms.forEach(r=>{if(r.rent)r.auto=true});
 });
 syncRooms();
-// Relatório do senhorio (versão 2): estado e dados à esquerda, requisitos à direita;
-// depois as mais-valias para o senhorio e, por fim, o que muda para o inquilino.
+// Relatório do senhorio (versão 3): resultado, números-chave, divisão pelos quartos (ou comparação com o
+// regime normal, no apartamento), requisitos do contrato e próximos passos.
 function relatorio(acao){
-  const {Lm}=limites(),tip=$("tip").value,quartos=modo!=="apt";
+  const {Lm}=limites(),tip=$("tip").value,quartos=modo!=="apt",casa=Math.floor(Lm);
   const t=(parseFloat($("tax").value)||0)/100,pctT=(Math.round(t*1000)/10).toLocaleString("pt-PT");
   const fin=$("fin").value,prazo=parseFloat($("prazo").value)||0;
-  const majs=[$("park").checked?"estacionamento (+10 %)":"",$("energy").checked?"certificado A+ (+10 %)":""].filter(Boolean);
-  // Contratos: um por quarto arrendado, ou o apartamento inteiro
+  // Contratos: um por quarto (arrendado ou não), ou o apartamento inteiro.
   let contratos;
-  if(quartos){
-    const total=rooms.reduce((s,r)=>s+r.a,0);
-    contratos=rooms.map((r,i)=>({nome:`Quarto ${i+1}`,area:r.wc?r.a*1.25:r.a,wc:r.wc,p:r.p,rent:r.rent,prop:r.prop,max:total>0?Math.floor(Lm*(r.wc?r.a*1.25:r.a)/total):0}));
-  }else contratos=[{nome:"Apartamento",rent:true,prop:apt.prop,max:Math.floor(Lm)}];
+  const total=rooms.reduce((s,r)=>s+r.a,0);
+  if(quartos)contratos=rooms.map((r,i)=>({i:i+1,a:r.a,conta:r.wc?r.a*1.25:r.a,wc:r.wc,p:r.p,rent:r.rent,auto:r.auto,prop:r.prop,max:total>0?Math.floor(Lm*(r.wc?r.a*1.25:r.a)/total):0}));
+  else contratos=[{i:1,rent:true,auto:apt.auto,prop:apt.prop,max:casa}];
   const ativos=contratos.filter(c=>c.rent),n=ativos.length;
   const renda=c=>c.prop&&c.prop<=c.max?c.prop:c.max;           // renda no RSAA (proposta, ou o valor de referência se faltar ou passar)
-  const anualRSAA=ativos.reduce((s,c)=>s+renda(c),0)*12,irsEvitado=Math.round(anualRSAA*t);
-  const limiar=t<1?Math.ceil(anualRSAA/12/(1-t)):0; // renda total a partir da qual compensa ficar fora do RSAA
-  const acima=ativos.filter(c=>c.prop>c.max);
+  const mensalRSAA=ativos.reduce((s,c)=>s+renda(c),0),anualRSAA=mensalRSAA*12,irsEvitado=Math.round(anualRSAA*t);
+  const limiar=t<1?Math.ceil(mensalRSAA/(1-t)):0;                // renda a partir da qual compensa ficar fora do RSAA
+  const acima=ativos.filter(c=>c.prop>c.max),um=acima.length===1;
   const somaProp=ativos.every(c=>c.prop)?ativos.reduce((s,c)=>s+c.prop,0):0,somaMax=ativos.reduce((s,c)=>s+c.max,0);
-  const estado=c=>!c.rent?"não arrendado":!c.prop?"sem proposta":c.prop<=c.max?"dentro do valor":`${eur(c.prop-c.max)} acima`;
-  const dados=[
-    ["Concelho",`${nomeConcelho(sel.value)} (${CONCELHOS[sel.value][0]})`],
-    ["Tipologia",`${tip} · ${quartos?`${n} de ${contratos.length} quartos arrendados`:"apartamento inteiro"}`],
-    ["Majorações",majs.length?majs.join(", "):"nenhuma"],
-    ["Contrato",`${fin==="temp"?"residência temporária":"residência permanente"}, ${prazo} meses`],
-    ["Despesas",$("desp").checked?"pagas à parte":"incluídas na renda"],
-  ];
-  if(quartos)dados.push(["Valor de referência da casa",`${eur(Math.floor(Lm))} por mês`]);
-  dados.push([quartos?"Rendas propostas":"Renda proposta",somaProp?`${eur(somaProp)} por mês`:"não indicada"]);
-  const quem=quartos?(n===1?"do quarto arrendado":`dos ${n} quartos arrendados`):"";
-  let cartao;
-  if(!somaProp)cartao=cartaoEstado(0,somaMax,{selo:"Valor de referência do RSAA",texto:`Valor de referência do RSAA ${quartos?quem:"do apartamento"}. Indique ${quartos?"as rendas":"a renda"} no simulador para comparar.`});
-  else if(!acima.length)cartao=cartaoEstado(somaProp,somaMax,{selo:"Dentro do valor de referência · RSAA possível",texto:`Com ${quartos?"estas rendas":"esta renda"}, pode optar pelo RSAA e ficar <strong>isento de IRS</strong> sobre ${quartos?"elas":"ela"}.`});
-  else cartao=cartaoEstado(somaProp,somaMax,{selo:quartos?`${acima.length} ${acima.length===1?"quarto acima":"quartos acima"} do valor de referência`:"Acima do valor de referência · fora do RSAA",texto:`${quartos?(acima.length===1?"Esse contrato fica":"Esses contratos ficam"):"O contrato fica"} fora do RSAA: é legal, mas sem isenção de IRS.`});
   const cls={ok:"ok",bad:"mal",warn:"info",info:"info"};
-  const req=[...document.querySelectorAll("#checklist li")].map(li=>{const ic=li.querySelector(".ic"),k=ic?[...ic.classList].find(c=>cls[c]):"warn";return [cls[k]||"info",escRel(li.textContent.replace(ic?ic.textContent:"","").trim())]});
-  // Com muitos quartos (T6 ou mais), a tabela divide-se em duas colunas para o relatório caber numa folha A4.
-  const tabelaQuartos=lista=>`<table><tr><th>Quarto</th><th>Área p/ cálculo</th><th>Máx. RSAA</th><th>Proposta</th><th>Resultado</th></tr>${
-    lista.map(c=>`<tr><td>${c.nome}${c.p===2?" (2 p.)":""}</td><td>${Math.round(c.area)} m²${c.wc?" (c/ WC)":""}</td><td>${eur(c.max)}</td><td>${c.prop?eur(c.prop):"–"}</td><td>${estado(c)}</td></tr>`).join("")}</table>`;
-  const meio=Math.ceil(contratos.length/2);
-  const tabela=!quartos?"":contratos.length>5
-    ?`<section><h2>Quartos</h2><div class="duas" style="font-size:10.5px">${tabelaQuartos(contratos.slice(0,meio))}${tabelaQuartos(contratos.slice(meio))}</div></section>`
-    :`<section><h2>Quartos</h2>${tabelaQuartos(contratos)}</section>`;
-  // Comparação: com renda proposta acima do máximo, a alternativa é essa renda (com IRS); senão, o limiar a partir do qual compensa.
-  // Equilíbrio: valor ÷ (1 − taxa), a renda que depois do IRS deixa o mesmo que o valor isento.
-  let comparacao;
-  if(acima.length){
-    const propA=acima.reduce((s,c)=>s+c.prop,0),maxA=acima.reduce((s,c)=>s+c.max,0),um=acima.length===1;
-    const anualProp=Math.round(anualRSAA-maxA*12+propA*12*(1-t)),d=anualRSAA-anualProp;
-    comparacao=`<h2>RSAA ou ${quartos?"rendas propostas":"renda proposta"}?</h2>
-        <div class="comp" style="border:0;padding:0;font-size:inherit"><span>RSAA, líquido por ano</span><strong class="n">${eur(anualRSAA)}</strong><span>${quartos?`Rendas propostas (${um?"1 quarto":acima.length+" quartos"} com IRS)`:`Renda proposta: ${eur(propA)} × 12 − IRS`}</span><span class="n" style="color:inherit">${eur(anualProp)}</span></div>
-        <p style="margin-top:4px"><strong>${d>=0?`O RSAA rende mais ${eur(d)} por ano.`:`${quartos?"As rendas propostas rendem":"A renda proposta rende"} mais ${eur(-d)} por ano.`}</strong> ${um&&t<1?`Fora do RSAA só compensa a partir de ${eur(Math.ceil(acima[0].max/(1-t)))} por mês (${eur(acima[0].max)} ÷ (1 − ${pctT} %)).`:`Cada quarto só compensa fora do RSAA acima do seu valor de referência ÷ (1 − ${pctT} %).`}</p>
-        <p class="nota" style="margin-top:4px">${NOTA_IRS(pctT)}</p>`;
-  }else comparacao=`<h2>RSAA ou regime normal?</h2>
-        <p>Fora do RSAA só compensa com ${quartos?"rendas que somem":"uma renda de"} pelo menos <strong>${eur(limiar)}</strong> por mês (${eur(anualRSAA/12)} ÷ (1 − ${pctT} %)): é a renda que, depois de pagar IRS, deixa o mesmo que ${eur(anualRSAA/12)} isentos. Abaixo disso, o RSAA rende mais.</p>
-        <p class="nota" style="margin-top:4px">${NOTA_IRS(pctT)}</p>`;
-  (acao==="abrir"?abrirRelatorio:imprimirRelatorio)(`
-    ${cabecalhoRelatorio("Análise para o senhorio · arrendamento acessível (RSAA)")}
-    <section class="duas">
-      <div class="col">${cartao}${caixaDados("Contrato e casa",dados)}</div>
-      <div class="painel"><h2>Requisitos do contrato</h2>${listaReq(req)}
-        <p class="legenda">✓ cumprido · ✕ não cumprido · ⓘ a confirmar</p></div>
-    </section>
-    ${tabela}
-    <section class="duas">
-      <div><h2>Mais-valias para si</h2>
-        <dl class="kv"><dt>Rendas por ano no RSAA</dt><dd>${eur(anualRSAA)} (isentas)</dd><dt>IRS que deixa de pagar</dt><dd class="forte">cerca de ${eur(irsEvitado)} /ano</dd></dl>
-        <p class="nota" style="margin-top:6px">Taxa de ${pctT} %. As rendas ficam isentas de IRS (ou IRC) enquanto o contrato cumprir as regras, incluindo renovações (DL n.º 97/2026, Anexo III, art. 6.º).</p></div>
-      <div>${comparacao}</div>
-    </section>
-    <section class="duas">
-      <div><h2>E para o inquilino?</h2><ul>
-        <li>O RSAA não altera os impostos do inquilino.</li>
-        <li><strong>Clareza contratual:</strong> cabe a si comunicar o contrato às Finanças e submetê-lo no IHRU, até 15 de janeiro do ano seguinte; o inquilino recebe recibos eletrónicos e as despesas ficam definidas à parte.</li>
-        <li><strong>Prazo conforme a finalidade:</strong> ${quartos?"num quarto, só residência temporária, com 3 meses renováveis (flexibilidade para estudantes e deslocados).":"3 anos em residência permanente (estabilidade) ou 3 meses renováveis em residência temporária (flexibilidade)."}</li>
-        <li>Uma renda dentro do valor de referência do RSAA pode ser um argumento a seu favor na procura de inquilinos.</li></ul></div>
-      <div class="info"><h2>O que é o valor de referência do RSAA</h2><p>${textoValorMaximo(quartos)}</p></div>
-    </section>
-    ${RODAPE_RELATORIO}`,"senhorio");
+  const req=[...document.querySelectorAll("#checklist li")].map(li=>{const ic=li.querySelector(".ic"),k=ic?[...ic.classList].find(c=>cls[c]):"warn";return [cls[k]||"info",escRel(li.textContent.replace(ic?ic.textContent:"","").trim())]})
+    .filter(([,tx])=>!/^Cabe ao senhorio comunicar/.test(tx))
+    // No relatório, versões curtas das frases mais longas da lista do ecrã (o resultado já explica a renda).
+    .map(([st,tx])=>/^(Há rendas acima|A renda proposta está acima)/.test(tx)?[st,`<strong>${quartos?(um?`Quarto ${acima[0].i} acima`:`Quartos ${acima.map(c=>c.i).join(", ")} acima`):"Renda acima"} do valor de referência</strong>`]
+      :/^(Rendas propostas dentro|Renda proposta dentro)/.test(tx)?[st,`<strong>${quartos?"Rendas dentro do valor de referência de cada quarto":"Renda dentro do valor de referência"}</strong>`]
+      :/^Cada inquilino precisa/.test(tx)?[st,"Cada quarto com janela e acesso a casa de banho completa e cozinha"]
+      :/^Despesas à parte/.test(tx)?[st,"Despesas à parte, definidas no contrato"]
+      :/^Se a renda incluir despesas/.test(tx)?[st,"Com despesas incluídas, o total cobrado conta para o valor de referência"]
+      :[st,tx]);
+  const falhas=req.some(([s])=>s==="mal")&&!acima.length;
+  // Cabeçalho
+  const A=quartos?total:(apt.a||APT_A_TIPICA[tip]);
+  const chips=[chipLocal(),
+    [quartos?"porta":"casa",quartos?`${tip} · ${n} de ${contratos.length} quartos arrendados (${m2Rel(total)})`:`${tip} · ${m2Rel(A)}${apt.a?"":" (área típica)"}`],
+    ["cal",`${fin==="temp"?"Residência temporária":"Residência permanente"} · ${prazo} meses`],chipExtras()].filter(Boolean);
+  const titulo=quartos?"Análise para o senhorio · quartos":"Análise para o senhorio · apartamento";
+  // Resultado
+  const limite=`a renda de um ${escRel(casaDescrita())} não pode ultrapassar <strong>${eur(casa)}</strong>`;
+  const propA=acima.reduce((s,c)=>s+c.prop,0),maxA=acima.reduce((s,c)=>s+c.max,0);
+  const livreA=Math.round(propA*12*(1-t)),rsaaA=maxA*12,dA=rsaaA-livreA;
+  const contaAcima=dA>=0
+    ?`Com ${quartos?(um?"esse quarto":"esses quartos")+" no valor de referência":"o valor de referência"} (${eur(maxA)}), rende mais <strong>${eur(dA)} por ano</strong>: ${CONTA_IRS(rsaaA,livreA,pctT)}.`
+    :`Com ${quartos?(um?"a renda proposta desse quarto":"as rendas propostas desses quartos"):"a renda proposta"}, rende mais <strong>${eur(-dA)} por ano</strong> do que no RSAA: ${CONTA_IRS(rsaaA,livreA,pctT)}.`;
+  let ver;
+  if(!n)ver=relVer({estado:"neutro",titulo:"Nenhum quarto para arrendar",texto:"Marque pelo menos um quarto como arrendado no simulador.",num:"–"});
+  else if(!somaProp)ver=relVer({estado:"neutro",titulo:`Valor de referência do RSAA: ${eur(somaMax)} por mês`,
+    texto:`${quartos?`Para ${n===1?"o quarto arrendado":`os ${n} quartos arrendados`}. `:`Para o contrato ser elegível para o RSAA, ${limite}. `}Indique ${quartos?"as rendas":"a renda"} no simulador para verificar.`,num:`${eur(somaMax)}<small> /mês</small>`});
+  else if(acima.length)ver=relVer({estado:"fora",
+    titulo:quartos?`${um?"Um quarto tem":acima.length+" quartos têm"} renda acima do valor de referência`:"A renda proposta está acima do valor de referência do RSAA",
+    texto:(quartos?(um?`O quarto ${acima[0].i} (${m2Rel(acima[0].a)}) pode ter uma renda até ${eur(acima[0].max)} no âmbito do RSAA; com ${eur(acima[0].prop)} é legal, mas fica fora do RSAA. `:`Esses contratos são legais, mas ficam fora do RSAA e pagam IRS. `)
+      :`É legal, mas o contrato fica fora do RSAA e é tributado normalmente. Para ser elegível, ${limite}. `)+contaAcima,
+    num:quartos?`${n-acima.length} de ${n}<small> no RSAA</small>`:`${eur(somaProp)}<small> /mês</small>`,pequeno:quartos,
+    escala:quartos?"":relEscala(somaProp,casa,`Renda proposta ${eur(somaProp)}`,`Valor de referência ${eur(casa)}`)});
+  else ver=relVer({estado:falhas?"fora":"ok",
+    titulo:falhas?`${quartos?"As rendas cabem":"A renda cabe"} no valor de referência, mas há requisitos por cumprir`:quartos?"As rendas propostas cabem no RSAA":"A renda proposta cabe no RSAA",
+    texto:falhas?"Sem cumprir todos os requisitos, o contrato não fica no RSAA. Veja os requisitos abaixo."
+      :quartos?`Cada quarto tem o seu valor de referência (abaixo). Com estas rendas, pode optar pelo RSAA e ficar <strong>isento de IRS</strong>.`
+      :`Para o contrato ser elegível para o RSAA, ${limite}. Com ${eur(somaProp)}, pode optar pelo RSAA e ficar <strong>isento de IRS</strong>.`,
+    num:quartos?`${n} de ${n}<small> no RSAA</small>`:`${eur(somaProp)}<small> /mês</small>`,pequeno:quartos,
+    escala:quartos?"":relEscala(somaProp,casa,`Renda proposta ${eur(somaProp)}`,`Valor de referência ${eur(casa)}`)});
+  // Números-chave
+  const kpis=n?relKpis([["casa","Rendas no RSAA, por ano",eur(anualRSAA)],
+    ["escudo","IRS que deixa de pagar",`≈ ${eur(irsEvitado)} /ano`],
+    quartos&&um?["sobe",`Quarto ${acima[0].i}: fora só compensa com`,`${eur(Math.ceil(acima[0].max/(1-t||1)))} /mês`]
+      :["sobe",`Fora do RSAA só compensa com${quartos?" (total)":""}`,`${eur(limiar)} /mês`]]):"";
+  // Apartamento: comparação com o regime normal. Quartos: divisão do valor e um cartão por quarto.
+  let meio="";
+  if(!quartos&&n){
+    meio=acima.length
+      ?relComp("RSAA ou renda proposta? Líquido por ano",[[`No RSAA, com ${eur(casa)} (isento de IRS)`,rsaaA,"#0B6E61"],[`Renda proposta, com ${eur(propA)} (IRS ${pctT} %)`,livreA,"#9FB8B2"]],
+        `${dA>=0?`No valor de referência, o RSAA rende mais <strong>${eur(dA)} por ano</strong>.`:`A renda proposta rende mais <strong>${eur(-dA)} por ano</strong>.`} Fora do RSAA só compensa a partir de <strong>${eur(Math.ceil(casa/(1-t||1)))}</strong> por mês (${eur(casa)} ÷ (1 − ${pctT} %)): a renda que, depois de pagar IRS, deixa o mesmo que ${eur(casa)} isentos. Tributação habitual, à taxa autónoma de ${pctT} %, ${SEM_DESPESAS}.`)
+      :relComp("RSAA ou regime normal? Líquido por ano",[[`No RSAA, com ${eur(mensalRSAA)} (isento de IRS)`,anualRSAA,"#0B6E61"],[`Regime normal, com ${eur(mensalRSAA)} (IRS ${pctT} %)`,Math.round(anualRSAA*(1-t)),"#9FB8B2"]],
+        `Com a mesma renda, o RSAA rende mais <strong>${eur(irsEvitado)} por ano</strong>. Fora do RSAA só compensaria com uma renda a partir de <strong>${eur(limiar)}</strong> por mês (${eur(mensalRSAA)} ÷ (1 − ${pctT} %)): a renda que, depois de pagar IRS, deixa o mesmo que ${eur(mensalRSAA)} isentos. Tributação habitual, à taxa autónoma de ${pctT} %, ${SEM_DESPESAS}.`);
+  }else if(quartos){
+    const muitos=contratos.length>4,cores=["#0B6E61","#5FB3A5","#CDE9E1","#9FD8CC","#E1F3EE"],claro=i=>i%5>=1;
+    meio=relReparte(`A casa toda (${escRel(casaDescrita())}): ${eur(casa)} no âmbito do RSAA`,
+      contratos.map((c,k)=>[muitos?`Q${c.i} · ${eur(c.max)}`:`Quarto ${c.i} · ${m2Rel(c.a)} · ${eur(c.max)}`,c.conta,cores[k%5],claro(k)?"#0E1726":"#FFFFFF",c.rent?"":"off"]),
+      `O valor divide-se pelos quartos conforme o tamanho: <strong>${eur(casa)} × área do quarto ÷ ${m2Rel(total)}</strong> (a soma das áreas dos quartos).${contratos.some(c=>c.wc)?" Um quarto com casa de banho privativa conta mais 25 %.":""}${contratos.some(c=>!c.rent)?" Os quartos não arrendados (riscados) mantêm a sua parte.":""}`);
+    const cartao=c=>{
+      const esc=Math.max((c.prop||0)*1.05,c.max*1.18),pos=v=>(v/esc*100).toFixed(1)+"%",fora=c.prop>c.max;
+      const pill=!c.rent?`<span class="pill off">Não arrendado</span>`:!c.prop?`<span class="pill off">Sem renda</span>`:fora?`<span class="pill mal">${eur(c.prop-c.max)} acima · fora do RSAA</span>`
+        :c.prop===c.max?`<span class="pill ok">No valor de referência</span>`:`<span class="pill ok">Dentro · margem ${eur(c.max-c.prop)}</span>`;
+      const mini=c.rent&&c.prop?`<div class="mini" aria-hidden="true"><i style="width:100%;background:#FDF0DC"></i><i style="width:${pos(c.max)};background:#CDE9E1"></i><i style="width:${pos(c.prop)};background:${fora?"#B45309":"#0B6E61"}"></i><u style="left:${pos(c.max)}"></u></div>`:"";
+      const dados=muitos?`<span class="linha">Ref. ${eur(c.max)} · renda ${c.prop?eur(c.prop):"–"}${c.p===2?` · 2 p.`:""}</span>`
+        :`<dl><dt>Valor de referência</dt><dd>${eur(c.max)}</dd><dt>Renda proposta</dt><dd>${c.prop?eur(c.prop)+(c.auto?" (auto.)":""):"–"}</dd>${c.p===2?`<dt>2 pessoas</dt><dd>${eur(Math.floor(c.max/2))} cada</dd>`:""}</dl>${mini}`;
+      return `<div class="qc${!c.rent?" off":fora?" mal":""}"><h4>Quarto ${c.i} · ${m2Rel(c.a)}${c.wc?" · WC":""}</h4>${dados}${pill}</div>`;
+    };
+    meio+=`<section class="quartos${muitos?" compacto":""}" style="--n:${Math.min(contratos.length,4)}" aria-label="Resultado por quarto">${contratos.map(cartao).join("")}</section>`;
+  }
+  // Próximos passos
+  const passos=[
+    acima.length?(quartos?(um?[`Decida o quarto ${acima[0].i}`,`Renda até ${eur(acima[0].max)} para ficar no RSAA, ou ${eur(acima[0].prop)} com tributação normal.`]:["Decida os quartos acima","Renda até ao valor de referência de cada um, ou tributação normal nesses contratos."])
+        :[`Ajuste a renda para ${eur(casa)}`,"Para ficar no RSAA; ou mantenha-a, com tributação normal."])
+      :quartos?["Um contrato por quarto",`Residência temporária, pelo menos 3 meses, despesas à parte.`]
+      :["Assine o contrato",`${fin==="perm"?"Pelo menos 3 anos":"Pelo menos 3 meses, renovável"}, com a renda até ${eur(casa)} e despesas à parte.`],
+    [quartos?"Comunique cada contrato às Finanças":"Comunique-o às Finanças","No Portal das Finanças, como qualquer contrato."],
+    ["Submeta no IHRU","Cópia do contrato e comprovativo, até 15 de janeiro do ano seguinte."]];
+  (acao==="abrir"?abrirRelatorio:imprimirRelatorio)(relPagina(relTopo(titulo,chips),
+    [ver,kpis,meio,relDuas("Requisitos do contrato",req,passos),relDef()]),"senhorio");
 }
 $("exportarSen").addEventListener("click",()=>relatorio("imprimir"));
 $("analiseSen").addEventListener("click",()=>relatorio("abrir"));
