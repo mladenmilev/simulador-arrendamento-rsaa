@@ -4,6 +4,7 @@
 //   public/perguntas-frequentes.html       – perguntas frequentes (com dados estruturados FAQPage)
 //   public/contacto.html                    – contacto do autor (e-mail protegido contra robôs)
 //   public/como-se-calcula.html             – fórmulas e exemplos (para pessoas, motores de busca e assistentes de IA)
+//   public/termos.html                      – termos de utilização (uso pessoal livre; profissional/comercial com licença)
 //   public/llms.txt                         – resumo do site e valores de todos os concelhos, para assistentes de IA
 //   public/dados/concelhos.json             – valores máximos por concelho para a página de entrada (concelho lembrado)
 //   public/sitemap.xml
@@ -79,7 +80,7 @@ const rodape = `
     </div>
     <p class="cta-nota">Grátis e sem registo</p>
   </section>
-  <p class="nota"><a href="/perguntas-frequentes">Perguntas frequentes sobre o RSAA</a> · <a href="/como-se-calcula">Como se calcula</a> · <a href="/renda-acessivel/">Renda acessível por concelho</a> · <a href="/contacto">Contacto</a></p>
+  <p class="nota"><a href="/perguntas-frequentes">Perguntas frequentes sobre o RSAA</a> · <a href="/como-se-calcula">Como se calcula</a> · <a href="/renda-acessivel/">Renda acessível por concelho</a> · <a href="/contacto">Contacto</a> · <a href="/termos">Termos de utilização</a></p>
   <p class="nota">Valores da <a href="${PORTARIA}" target="_blank" rel="noopener">Portaria n.º 454/2026/1</a>, de 13 de outubro (anexo), que regulamenta o RSAA (Decreto-Lei n.º 97/2026, Anexo III). Atualizados automaticamente a 1 de janeiro de cada ano pelo coeficiente do NRAU. Página informativa; não substitui um contabilista ou advogado. Não afiliado ao IHRU.</p>
 </div>
 <p class="versao" id="versao"></p>
@@ -322,6 +323,44 @@ function paginaCalculo(todos) {
   </section>` + rodape;
 }
 
+// Termos de utilização: valem para o simulador em qualquer endereço (o domínio pode mudar).
+// Coerentes com a licença do código (Business Source License 1.1, ficheiro LICENSE do repositório).
+const REPOSITORIO = "https://github.com/mladenmilev/simulador-arrendamento-rsaa";
+function paginaTermos() {
+  const url = `${SITE}/termos`;
+  const titulo = "Termos de utilização – Simulador de Arrendamento Acessível (RSAA)";
+  const descricao = "Uso pessoal gratuito; uso profissional, comercial ou incorporação noutros sites requer autorização do autor.";
+  const jsonld = { "@context": "https://schema.org", "@type": "WebPage", name: titulo, url };
+  return cabeca({ titulo, descricao, url, jsonld, migalhas: "Termos de utilização" }) + `
+  <h1>Termos de utilização</h1>
+  <section>
+    <h2>Âmbito</h2>
+    <p>O Simulador de Arrendamento Acessível (RSAA), o «Simulador», é disponibilizado pelo autor em qualquer endereço, domínio ou plataforma, atual ou futuro, incluindo subdomínios, endereços alternativos, aplicações e versões incorporadas noutros sites com autorização. Estes termos aplicam-se ao Simulador, aos seus resultados e aos seus conteúdos, seja qual for o endereço por onde é acedido.</p>
+  </section>
+  <section>
+    <h2>Uso pessoal: gratuito</h2>
+    <p>O Simulador é gratuito para <strong>uso pessoal</strong>: particulares, inquilinos ou senhorios, que o usam para o seu próprio caso.</p>
+  </section>
+  <section>
+    <h2>Uso que precisa de autorização</h2>
+    <p>Precisa de autorização prévia do autor para:</p>
+    <ul>
+      <li>usar o Simulador ou os seus resultados no exercício de uma atividade profissional ou ao serviço de uma empresa ou entidade (por exemplo, mediação imobiliária, gestão de imóveis, advocacia, contabilidade ou consultoria);</li>
+      <li>incorporar o Simulador, ou partes dele, noutro site, aplicação ou serviço, incluindo por <em>iframe</em>;</li>
+      <li>reproduzir de forma sistemática os resultados ou os dados do Simulador, ou usá-los para fins comerciais.</li>
+    </ul>
+    <p>Para pedir autorização ou uma licença, use a página de <a href="/contacto">contacto</a>.</p>
+  </section>
+  <section>
+    <h2>Código-fonte</h2>
+    <p>O código-fonte está disponível em <a href="${REPOSITORIO}" target="_blank" rel="noopener">GitHub</a> sob a Business Source License 1.1: pode ser consultado, estudado e testado; o uso real (em produção) só é livre para fins pessoais e não comerciais. Cada versão passa à licença MIT quatro anos depois de publicada.</p>
+  </section>
+  <section>
+    <h2>Natureza informativa</h2>
+    <p>O Simulador é informativo, não está afiliado ao IHRU e não substitui um contabilista ou advogado. Os resultados dependem dos dados indicados e da legislação em vigor; confirme o seu caso antes de decidir.</p>
+  </section>` + rodape;
+}
+
 // llms.txt: resumo do site para assistentes de IA (formato llmstxt.org), com os valores de todos os concelhos
 // em texto simples, para poderem responder e citar sem correr o simulador.
 function llmsTxt(todos) {
@@ -346,6 +385,7 @@ Regras essenciais:
 - [Perguntas frequentes](${SITE}/perguntas-frequentes): ${FAQ.length} perguntas com referência aos artigos da lei
 - [Valores por concelho](${SITE}/renda-acessivel/): tabela dos 308 concelhos, com uma página por concelho
 - [Simulador](${SITE}/): verificação interativa da renda para inquilinos e senhorios (requer JavaScript)
+- [Termos de utilização](${SITE}/termos): uso pessoal gratuito; uso profissional, comercial ou incorporação noutros sites requer autorização do autor
 
 ## Fontes legais
 - [Decreto-Lei n.º 97/2026, de 20 de maio](${DECRETO})
@@ -415,18 +455,19 @@ export function gerar() {
   if (!emailContacto()) console.warn("Aviso: contacto.local.json em falta; a página de contacto fica sem e-mail.");
   writeFileSync(raiz + "public/contacto.html", paginaContacto());
   writeFileSync(raiz + "public/como-se-calcula.html", paginaCalculo(todos));
+  writeFileSync(raiz + "public/termos.html", paginaTermos());
   writeFileSync(raiz + "public/llms.txt", llmsTxt(todos));
   mkdirSync(raiz + "public/dados", { recursive: true });
   writeFileSync(raiz + "public/dados/concelhos.json", JSON.stringify(Object.fromEntries(
     nomes.map(c => [c, { nome: nome(c), d: todos[c][0], v: todos[c][1], x: todos[c][2], s: slug(c) }]))));
   const hoje = new Date().toISOString().slice(0, 10);
-  const urls = ["/", "/perguntas-frequentes", "/como-se-calcula", "/contacto", "/renda-acessivel/", ...nomes.map(c => `/renda-acessivel/${slug(c)}`)];
+  const urls = ["/", "/perguntas-frequentes", "/como-se-calcula", "/contacto", "/termos", "/renda-acessivel/", ...nomes.map(c => `/renda-acessivel/${slug(c)}`)];
   writeFileSync(raiz + "public/sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url><loc>${SITE}${u}</loc><lastmod>${hoje}</lastmod></url>`).join("\n")}
 </urlset>
 `);
-  console.log(`Páginas SEO geradas: ${nomes.length} concelhos + índice + perguntas frequentes + como se calcula + contacto + llms.txt + sitemap (${urls.length} endereços)`);
+  console.log(`Páginas SEO geradas: ${nomes.length} concelhos + índice + perguntas frequentes + como se calcula + contacto + termos + llms.txt + sitemap (${urls.length} endereços)`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) gerar();

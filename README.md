@@ -59,4 +59,13 @@ A versão aparece discretamente no fundo das páginas.
 
 ## Licença
 
-MIT – ver [LICENSE](LICENSE).
+[Business Source License 1.1](LICENSE). Em resumo:
+
+- pode consultar, estudar, copiar e testar o código;
+- o uso real (em produção) só é livre para fins **pessoais e não comerciais**, por particulares;
+- uso profissional ou ao serviço de empresas e entidades, incorporação noutros sites, aplicações ou serviços, e qualquer uso comercial precisam de uma licença do autor;
+- cada versão passa à licença MIT quatro anos depois de publicada.
+
+As versões publicadas até à v2.8.0 inclusive foram distribuídas sob a licença MIT.
+
+Licenças e autorizações: página de contacto do simulador, em https://simulador-arrendamento-pt.web.app/contacto. Termos de utilização do site: /termos.
