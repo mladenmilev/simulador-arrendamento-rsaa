@@ -825,8 +825,10 @@ function renderTenant(Lm){
     return;
   }
   const max=Math.floor(Lm*(ten.wc?ten.a*1.25:ten.a)/ten.total);
-  $("qHint").textContent=`O seu quarto tem ${Math.round(ten.a/ten.total*100)} % da área dos quartos${ten.wc?`; conta como ${Math.round(ten.a*1.25/ten.total*100)} % por ter casa de banho privativa`:""}. Não conte sala, cozinha nem casas de banho.`;
-  estadoRenda(max,`Quarto em ${nomeConcelho(sel.value)} · valor máximo da casa (${$("tip").value}${maj?`, +${Math.round(maj*100)} %`:""}): ${eur(Math.floor(Lm))} · o seu quarto: ${Math.round(max/Math.floor(Lm)*100)} %${ten.p===2?` · ${eur(Math.floor(max/2))} por pessoa`:""}`);
+  const m2=v=>v.toLocaleString("pt-PT",{maximumFractionDigits:2})+" m²",conta=ten.wc?ten.a*1.25:ten.a,casa=Math.floor(Lm);
+  $("qHint").textContent=`O seu quarto tem ${m2(ten.a)} dos ${m2(ten.total)} de todos os quartos${ten.wc?` e, por ter casa de banho privativa, conta como ${m2(conta)}`:""}. Não conte sala, cozinha nem casas de banho.`;
+  // Explicação sem percentagens: a casa toda tem um valor máximo, que se divide pelos quartos conforme o tamanho.
+  estadoRenda(max,`Quarto num ${$("tip").value} em ${nomeConcelho(sel.value)}. A casa toda pode ter uma renda até ${eur(casa)}${maj?` (já com +${Math.round(maj*100)} %)`:""}. Esse valor divide-se pelos quartos conforme o tamanho: o seu quarto tem ${m2(ten.a)} dos ${m2(ten.total)} de todos os quartos${ten.wc?` e conta como ${m2(conta)} por ter casa de banho privativa`:""}, por isso o seu máximo é <strong>${eur(max)}</strong> (${eur(casa)} × ${m2(conta).replace(" m²","")} ÷ ${m2(ten.total).replace(" m²","")}).${ten.p===2?` Para 2 pessoas: ${eur(Math.floor(max/2))} cada.`:""}`);
 }
 function renderTenantApt(max){
   const {maj}=limites();
@@ -966,7 +968,8 @@ function exportarRelatorio(acao){
     ["Área do quarto",`${ten.a} m²${ten.wc?" (casa de banho privativa: +25 %)":""}`],
     ["Área dos quartos",`${ten.total} m² (todos)`],
     ["Pessoas no quarto",String(ten.p)],
-    ["Máximo da casa",`${eur(Math.floor(Lm))} · quarto: ${Math.round(max/Math.floor(Lm)*100)} %`]);
+    ["Máximo da casa",`${eur(Math.floor(Lm))} (a casa toda)`],
+    ["Máximo do quarto",`${eur(Math.floor(Lm))} × ${(ten.wc?ten.a*1.25:ten.a).toLocaleString("pt-PT",{maximumFractionDigits:2})} m² ÷ ${ten.total} m² = ${eur(max)}`]);
   if(quarto&&ten.p===2)dados.push(["Por pessoa",`${eur(Math.floor(max/2))} (valor máximo)`]);
   dados.push(["Renda",ten.prop?eur(ten.prop)+" por mês":"não indicada"]);
   // O valor do RSAA não é um limite à renda: é o máximo para o senhorio beneficiar da isenção de IRS.
