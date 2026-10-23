@@ -843,13 +843,7 @@ function casaDescrita(){
 const TAXA_IRS_EXEMPLO=0.25; // taxa autónoma normal sobre rendas, só para o exemplo do senhorio
 // Estilos do relatório: fonte única para a impressão (PDF) e para a página "Análise da situação".
 // Medidas em px pensadas para uma folha A4 (794 px de largura); as cores fortes imprimem-se (print-color-adjust).
-// Fundo do relatório: a mesma rua em traço fino do site, muito clara, só no topo da folha (não ocupa espaço:
-// a folha A4 continua igual). Endereço absoluto, porque a «Análise da situação» abre numa página blob:;
-// carregado já, para estar pronto quando a impressão (PDF) abre logo a seguir.
-const FUNDO_RELATORIO=location.origin+"/img/rua-leve.svg";
-new Image().src=FUNDO_RELATORIO;
-const CSS_RELATORIO=`#relatorio::before{content:"";position:absolute;left:0;right:0;top:0;height:130px;z-index:-1;pointer-events:none;background:url(${FUNDO_RELATORIO}) center top/auto 300px repeat-x;opacity:.16;-webkit-mask-image:linear-gradient(180deg,#000 20%,transparent 100%);mask-image:linear-gradient(180deg,#000 20%,transparent 100%)}
-#relatorio{position:relative;isolation:isolate;color:#0E1726;background:#fff;font:11.5px/1.45 "IBM Plex Sans",system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;display:flex;flex-direction:column;gap:14px}
+const CSS_RELATORIO=`#relatorio{color:#0E1726;background:#fff;font:11.5px/1.45 "IBM Plex Sans",system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;display:flex;flex-direction:column;gap:14px}
 #relatorio *{box-sizing:border-box}
 #relatorio .cab{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:10px;border-bottom:1px solid #E2E8F0}
 #relatorio .marca{display:flex;align-items:center;gap:8px;font:800 12px Manrope,system-ui,sans-serif;color:#0E1726}
